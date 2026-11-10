@@ -1,0 +1,120 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.status == 'Active';
+    }
+
+    function isSuperAdmin() {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.role == 'Super Admin' &&
+        get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.status == 'Active';
+    }
+
+    // Admins collection: Super Admin only
+    match /admins/{adminId} {
+      allow read: if isAuthenticated();
+      allow write: if isSuperAdmin();
+    }
+
+    // Public readable datasets (Union Councils, Villages, Facilities, Projects, Notices, News, Gallery)
+    match /constituency/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /union_councils/{ucId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /villages/{villageId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /facilities/{facilityId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /schools/{schoolId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /healthcare_facilities/{healthId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /infrastructure/{infraId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /projects/{projectId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /public_notices/{noticeId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /news/{newsId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /gallery/{galleryId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Public Grievance Complaints:
+    // Anyone can create a complaint.
+    // Reading individual complaint requires knowledge of tracking ID or admin access.
+    // No public listing of all complaints.
+    match /complaints/{complaintId} {
+      allow create: if request.resource.data.citizenName is string
+                    && request.resource.data.phone is string
+                    && request.resource.data.unionCouncil is string
+                    && request.resource.data.description is string;
+      allow read: if isAdmin();
+      allow update, delete: if isAdmin();
+    }
+
+    // Field Surveys:
+    match /field_surveys/{surveyId} {
+      allow read: if isAdmin();
+      allow create, update: if isAdmin();
+    }
+
+    // AI Recommendations:
+    match /ai_recommendations/{recId} {
+      allow read, write: if isAdmin();
+    }
+
+    // Audit Logs:
+    match /audit_logs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isAuthenticated();
+      allow update, delete: if false; // immutable logs
+    }
+  }
+}

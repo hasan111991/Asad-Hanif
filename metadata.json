@@ -1,0 +1,6 @@
+{
+  "name": "PP-203 Smart Constituency Management & Development Portal",
+  "description": "Official Digital Constituency Portal & Public Service Platform for PP-203 Chichawatni (District Sahiwal, Punjab) — Chaudhry Asad Hanif Jutt.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
