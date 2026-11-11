@@ -28,49 +28,68 @@ export const ConstituencyMap: React.FC = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showLegend, setShowLegend] = useState(false);
 
-  // Initialize Map
+  // Initialize Map safely
   useEffect(() => {
     if (!mapContainerRef.current) return;
 
-    if (!mapInstanceRef.current) {
-      const map = L.map(mapContainerRef.current, {
-        center: [30.5333, 72.7000],
-        zoom: 12,
-        zoomControl: true,
-        scrollWheelZoom: true,
-      });
-
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap | PP-203 GIS',
-        maxZoom: 18,
-      }).addTo(map);
-
-      // PP-203 Boundary Polygon
-      const boundaryCoords: [number, number][] = [
-        [30.6200, 72.7100],
-        [30.6050, 72.7900],
-        [30.5650, 72.8450],
-        [30.4900, 72.7800],
-        [30.4300, 72.6900],
-        [30.4400, 72.6000],
-        [30.5100, 72.5850],
-        [30.5800, 72.6350],
-        [30.6200, 72.7100]
-      ];
-
-      L.polygon(boundaryCoords, {
-        color: '#087A43',
-        weight: 3,
-        dashArray: '6, 6',
-        fillColor: '#087A43',
-        fillOpacity: 0.08,
-      }).addTo(map).bindPopup('<b>PP-203 Constituency Boundary</b><br>Tehsil Chichawatni, District Sahiwal');
-
-      layerGroupRef.current = L.layerGroup().addTo(map);
-      mapInstanceRef.current = map;
+    // Prevent duplicate map initialization error in React StrictMode
+    const container = mapContainerRef.current as any;
+    if (container._leaflet_id && !mapInstanceRef.current) {
+      container._leaflet_id = null;
     }
 
-    return () => {};
+    if (!mapInstanceRef.current) {
+      try {
+        const map = L.map(mapContainerRef.current, {
+          center: [30.5333, 72.7000],
+          zoom: 12,
+          zoomControl: true,
+          scrollWheelZoom: true,
+        });
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; OpenStreetMap | PP-203 GIS',
+          maxZoom: 18,
+        }).addTo(map);
+
+        // PP-203 Boundary Polygon
+        const boundaryCoords: [number, number][] = [
+          [30.6200, 72.7100],
+          [30.6050, 72.7900],
+          [30.5650, 72.8450],
+          [30.4900, 72.7800],
+          [30.4300, 72.6900],
+          [30.4400, 72.6000],
+          [30.5100, 72.5850],
+          [30.5800, 72.6350],
+          [30.6200, 72.7100]
+        ];
+
+        L.polygon(boundaryCoords, {
+          color: '#087A43',
+          weight: 3,
+          dashArray: '6, 6',
+          fillColor: '#087A43',
+          fillOpacity: 0.08,
+        }).addTo(map).bindPopup('<b>PP-203 Constituency Boundary</b><br>Tehsil Chichawatni, District Sahiwal');
+
+        layerGroupRef.current = L.layerGroup().addTo(map);
+        mapInstanceRef.current = map;
+      } catch (err) {
+        console.warn('Leaflet map initialization notice:', err);
+      }
+    }
+
+    return () => {
+      if (mapInstanceRef.current) {
+        try {
+          mapInstanceRef.current.remove();
+        } catch {
+          // ignore cleanup errors
+        }
+        mapInstanceRef.current = null;
+      }
+    };
   }, []);
 
   // Update Markers based on Filters
