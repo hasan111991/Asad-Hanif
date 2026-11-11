@@ -14,6 +14,7 @@ import {
   ExternalLink,
   DollarSign
 } from 'lucide-react';
+import { getAssetUrl } from '../utils/assetUrl';
 
 export const ProjectsSection: React.FC = () => {
   const { language, t } = useLanguage();
@@ -96,11 +97,11 @@ export const ProjectsSection: React.FC = () => {
             {/* Project Image */}
             <div className="h-44 sm:h-48 w-full bg-slate-100 relative overflow-hidden">
               <img
-                src={project.imageUrl || '/images/chichawatni_scene_1794225848060.jpg'}
+                src={getAssetUrl(project.imageUrl || 'images/chichawatni_scene_1794225848060.jpg')}
                 alt={project.title}
                 className="w-full h-full object-cover group-hover:scale-103 transition duration-500"
                 onError={(e) => {
-                  (e.currentTarget as HTMLImageElement).src = '/images/chichawatni_scene_1794225848060.jpg';
+                  (e.currentTarget as HTMLImageElement).src = getAssetUrl('images/chichawatni_scene_1794225848060.jpg');
                 }}
               />
               <div className="absolute top-2.5 left-2.5 rtl:left-auto rtl:right-2.5">
@@ -196,9 +197,12 @@ export const ProjectsSection: React.FC = () => {
 
             <div className="h-48 sm:h-64 w-full rounded-xl overflow-hidden bg-slate-100">
               <img
-                src={activeProjectModal.imageUrl}
+                src={getAssetUrl(activeProjectModal.imageUrl || 'images/chichawatni_scene_1794225848060.jpg')}
                 alt={activeProjectModal.title}
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = getAssetUrl('images/chichawatni_scene_1794225848060.jpg');
+                }}
               />
             </div>
 

@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PP-203 Smart Constituency Management &amp; Development Portal</title>
+    <script>
+      (function() {
+        var path = window.location.pathname;
+        var segments = path.split('/').filter(Boolean);
+        var last = segments[segments.length - 1];
+        if (last && last !== 'index.html' && last !== '404.html') {
+          var base = path.substring(0, path.lastIndexOf(last));
+          window.location.replace(base + '#' + last);
+        } else {
+          window.location.replace(path.replace(/404\.html$/, ''));
+        }
+      })();
+    </script>
+  </head>
+  <body style="font-family: sans-serif; text-align: center; padding: 50px 20px; background-color: #F7F9F7; color: #064D2B;">
+    <h2>Redirecting to PP-203 Portal...</h2>
+    <p>Please wait while we redirect you to the application.</p>
+  </body>
+</html>

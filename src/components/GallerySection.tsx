@@ -3,6 +3,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
 import { GalleryMedia } from '../types';
 import { Image, X, ZoomIn, Filter } from 'lucide-react';
+import { getAssetUrl } from '../utils/assetUrl';
 
 export const GallerySection: React.FC = () => {
   const { language } = useLanguage();
@@ -65,9 +66,12 @@ export const GallerySection: React.FC = () => {
           >
             <div className="h-52 sm:h-56 w-full bg-slate-100 overflow-hidden relative">
               <img
-                src={item.mediaUrl}
+                src={getAssetUrl(item.mediaUrl)}
                 alt={item.title}
                 className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = getAssetUrl('images/chichawatni_scene_1794225848060.jpg');
+                }}
               />
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
                 <span className="bg-white/90 text-slate-900 p-2.5 rounded-full shadow-lg">
@@ -107,9 +111,12 @@ export const GallerySection: React.FC = () => {
 
             <div className="max-h-[60vh] sm:max-h-[65vh] w-full bg-slate-950 flex items-center justify-center">
               <img
-                src={selectedPhoto.mediaUrl}
+                src={getAssetUrl(selectedPhoto.mediaUrl)}
                 alt={selectedPhoto.title}
                 className="max-h-[60vh] sm:max-h-[65vh] w-full object-contain"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = getAssetUrl('images/chichawatni_scene_1794225848060.jpg');
+                }}
               />
             </div>
 

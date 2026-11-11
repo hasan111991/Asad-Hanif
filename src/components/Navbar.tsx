@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
+import { getAssetUrl } from '../utils/assetUrl';
 import {
   Menu,
   X,
@@ -114,7 +115,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, onOpenT
           >
             <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-emerald-50 border-2 border-[#087A43] p-0.5 flex items-center justify-center overflow-hidden shadow-xs shrink-0">
               <img
-                src="/images/chaudhry_asad_hanif_jutt.jpg"
+                src={getAssetUrl('images/chaudhry_asad_hanif_jutt.jpg')}
                 alt="Chaudhry Asad Hanif Jutt — Profile Photograph"
                 className="w-full h-full object-cover rounded-full"
                 loading="eager"
@@ -202,7 +203,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, onOpenT
             <div className="flex items-center gap-2.5">
               <div className="w-10 h-10 rounded-full border-2 border-emerald-600 overflow-hidden shrink-0">
                 <img
-                  src="/images/chaudhry_asad_hanif_jutt.jpg"
+                  src={getAssetUrl('images/chaudhry_asad_hanif_jutt.jpg')}
                   alt="Chaudhry Asad Hanif Jutt — Profile Photograph"
                   className="w-full h-full object-cover"
                 />

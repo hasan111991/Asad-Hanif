@@ -1,6 +1,7 @@
 import React from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
+import { getAssetUrl } from '../utils/assetUrl';
 import {
   Award,
   BookOpen,
@@ -27,7 +28,7 @@ export const AboutSection: React.FC<{ onNavigate?: (tab: string) => void }> = ({
           <div className="lg:col-span-5 flex justify-center w-full">
             <div className="relative w-full max-w-xs sm:max-w-sm rounded-3xl overflow-hidden shadow-2xl border-4 border-white ring-1 ring-slate-200 bg-slate-900">
               <img
-                src="/images/chaudhry_asad_hanif_jutt.jpg"
+                src={getAssetUrl('images/chaudhry_asad_hanif_jutt.jpg')}
                 alt="Chaudhry Asad Hanif Jutt — Profile Photograph"
                 className="w-full aspect-square sm:aspect-[4/5] object-cover object-[center_15%]"
               />
@@ -128,7 +129,7 @@ export const AboutSection: React.FC<{ onNavigate?: (tab: string) => void }> = ({
           <div className="lg:col-span-5">
             <div className="rounded-xl sm:rounded-2xl overflow-hidden border-2 border-emerald-500/40 shadow-md h-48 sm:h-64 bg-slate-900 w-full">
               <img
-                src={profile.assemblyImageUrl || '/images/punjab_assembly_1794225863446.jpg'}
+                src={getAssetUrl(profile.assemblyImageUrl || 'images/punjab_assembly_1794225863446.jpg')}
                 alt="Punjab Assembly Representation"
                 className="w-full h-full object-cover"
               />

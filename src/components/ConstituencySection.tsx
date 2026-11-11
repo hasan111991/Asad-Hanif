@@ -14,6 +14,7 @@ import {
   AlertTriangle,
   ArrowRight
 } from 'lucide-react';
+import { getAssetUrl } from '../utils/assetUrl';
 
 export const ConstituencySection: React.FC<{ onOpenMap?: () => void }> = ({ onOpenMap }) => {
   const { language, t } = useLanguage();
@@ -108,7 +109,7 @@ export const ConstituencySection: React.FC<{ onOpenMap?: () => void }> = ({ onOp
             <div className="lg:col-span-5">
               <div className="rounded-2xl overflow-hidden border border-slate-200 shadow-xs relative h-56 sm:h-72 w-full">
                 <img
-                  src="/images/chichawatni_scene_1794225848060.jpg"
+                  src={getAssetUrl('images/chichawatni_scene_1794225848060.jpg')}
                   alt="Chichawatni Landscape"
                   className="w-full h-full object-cover"
                 />

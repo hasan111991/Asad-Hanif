@@ -1,6 +1,7 @@
 import React from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
+import { getAssetUrl } from '../utils/assetUrl';
 import {
   ShieldCheck,
   MapPin,
@@ -152,7 +153,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigate, onOpenTracking }) => {
                 {/* Photo Container with Proper Aspect Ratio & No Head Cropping */}
                 <div className="relative w-full aspect-square sm:aspect-[4/5] max-h-[380px] sm:max-h-[440px] overflow-hidden bg-slate-900">
                   <img
-                    src="/images/chaudhry_asad_hanif_jutt.jpg"
+                    src={getAssetUrl('images/chaudhry_asad_hanif_jutt.jpg')}
                     alt="Chaudhry Asad Hanif Jutt — Profile Photograph"
                     className="w-full h-full object-cover object-[center_15%]"
                     loading="eager"

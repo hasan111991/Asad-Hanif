@@ -9,6 +9,7 @@ import {
   Share2,
   X
 } from 'lucide-react';
+import { getAssetUrl } from '../utils/assetUrl';
 
 export const NewsSection: React.FC = () => {
   const { language, t } = useLanguage();
@@ -44,9 +45,12 @@ export const NewsSection: React.FC = () => {
             <div>
               <div className="h-44 sm:h-48 w-full bg-slate-100 overflow-hidden relative">
                 <img
-                  src={item.imageUrl || '/images/chichawatni_scene_1794225848060.jpg'}
+                  src={getAssetUrl(item.imageUrl || 'images/chichawatni_scene_1794225848060.jpg')}
                   alt={item.title}
                   className="w-full h-full object-cover group-hover:scale-103 transition duration-500"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).src = getAssetUrl('images/chichawatni_scene_1794225848060.jpg');
+                  }}
                 />
                 <div className="absolute top-3 left-3 rtl:left-auto rtl:right-3">
                   <span className="text-[10px] font-bold bg-[#087A43] text-white px-2 py-0.5 rounded shadow-xs">
@@ -103,9 +107,12 @@ export const NewsSection: React.FC = () => {
 
             <div className="h-48 sm:h-64 w-full rounded-xl overflow-hidden bg-slate-100">
               <img
-                src={selectedArticle.imageUrl}
+                src={getAssetUrl(selectedArticle.imageUrl || 'images/chichawatni_scene_1794225848060.jpg')}
                 alt={selectedArticle.title}
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = getAssetUrl('images/chichawatni_scene_1794225848060.jpg');
+                }}
               />
             </div>
 

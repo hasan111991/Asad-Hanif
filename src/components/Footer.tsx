@@ -2,6 +2,7 @@ import React from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
 import { ShieldCheck, PhoneCall, Mail, MapPin, Lock } from 'lucide-react';
+import { getAssetUrl } from '../utils/assetUrl';
 
 interface FooterProps {
   onNavigate: (tab: string) => void;
@@ -23,7 +24,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenPolicy, onOpen
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full border-2 border-emerald-500 overflow-hidden bg-slate-900 shrink-0">
                 <img
-                  src="/images/chaudhry_asad_hanif_jutt.jpg"
+                  src={getAssetUrl('images/chaudhry_asad_hanif_jutt.jpg')}
                   alt="Chaudhry Asad Hanif Jutt — Profile Photograph"
                   className="w-full h-full object-cover"
                 />
