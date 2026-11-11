@@ -81,19 +81,35 @@ function loadStorage<T>(key: string, defaultValue: T): T {
 }
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [profile, setProfile] = useState<LeaderProfile>(() => loadStorage('pp203_profile', initialProfile));
+  const [profile, setProfile] = useState<LeaderProfile>(() => {
+    const loaded = loadStorage('pp203_profile', initialProfile);
+    return {
+      ...loaded,
+      photoUrl: '/images/chaudhry_asad_hanif_jutt.jpg',
+      leadPortraitUrl: '/images/chaudhry_asad_hanif_jutt.jpg'
+    };
+  });
   const [unionCouncils, setUnionCouncils] = useState<UnionCouncil[]>(() => loadStorage('pp203_ucs', initialUnionCouncils));
   const [villages, setVillages] = useState<VillageMouza[]>(() => loadStorage('pp203_villages', initialVillages));
   const [education, setEducation] = useState<EducationFacility[]>(() => loadStorage('pp203_education', initialEducation));
   const [healthcare, setHealthcare] = useState<HealthcareFacility[]>(() => loadStorage('pp203_healthcare', initialHealthcare));
   const [infrastructure, setInfrastructure] = useState<InfrastructureItem[]>(() => loadStorage('pp203_infrastructure', initialInfrastructure));
-  const [projects, setProjects] = useState<Project[]>(() => loadStorage('pp203_projects', initialProjects));
+  const [projects, setProjects] = useState<Project[]>(() => {
+    const loaded = loadStorage('pp203_projects', initialProjects);
+    return loaded.map(p => p.imageUrl && p.imageUrl.includes('portrait_lead') ? { ...p, imageUrl: '/images/chichawatni_scene_1794225848060.jpg' } : p);
+  });
   const [complaints, setComplaints] = useState<CitizenComplaint[]>(() => loadStorage('pp203_complaints', initialComplaints));
   const [surveys, setSurveys] = useState<FieldSurvey[]>(() => loadStorage('pp203_surveys', initialSurveys));
   const [recommendations, setRecommendations] = useState<AIRecommendation[]>(() => loadStorage('pp203_recs', initialRecommendations));
   const [notices, setNotices] = useState<PublicNotice[]>(() => loadStorage('pp203_notices', initialNotices));
-  const [news, setNews] = useState<NewsItem[]>(() => loadStorage('pp203_news', initialNews));
-  const [gallery, setGallery] = useState<GalleryMedia[]>(() => loadStorage('pp203_gallery', initialGallery));
+  const [news, setNews] = useState<NewsItem[]>(() => {
+    const loaded = loadStorage('pp203_news', initialNews);
+    return loaded.map(n => n.imageUrl && n.imageUrl.includes('portrait_lead') ? { ...n, imageUrl: '/images/chaudhry_asad_hanif_jutt.jpg' } : n);
+  });
+  const [gallery, setGallery] = useState<GalleryMedia[]>(() => {
+    const loaded = loadStorage('pp203_gallery', initialGallery);
+    return loaded.map(g => g.mediaUrl && g.mediaUrl.includes('portrait_lead') ? { ...g, mediaUrl: '/images/chaudhry_asad_hanif_jutt.jpg' } : g);
+  });
   const [settings, setSettings] = useState<SiteSettings>(() => loadStorage('pp203_settings', initialSettings));
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>(() => loadStorage('pp203_audit_logs', [
     {

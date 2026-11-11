@@ -10,11 +10,11 @@ export const PolicyModals: React.FC<PolicyModalProps> = ({ type, onClose }) => {
   if (!type) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6 sm:p-8 space-y-4 shadow-2xl relative">
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto p-4 sm:p-8 space-y-4 shadow-2xl relative">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 rtl:right-auto rtl:left-4 p-2 text-slate-400 hover:text-slate-700 rounded-lg"
+          className="absolute top-3 right-3 rtl:right-auto rtl:left-3 w-11 h-11 flex items-center justify-center text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 transition"
           aria-label="Close"
         >
           <X className="w-5 h-5" />
@@ -75,7 +75,7 @@ export const PolicyModals: React.FC<PolicyModalProps> = ({ type, onClose }) => {
         <div className="pt-4 border-t border-slate-100 flex justify-end">
           <button
             onClick={onClose}
-            className="bg-[#087A43] text-white font-semibold text-xs px-5 py-2.5 rounded-xl hover:bg-[#064D2B]"
+            className="min-h-[44px] bg-[#087A43] text-white font-semibold text-xs px-6 py-2.5 rounded-xl hover:bg-[#064D2B] transition active:scale-95 flex items-center justify-center"
           >
             I Understand
           </button>

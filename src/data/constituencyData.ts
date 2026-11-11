@@ -44,7 +44,7 @@ export const initialProfile: LeaderProfile = {
   verifiedNotice: 'Notice: Information on this portal is published for constituent outreach, open governance, and transparency. All development figures represent verified platform records.',
   verifiedNoticeUrdu: 'نوٹ: اس پورٹل پر شائع شدہ معلومات عوامی آگاہی، شفافیت اور خدمت خلق کے لیے ہیں۔ ترقیاتی اعداد و شمار تصدیق شدہ ریکارڈ کی بنیاد پر ہیں۔',
   photoUrl: '/images/chaudhry_asad_hanif_jutt.jpg',
-  leadPortraitUrl: '/images/portrait_lead_1794225832643.jpg',
+  leadPortraitUrl: '/images/chaudhry_asad_hanif_jutt.jpg',
   assemblyImageUrl: '/images/punjab_assembly_1794225863446.jpg',
   chichawatniSceneUrl: '/images/chichawatni_scene_1794225848060.jpg'
 };
@@ -711,7 +711,7 @@ export const initialProjects: Project[] = [
     budget: 'PKR 88.5 Million',
     startDate: '2026-01-10',
     completionDate: '2026-11-20',
-    imageUrl: '/images/portrait_lead_1794225832643.jpg',
+    imageUrl: '/images/chichawatni_scene_1794225848060.jpg',
     fundingType: 'MPA Priority Grant',
     fundingTypeUrdu: 'ایم پی اے ترجیحی گرانٹ',
     progressPercent: 82,
@@ -1062,7 +1062,7 @@ export const initialNews: NewsItem[] = [
     summaryUrdu: 'عوامی کھلی کچہری میں ریونیو، بلدیہ، میپکو اور پولیس سے متعلق مسائل کے فوری حل کے احکامات جاری کیے گئے۔',
     content: 'Hundreds of constituents from urban wards and remote chaks attended the bi-weekly public darbar at the Secretariat. More than 250 civic complaints were registered into the digital tracking portal, with department heads summoned to submit resolution compliance within 48 hours.',
     contentUrdu: 'سیکرٹریٹ میں منعقدہ کھلی کچہری میں سینکڑوں شہریوں نے شرکت کی۔ ڈیجیٹل پورٹل پر شکایات کا اندراج کیا گیا اور متعلقہ محکموں کو فوری کارروائی کی ہدایت کی گئی۔',
-    imageUrl: '/images/portrait_lead_1794225832643.jpg',
+    imageUrl: '/images/chaudhry_asad_hanif_jutt.jpg',
     isFeatured: false
   }
 ];
@@ -1075,7 +1075,7 @@ export const initialGallery: GalleryMedia[] = [
     category: 'Public Meetings',
     categoryUrdu: 'عوامی ملاقاتیں',
     mediaType: 'photo',
-    mediaUrl: '/images/portrait_lead_1794225832643.jpg',
+    mediaUrl: '/images/chaudhry_asad_hanif_jutt.jpg',
     date: '2026-11-06',
     caption: 'Chaudhry Asad Hanif Jutt addressing rural community elders and farmers at the Secretariat.',
     captionUrdu: 'چوہدری اسد حنیف جٹ سیکرٹریٹ میں معززین علاقہ اور کسانوں کے وفد سے خطاب کر رہے ہیں۔'

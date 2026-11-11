@@ -46,7 +46,7 @@ export const PublicNotices: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-8 py-10 space-y-8">
+    <div className="max-w-7xl mx-auto px-3 xs:px-4 sm:px-8 py-8 sm:py-10 space-y-6 sm:space-y-8 w-full">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
@@ -54,33 +54,33 @@ export const PublicNotices: React.FC = () => {
             <Bell className="w-3.5 h-3.5" />
             <span>Official Communications</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
+          <h2 className="text-xl xs:text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
             {language === 'ur' ? 'عوامی اعلانات، نوٹیفیکیشنز و سرکلرز' : 'Public Notices & Official Announcements'}
           </h2>
-          <p className="text-slate-600 text-sm mt-1 max-w-xl">
+          <p className="text-slate-600 text-xs sm:text-sm mt-1 max-w-xl leading-relaxed">
             {language === 'ur'
               ? 'کھلی کچہری کے شیڈول، کسان سہولت پروگرام، مفت ادویات اور ترقیاتی سکیموں کے مصدقہ نوٹیفیکیشنز۔'
               : 'Official notifications, agricultural advisories, development allocations, and grievance assembly schedules.'}
           </p>
         </div>
 
-        {/* Filter Controls */}
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="relative">
+        {/* Filter Controls (Mobile Full-Width) */}
+        <div className="flex flex-col xs:flex-row items-stretch xs:items-center gap-2.5 w-full md:w-auto">
+          <div className="relative flex-1 sm:w-56">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               placeholder={language === 'ur' ? 'نوٹس تلاش کریں...' : 'Search notices...'}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9 pr-3 py-2 text-xs bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-600 w-44 sm:w-56"
+              className="w-full pl-9 pr-3 py-2 text-xs bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-600 min-h-[44px]"
             />
           </div>
 
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="text-xs bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-700 shadow-xs focus:ring-2 focus:ring-emerald-600"
+            className="text-xs bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-700 shadow-xs focus:ring-2 focus:ring-emerald-600 min-h-[44px]"
           >
             <option value="all">{language === 'ur' ? 'تمام کیٹیگریز' : 'All Categories'}</option>
             {categories.filter(c => c !== 'all').map(c => (
@@ -95,7 +95,7 @@ export const PublicNotices: React.FC = () => {
         {filtered.map((notice) => (
           <div
             key={notice.id}
-            className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-xs hover:border-emerald-300 transition flex flex-col md:flex-row md:items-center justify-between gap-5"
+            className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 shadow-xs hover:border-emerald-300 transition flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-5"
           >
             <div className="space-y-2 flex-1">
               <div className="flex flex-wrap items-center gap-2">
@@ -120,13 +120,13 @@ export const PublicNotices: React.FC = () => {
               </p>
             </div>
 
-            <div className="flex items-center gap-3 shrink-0 pt-3 md:pt-0 border-t md:border-t-0 border-slate-100">
+            <div className="flex items-center gap-3 shrink-0 pt-3 md:pt-0 border-t md:border-t-0 border-slate-100 w-full md:w-auto">
               <button
                 onClick={() => handleDownload(notice)}
-                className="bg-slate-100 hover:bg-[#087A43] hover:text-white text-slate-700 font-semibold px-4 py-2.5 rounded-xl text-xs transition flex items-center gap-2"
+                className="w-full md:w-auto min-h-[44px] bg-slate-100 hover:bg-[#087A43] hover:text-white text-slate-700 font-semibold px-4 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-2 active:scale-98"
                 title="Download Official Notice Document"
               >
-                <Download className="w-3.5 h-3.5" />
+                <Download className="w-4 h-4" />
                 <span>Download ({notice.fileSize || 'PDF'})</span>
               </button>
             </div>
