@@ -20,6 +20,18 @@ export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
 
+// Isolated Firebase App instance for Public Citizen Phone Auth & Self-Service
+// Prevents AuthContext admin staff guard from signing out registered citizens.
+const CITIZEN_APP_NAME = 'chichawatni-citizen-network';
+export const citizenApp =
+  getApps().find((a) => a.name === CITIZEN_APP_NAME) ||
+  initializeApp(firebaseConfig, CITIZEN_APP_NAME);
+
+export const citizenAuth = getAuth(citizenApp);
+export const citizenDb = firebaseConfig.firestoreDatabaseId
+  ? getFirestore(citizenApp, firebaseConfig.firestoreDatabaseId)
+  : getFirestore(citizenApp);
+
 export enum OperationType {
   CREATE = 'create',
   UPDATE = 'update',

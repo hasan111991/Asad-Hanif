@@ -31,8 +31,52 @@ service cloud.firestore {
         || (adminExists() && adminData().status == 'Active' && adminData().role == 'Super Admin');
     }
 
+    function hasCityRole(allowedRoles) {
+      return isBootstrappedSuperAdmin()
+        || (adminExists() && adminData().status == 'Active' && adminData().role in allowedRoles);
+    }
+
     function isValidId(id) {
-      return id is string && id.size() >= 1 && id.size() <= 128;
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidCityComplaint(data, complaintId) {
+      return isValidId(complaintId)
+        && data.keys().hasAll([
+          'trackingId', 'citizenName', 'phone', 'locality', 'category',
+          'description', 'status', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'id', 'trackingId', 'citizenName', 'phone', 'area', 'locality', 'category',
+          'description', 'imageUrl', 'latitude', 'longitude', 'status',
+          'priority', 'department', 'assignedOfficer', 'resolutionNotes',
+          'beforePhotoUrl', 'afterPhotoUrl', 'citizenFeedback', 'createdAt', 'updatedAt'
+        ])
+        && data.trackingId is string
+        && data.trackingId == complaintId
+        && data.trackingId.size() >= 8
+        && data.trackingId.size() <= 40
+        && data.citizenName is string
+        && data.citizenName.size() >= 2
+        && data.citizenName.size() <= 120
+        && data.phone is string
+        && data.phone.size() >= 7
+        && data.phone.size() <= 24
+        && data.locality is string
+        && data.locality.size() >= 2
+        && data.locality.size() <= 160
+        && data.category in [
+          'Garbage', 'Sewerage', 'Roads', 'Drinking Water', 'Streetlights',
+          'Traffic', 'Parks', 'Public Facilities', 'Encroachment', 'Other Municipal Issues'
+        ]
+        && data.description is string
+        && data.description.size() >= 8
+        && data.description.size() <= 2500
+        && data.status == 'Submitted'
+        && data.createdAt is string
+        && data.createdAt.size() <= 64
+        && data.updatedAt is string
+        && data.updatedAt.size() <= 64;
     }
 
     function isValidComplaint(data, complaintId) {
@@ -211,7 +255,463 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
-    // 9. Catch-all default deny
+    // =========================================================================
+    // 9. CHICHAWATNI CITY MANAGEMENT & MASTER DEVELOPMENT SYSTEM (2027-2030)
+    // =========================================================================
+
+    match /city_areas/{areaId} {
+      allow read: if true;
+      allow create, update, delete: if isValidId(areaId) && hasCityRole(['Super Admin', 'Admin', 'City Manager', 'Data Entry Operator']);
+    }
+
+    match /city_localities/{localityId} {
+      allow read: if true;
+      allow create, update, delete: if isValidId(localityId) && hasCityRole(['Super Admin', 'Admin', 'City Manager', 'Data Entry Operator']);
+    }
+
+    match /city_roads/{roadId} {
+      allow read: if true;
+      allow create, update, delete: if isValidId(roadId) && hasCityRole(['Super Admin', 'Admin', 'City Manager', 'Department Manager', 'Field Officer', 'Data Entry Operator']);
+    }
+
+    match /city_assets/{assetId} {
+      allow read: if true;
+      allow create, update, delete: if isValidId(assetId) && hasCityRole(['Super Admin', 'Admin', 'City Manager', 'Department Manager', 'Field Officer', 'Data Entry Operator']);
+    }
+
+    match /city_water_facilities/{facilityId} {
+      allow read: if true;
+      allow create, update, delete: if isValidId(facilityId) && hasCityRole(['Super Admin', 'Admin', 'City Manager', 'Department Manager', 'Field Officer', 'Data Entry Operator']);
+    }
+
+    match /city_sewerage_assets/{assetId} {
+      allow read: if true;
+      allow create, update, delete: if isValidId(assetId) && hasCityRole(['Super Admin', 'Admin', 'City Manager', 'Department Manager', 'Field Officer', 'Data Entry Operator']);
+    }
+
+    match /city_waste_routes/{routeId} {
+      allow read: if isAdmin();
+      allow create, update, delete: if isValidId(routeId) && hasCityRole(['Super Admin', 'Admin', 'City Manager', 'Department Manager', 'Field Officer', 'Data Entry Operator']);
+    }
+
+    match /city_projects/{projectId} {
+      allow read: if true;
+      allow create, update, delete: if isValidId(projectId) && hasCityRole(['Super Admin', 'Admin', 'City Manager', 'Department Manager', 'Project Manager', 'Finance Officer', 'Data Entry Operator']);
+    }
+
+    match /city_project_updates/{updateId} {
+      allow read: if true;
+      allow create, update, delete: if isValidId(updateId) && hasCityRole(['Super Admin', 'Admin', 'City Manager', 'Department Manager', 'Field Officer', 'Project Manager']);
+    }
+
+    match /city_budgets/{budgetId} {
+      allow read: if isAdmin();
+      allow create, update, delete: if isValidId(budgetId) && hasCityRole(['Super Admin', 'Admin', 'City Manager', 'Finance Officer']);
+    }
+
+    match /city_departments/{deptId} {
+      allow read: if true;
+      allow create, update, delete: if isValidId(deptId) && hasCityRole(['Super Admin', 'Admin', 'City Manager']);
+    }
+
+    // Municipal citizen complaints: public can create ('Submitted') and lookup single doc by exact Tracking ID.
+    // Listing all complaints, updating statuses, or internal triage requires authorized staff.
+    match /city_complaints/{complaintId} {
+      allow get: if isValidId(complaintId);
+      allow list: if isAdmin();
+      allow create: if isValidCityComplaint(request.resource.data, complaintId);
+      allow update, delete: if isValidId(complaintId) && hasCityRole(['Super Admin', 'Admin', 'City Manager', 'Department Manager', 'Field Officer', 'Office Manager', 'Data Entry Operator']);
+    }
+
+    match /city_surveys/{surveyId} {
+      allow read: if isAdmin();
+      allow create, update, delete: if isValidId(surveyId) && hasCityRole(['Super Admin', 'Admin', 'City Manager', 'Department Manager', 'Field Officer', 'Data Entry Operator']);
+    }
+
+    match /city_inspections/{inspectionId} {
+      allow read: if isAdmin();
+      allow create, update, delete: if isValidId(inspectionId) && hasCityRole(['Super Admin', 'Admin', 'City Manager', 'Department Manager', 'Field Officer']);
+    }
+
+    // Public can only view published monthly/annual reports; admins see all drafts & reports.
+    match /city_reports/{reportId} {
+      allow get: if (resource != null && resource.data.isPublished == true) || isAdmin();
+      allow list: if resource.data.isPublished == true || isAdmin();
+      allow create, update, delete: if isValidId(reportId) && hasCityRole(['Super Admin', 'Admin', 'City Manager', 'Finance Officer', 'Department Manager']);
+    }
+
+    match /city_notices/{noticeId} {
+      allow get: if (resource != null && resource.data.isPublished == true) || isAdmin();
+      allow list: if resource.data.isPublished == true || isAdmin();
+      allow create, update, delete: if isValidId(noticeId) && hasCityRole(['Super Admin', 'Admin', 'City Manager', 'Media Manager', 'Office Manager']);
+    }
+
+    // Immutable City Audit Trail
+    match /city_audit_logs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isAdmin();
+      allow update, delete: if false;
+    }
+
+    // =========================================================================
+    // 10. CHICHAWATNI CITIZEN REGISTRATION & COMMUNITY NETWORK (STRICT PII)
+    // =========================================================================
+
+    function isOwner(uid) {
+      return isAuthenticated() && request.auth.uid == uid;
+    }
+
+    function isCitizenAdmin() {
+      return hasCityRole(['Super Admin', 'Admin', 'City Manager', 'Office Manager', 'Department Manager', 'Media Manager']);
+    }
+
+    function isValidCitizenProfile(data, uid) {
+      return isValidId(uid)
+        && data.keys().hasAll([
+          'uid', 'fullName', 'phoneE164', 'phoneHash', 'phoneVerified',
+          'verificationMethod', 'cityLocality', 'preferredLanguage',
+          'preferredContactMethod', 'accountStatus', 'retentionPolicyAcceptedAt',
+          'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'id', 'uid', 'fullName', 'phoneE164', 'phoneHash', 'phoneVerified',
+          'verificationMethod', 'email', 'cityLocality', 'villageArea', 'ucWard',
+          'profession', 'preferredLanguage', 'preferredContactMethod',
+          'accountStatus', 'retentionPolicyAcceptedAt', 'createdAt', 'updatedAt'
+        ])
+        && data.uid == uid
+        && data.fullName is string && data.fullName.size() >= 2 && data.fullName.size() <= 120
+        && data.phoneE164 is string && data.phoneE164.size() >= 8 && data.phoneE164.size() <= 24
+        && data.phoneHash is string && data.phoneHash.size() >= 16 && data.phoneHash.size() <= 128
+        && data.phoneVerified is bool
+        && data.verificationMethod in ['firebase_phone_auth', 'pending_verification']
+        && data.cityLocality is string && data.cityLocality.size() >= 2 && data.cityLocality.size() <= 160
+        && data.preferredLanguage in ['en', 'ur']
+        && data.preferredContactMethod in ['WhatsApp', 'SMS', 'Email', 'In-App']
+        && data.accountStatus in ['Active', 'Inactive', 'Deletion Requested']
+        && data.retentionPolicyAcceptedAt is string && data.retentionPolicyAcceptedAt.size() <= 64
+        && data.createdAt is string && data.createdAt.size() <= 64
+        && data.updatedAt is string && data.updatedAt.size() <= 64;
+    }
+
+    function isValidCitizenConsent(data, uid) {
+      return isValidId(uid)
+        && data.keys().hasAll([
+          'uid', 'publicDevelopmentUpdates', 'cityServiceAnnouncements',
+          'communityEventNotifications', 'surveyInvitations', 'emergencyPublicAlerts',
+          'nonPoliticalStatementAccepted', 'privacyPolicyAccepted', 'unsubscribedAll', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'id', 'uid', 'publicDevelopmentUpdates', 'cityServiceAnnouncements',
+          'communityEventNotifications', 'surveyInvitations', 'emergencyPublicAlerts',
+          'nonPoliticalStatementAccepted', 'privacyPolicyAccepted', 'unsubscribedAll', 'updatedAt'
+        ])
+        && data.uid == uid
+        && data.publicDevelopmentUpdates is bool
+        && data.cityServiceAnnouncements is bool
+        && data.communityEventNotifications is bool
+        && data.surveyInvitations is bool
+        && data.emergencyPublicAlerts is bool
+        && data.nonPoliticalStatementAccepted == true
+        && data.privacyPolicyAccepted == true
+        && data.unsubscribedAll is bool
+        && data.updatedAt is string && data.updatedAt.size() <= 64;
+    }
+
+    function isValidCitizenInterests(data, uid) {
+      return isValidId(uid)
+        && data.keys().hasAll(['uid', 'interests', 'cityLocality', 'updatedAt'])
+        && data.keys().hasOnly(['id', 'uid', 'interests', 'cityLocality', 'profession', 'updatedAt'])
+        && data.uid == uid
+        && data.interests is list
+        && data.interests.size() <= 12
+        && data.cityLocality is string && data.cityLocality.size() >= 2 && data.cityLocality.size() <= 160
+        && data.updatedAt is string && data.updatedAt.size() <= 64;
+    }
+
+    function isValidCommPreferences(data, uid) {
+      return isValidId(uid)
+        && data.keys().hasAll([
+          'uid', 'preferredLanguage', 'preferredChannel',
+          'whatsappOptIn', 'smsOptIn', 'emailOptIn', 'inAppOptIn',
+          'unsubscribedAll', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'id', 'uid', 'preferredLanguage', 'preferredChannel',
+          'whatsappOptIn', 'smsOptIn', 'emailOptIn', 'inAppOptIn',
+          'unsubscribedAll', 'updatedAt'
+        ])
+        && data.uid == uid
+        && data.preferredLanguage in ['en', 'ur']
+        && data.preferredChannel in ['WhatsApp', 'SMS', 'Email', 'In-App']
+        && data.whatsappOptIn is bool
+        && data.smsOptIn is bool
+        && data.emailOptIn is bool
+        && data.inAppOptIn is bool
+        && data.unsubscribedAll is bool
+        && data.updatedAt is string && data.updatedAt.size() <= 64;
+    }
+
+    function isValidCitizenSuggestion(data, suggestionId) {
+      return isValidId(suggestionId)
+        && data.keys().hasAll([
+          'uid', 'citizenDisplayName', 'locality', 'sector', 'title',
+          'description', 'status', 'isPublishedSummary', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'id', 'uid', 'citizenDisplayName', 'locality', 'sector', 'title',
+          'description', 'status', 'adminFeedback', 'isPublishedSummary', 'createdAt', 'updatedAt'
+        ])
+        && data.uid is string && data.uid.size() >= 1 && data.uid.size() <= 128
+        && data.citizenDisplayName is string && data.citizenDisplayName.size() >= 2 && data.citizenDisplayName.size() <= 120
+        && data.locality is string && data.locality.size() >= 2 && data.locality.size() <= 160
+        && data.sector is string && data.sector.size() >= 2 && data.sector.size() <= 120
+        && data.title is string && data.title.size() >= 3 && data.title.size() <= 200
+        && data.description is string && data.description.size() >= 10 && data.description.size() <= 2500
+        && data.status in ['Submitted', 'Under Community Review', 'Forwarded for Technical Feasibility', 'Archived']
+        && data.isPublishedSummary is bool
+        && data.createdAt is string && data.createdAt.size() <= 64
+        && data.updatedAt is string && data.updatedAt.size() <= 64;
+    }
+
+    function isValidCitizenVolunteer(data, volunteerId) {
+      return isValidId(volunteerId)
+        && data.keys().hasAll([
+          'uid', 'volunteerName', 'locality', 'initiativeTitle',
+          'areaOfInterest', 'availability', 'status', 'isNonPoliticalConfirmed',
+          'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'id', 'uid', 'volunteerName', 'locality', 'initiativeTitle',
+          'areaOfInterest', 'availability', 'skillsNote', 'status',
+          'isNonPoliticalConfirmed', 'createdAt', 'updatedAt'
+        ])
+        && data.uid is string && data.uid.size() >= 1 && data.uid.size() <= 128
+        && data.volunteerName is string && data.volunteerName.size() >= 2 && data.volunteerName.size() <= 120
+        && data.locality is string && data.locality.size() >= 2 && data.locality.size() <= 160
+        && data.initiativeTitle is string && data.initiativeTitle.size() >= 2 && data.initiativeTitle.size() <= 200
+        && data.areaOfInterest is string && data.areaOfInterest.size() >= 2 && data.areaOfInterest.size() <= 100
+        && data.availability is string && data.availability.size() >= 2 && data.availability.size() <= 160
+        && data.status in ['Registered', 'Approved', 'Active', 'Completed', 'Withdrawn']
+        && data.isNonPoliticalConfirmed == true
+        && data.createdAt is string && data.createdAt.size() <= 64
+        && data.updatedAt is string && data.updatedAt.size() <= 64;
+    }
+
+    function isValidOrganization(data, orgId) {
+      return isValidId(orgId)
+        && data.keys().hasAll([
+          'submittedByUid', 'orgName', 'orgCategory', 'locality',
+          'focalPersonName', 'description', 'verificationStatus',
+          'isPublicPublished', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'id', 'submittedByUid', 'orgName', 'orgCategory', 'locality',
+          'registrationNumber', 'focalPersonName', 'publicContactPhone', 'publicEmail',
+          'description', 'servicesOffered', 'verificationStatus', 'isPublicPublished',
+          'verifiedByAdmin', 'createdAt', 'updatedAt'
+        ])
+        && data.submittedByUid is string && data.submittedByUid.size() >= 1 && data.submittedByUid.size() <= 128
+        && data.orgName is string && data.orgName.size() >= 2 && data.orgName.size() <= 200
+        && data.orgCategory in [
+          'Local Business', 'Traders & Market Association',
+          'NGO & Welfare Organization', 'Educational Institution',
+          'Healthcare Institution', 'Community Organization'
+        ]
+        && data.locality is string && data.locality.size() >= 2 && data.locality.size() <= 160
+        && data.focalPersonName is string && data.focalPersonName.size() >= 2 && data.focalPersonName.size() <= 120
+        && data.description is string && data.description.size() >= 8 && data.description.size() <= 2000
+        && data.verificationStatus in ['Pending Verification', 'Verified', 'Rejected']
+        && data.isPublicPublished is bool
+        && data.createdAt is string && data.createdAt.size() <= 64
+        && data.updatedAt is string && data.updatedAt.size() <= 64;
+    }
+
+    // Citizen personal profiles: strictly owner-only read/write or authorized Admin
+    match /citizen_profiles/{uid} {
+      allow get: if isValidId(uid) && (isOwner(uid) || isCitizenAdmin());
+      allow list: if isCitizenAdmin();
+      allow create: if isOwner(uid)
+        && isValidCitizenProfile(request.resource.data, uid)
+        && (request.resource.data.phoneVerified == false
+          || (request.auth.token.phone_number != null && request.auth.token.phone_number == request.resource.data.phoneE164));
+      allow update: if isValidId(uid) && isValidCitizenProfile(request.resource.data, uid) && (
+        isCitizenAdmin()
+        || (
+          isOwner(uid)
+          && request.resource.data.uid == resource.data.uid
+          && request.resource.data.createdAt == resource.data.createdAt
+          && (request.resource.data.phoneVerified == resource.data.phoneVerified
+            || (request.auth.token.phone_number != null && request.auth.token.phone_number == request.resource.data.phoneE164))
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'fullName', 'email', 'cityLocality', 'villageArea', 'ucWard',
+            'profession', 'preferredLanguage', 'preferredContactMethod',
+            'accountStatus', 'phoneVerified', 'verificationMethod', 'updatedAt'
+          ])
+        )
+      );
+      allow delete: if isValidId(uid) && (isOwner(uid) || hasCityRole(['Super Admin', 'Admin']));
+    }
+
+    // Duplicate mobile prevention index (hashed phone only, never raw PII)
+    match /citizen_phone_index/{phoneHash} {
+      allow get: if isValidId(phoneHash) && isAuthenticated();
+      allow list: if isCitizenAdmin();
+      allow create: if isValidId(phoneHash) && isAuthenticated()
+        && request.resource.data.keys().hasAll(['ownerUid', 'createdAt'])
+        && request.resource.data.keys().hasOnly(['ownerUid', 'createdAt'])
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.createdAt is string && request.resource.data.createdAt.size() <= 64;
+      allow update: if false;
+      allow delete: if isValidId(phoneHash) && ((isAuthenticated() && resource.data.ownerUid == request.auth.uid) || isCitizenAdmin());
+    }
+
+    // Revocable optional consent categories
+    match /citizen_consents/{uid} {
+      allow get: if isValidId(uid) && (isOwner(uid) || isCitizenAdmin());
+      allow list: if isCitizenAdmin();
+      allow create, update: if isValidId(uid) && isValidCitizenConsent(request.resource.data, uid) && (isOwner(uid) || isCitizenAdmin());
+      allow delete: if isValidId(uid) && (isOwner(uid) || hasCityRole(['Super Admin', 'Admin']));
+    }
+
+    // Voluntarily selected interests
+    match /citizen_interests/{uid} {
+      allow get: if isValidId(uid) && (isOwner(uid) || isCitizenAdmin());
+      allow list: if isCitizenAdmin();
+      allow create, update: if isValidId(uid) && isValidCitizenInterests(request.resource.data, uid) && (isOwner(uid) || isCitizenAdmin());
+      allow delete: if isValidId(uid) && (isOwner(uid) || hasCityRole(['Super Admin', 'Admin']));
+    }
+
+    // Communication channel preferences & unsubscribe toggles
+    match /communication_preferences/{uid} {
+      allow get: if isValidId(uid) && (isOwner(uid) || isCitizenAdmin());
+      allow list: if isCitizenAdmin();
+      allow create, update: if isValidId(uid) && isValidCommPreferences(request.resource.data, uid) && (isOwner(uid) || isCitizenAdmin());
+      allow delete: if isValidId(uid) && (isOwner(uid) || hasCityRole(['Super Admin', 'Admin']));
+    }
+
+    // Voluntary non-political service groups (no member phone numbers stored here)
+    match /citizen_groups/{groupId} {
+      allow get: if isValidId(groupId) && (resource.data.isActive == true || isCitizenAdmin());
+      allow list: if resource.data.isActive == true || isCitizenAdmin();
+      allow create, update, delete: if isValidId(groupId) && isCitizenAdmin();
+    }
+
+    // Group memberships isolated so members never see each other's identities/phones
+    match /citizen_group_members/{membershipId} {
+      allow get: if isValidId(membershipId) && ((isAuthenticated() && resource.data.uid == request.auth.uid) || isCitizenAdmin());
+      allow list: if (isAuthenticated() && resource.data.uid == request.auth.uid) || isCitizenAdmin();
+      allow create: if isValidId(membershipId) && isAuthenticated()
+        && request.resource.data.keys().hasAll(['groupId', 'groupName', 'uid', 'memberDisplayName', 'locality', 'joinedVia', 'status', 'joinedAt'])
+        && request.resource.data.keys().hasOnly(['id', 'groupId', 'groupName', 'uid', 'memberDisplayName', 'locality', 'joinedVia', 'status', 'joinedAt'])
+        && (isCitizenAdmin() || (request.resource.data.uid == request.auth.uid && request.resource.data.joinedVia == 'Citizen Self-Join'))
+        && exists(/databases/$(database)/documents/citizen_groups/$(request.resource.data.groupId));
+      allow update: if isValidId(membershipId) && isAuthenticated() && (
+        isCitizenAdmin()
+        || (resource.data.uid == request.auth.uid && request.resource.data.uid == resource.data.uid && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']))
+      );
+      allow delete: if isValidId(membershipId) && ((isAuthenticated() && resource.data.uid == request.auth.uid) || isCitizenAdmin());
+    }
+
+    // City improvement suggestions (separate from official government approvals)
+    match /citizen_suggestions/{suggestionId} {
+      allow get: if isValidId(suggestionId) && (resource.data.isPublishedSummary == true || (isAuthenticated() && resource.data.uid == request.auth.uid) || isCitizenAdmin());
+      allow list: if resource.data.isPublishedSummary == true || (isAuthenticated() && resource.data.uid == request.auth.uid) || isCitizenAdmin();
+      allow create: if isValidCitizenSuggestion(request.resource.data, suggestionId)
+        && isAuthenticated()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.status == 'Submitted'
+        && request.resource.data.isPublishedSummary == false;
+      allow update: if isValidCitizenSuggestion(request.resource.data, suggestionId) && (
+        isCitizenAdmin()
+        || (
+          isAuthenticated()
+          && resource.data.uid == request.auth.uid
+          && resource.data.status == 'Submitted'
+          && request.resource.data.uid == resource.data.uid
+          && request.resource.data.isPublishedSummary == false
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['title', 'description', 'sector', 'locality', 'updatedAt'])
+        )
+      );
+      allow delete: if isValidId(suggestionId) && ((isAuthenticated() && resource.data.uid == request.auth.uid && resource.data.status == 'Submitted') || isCitizenAdmin());
+    }
+
+    // Voluntary public surveys & UID-keyed submissions (Master Gate pattern)
+    match /citizen_surveys/{surveyId} {
+      allow get: if isValidId(surveyId) && (resource.data.status in ['Active', 'Closed'] || isCitizenAdmin());
+      allow list: if resource.data.status in ['Active', 'Closed'] || isCitizenAdmin();
+      allow create, update, delete: if isValidId(surveyId) && isCitizenAdmin();
+
+      match /responses/{uid} {
+        allow get: if isValidId(surveyId) && isValidId(uid) && (isOwner(uid) || isCitizenAdmin());
+        allow list: if isCitizenAdmin() || (isAuthenticated() && resource.data.uid == request.auth.uid);
+        allow create: if isValidId(surveyId) && isValidId(uid) && isOwner(uid)
+          && request.resource.data.keys().hasAll(['surveyId', 'uid', 'locality', 'answers', 'submittedAt'])
+          && request.resource.data.keys().hasOnly(['surveyId', 'uid', 'locality', 'answers', 'submittedAt'])
+          && request.resource.data.surveyId == surveyId
+          && request.resource.data.uid == uid
+          && get(/databases/$(database)/documents/citizen_surveys/$(surveyId)).data.status == 'Active';
+        allow update, delete: if isCitizenAdmin();
+      }
+    }
+
+    // Volunteer registrations for approved civic initiatives
+    match /citizen_volunteers/{volunteerId} {
+      allow get: if isValidId(volunteerId) && ((isAuthenticated() && resource.data.uid == request.auth.uid) || isCitizenAdmin());
+      allow list: if (isAuthenticated() && resource.data.uid == request.auth.uid) || isCitizenAdmin();
+      allow create: if isValidCitizenVolunteer(request.resource.data, volunteerId)
+        && isAuthenticated()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.status == 'Registered';
+      allow update: if isValidCitizenVolunteer(request.resource.data, volunteerId) && (
+        isCitizenAdmin()
+        || (
+          isAuthenticated()
+          && resource.data.uid == request.auth.uid
+          && request.resource.data.uid == resource.data.uid
+          && request.resource.data.status in ['Registered', 'Withdrawn']
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['availability', 'skillsNote', 'status', 'updatedAt'])
+        )
+      );
+      allow delete: if isValidId(volunteerId) && ((isAuthenticated() && resource.data.uid == request.auth.uid) || isCitizenAdmin());
+    }
+
+    // Optional Businesses, NGOs & Institutions directory (admin-verified before public publish)
+    match /registered_organizations/{orgId} {
+      allow get: if isValidId(orgId) && ((resource.data.isPublicPublished == true && resource.data.verificationStatus == 'Verified') || (isAuthenticated() && resource.data.submittedByUid == request.auth.uid) || isCitizenAdmin());
+      allow list: if (resource.data.isPublicPublished == true && resource.data.verificationStatus == 'Verified') || (isAuthenticated() && resource.data.submittedByUid == request.auth.uid) || isCitizenAdmin();
+      allow create: if isValidOrganization(request.resource.data, orgId) && isAuthenticated() && (
+        isCitizenAdmin()
+        || (
+          request.resource.data.submittedByUid == request.auth.uid
+          && request.resource.data.verificationStatus == 'Pending Verification'
+          && request.resource.data.isPublicPublished == false
+        )
+      );
+      allow update: if isValidOrganization(request.resource.data, orgId) && (
+        isCitizenAdmin()
+        || (
+          isAuthenticated()
+          && resource.data.submittedByUid == request.auth.uid
+          && resource.data.verificationStatus == 'Pending Verification'
+          && request.resource.data.verificationStatus == 'Pending Verification'
+          && request.resource.data.isPublicPublished == false
+          && request.resource.data.submittedByUid == resource.data.submittedByUid
+        )
+      );
+      allow delete: if isValidId(orgId) && (isCitizenAdmin() || (isAuthenticated() && resource.data.submittedByUid == request.auth.uid && resource.data.verificationStatus == 'Pending Verification'));
+    }
+
+    // Immutable consent-verified communication delivery logs
+    // Citizens can only view their own In-App messages; admins view full delivery history.
+    match /communication_logs/{logId} {
+      allow get: if isValidId(logId) && (isCitizenAdmin() || (isAuthenticated() && resource.data.channel == 'In-App' && resource.data.recipientUid == request.auth.uid));
+      allow list: if isCitizenAdmin() || (isAuthenticated() && resource.data.channel == 'In-App' && resource.data.recipientUid == request.auth.uid);
+      allow create: if isValidId(logId) && isCitizenAdmin();
+      allow update, delete: if false;
+    }
+
+    // 11. Catch-all default deny
     match /{document=**} {
       allow read, write: if false;
     }

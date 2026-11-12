@@ -60,7 +60,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenPolicy }) => {
               {language === 'ur' ? 'حلقہ و پورٹل' : 'Constituency Directory'}
             </h4>
             <ul className="space-y-1">
-              {['about', 'constituency', 'projects', 'map', 'assembly'].map((id) => (
+              {['about', 'constituency', 'city', 'projects', 'map', 'assembly'].map((id) => (
                 <li key={id}>
                   <button
                     onClick={() => onNavigate(id)}
@@ -79,6 +79,14 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenPolicy }) => {
               {language === 'ur' ? 'عوامی خدمات' : 'Citizen Services'}
             </h4>
             <ul className="space-y-1">
+              <li>
+                <button
+                  onClick={() => onNavigate('community')}
+                  className="min-h-[38px] flex items-center hover:text-[#C9A227] transition cursor-pointer"
+                >
+                  {language === 'ur' ? 'چیچہ وطنی کمیونٹی نیٹ ورک' : 'Chichawatni Community Network'}
+                </button>
+              </li>
               <li>
                 <button
                   onClick={() => onNavigate('complaints')}

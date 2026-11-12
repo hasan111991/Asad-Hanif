@@ -57,10 +57,70 @@ export type AdminModuleId =
   | 'analytics'
   | 'settings'
   | 'staff'
-  | 'audit';
+  | 'audit'
+  | 'city-overview'
+  | 'city-master-plan'
+  | 'city-gis'
+  | 'city-areas'
+  | 'city-roads'
+  | 'city-water-sewerage'
+  | 'city-sanitation'
+  | 'city-traffic'
+  | 'city-parks'
+  | 'city-health-edu'
+  | 'city-markets'
+  | 'city-streetlights'
+  | 'city-town-planning'
+  | 'city-projects'
+  | 'city-budget'
+  | 'city-complaints'
+  | 'city-departments'
+  | 'city-surveys'
+  | 'city-reports'
+  | 'city-ai'
+  | 'city-citizens';
+
+const ALL_CITY_MODULES: AdminModuleId[] = [
+  'city-overview',
+  'city-master-plan',
+  'city-gis',
+  'city-areas',
+  'city-roads',
+  'city-water-sewerage',
+  'city-sanitation',
+  'city-traffic',
+  'city-parks',
+  'city-health-edu',
+  'city-markets',
+  'city-streetlights',
+  'city-town-planning',
+  'city-projects',
+  'city-budget',
+  'city-complaints',
+  'city-departments',
+  'city-surveys',
+  'city-reports',
+  'city-ai',
+  'city-citizens'
+];
+
+const ALL_PP203_MODULES: AdminModuleId[] = [
+  'dashboard',
+  'projects',
+  'complaints',
+  'notices',
+  'appointments',
+  'news',
+  'gallery',
+  'analytics',
+  'settings',
+  'staff',
+  'audit'
+];
 
 export const ROLE_PERMISSIONS: Record<AdminRole, AdminModuleId[]> = {
-  'Super Admin': [
+  'Super Admin': [...ALL_PP203_MODULES, ...ALL_CITY_MODULES],
+  'Admin': [
     'dashboard',
     'projects',
     'complaints',
@@ -70,33 +130,107 @@ export const ROLE_PERMISSIONS: Record<AdminRole, AdminModuleId[]> = {
     'gallery',
     'analytics',
     'settings',
-    'staff',
-    'audit'
+    'audit',
+    ...ALL_CITY_MODULES
+  ],
+  'City Manager': ['dashboard', 'analytics', ...ALL_CITY_MODULES],
+  'Department Manager': [
+    'dashboard',
+    'city-overview',
+    'city-master-plan',
+    'city-gis',
+    'city-roads',
+    'city-water-sewerage',
+    'city-sanitation',
+    'city-traffic',
+    'city-parks',
+    'city-health-edu',
+    'city-markets',
+    'city-streetlights',
+    'city-town-planning',
+    'city-projects',
+    'city-complaints',
+    'city-departments',
+    'city-surveys',
+    'city-reports',
+    'city-ai',
+    'city-citizens'
+  ],
+  'Field Officer': [
+    'dashboard',
+    'city-overview',
+    'city-gis',
+    'city-roads',
+    'city-water-sewerage',
+    'city-sanitation',
+    'city-traffic',
+    'city-parks',
+    'city-health-edu',
+    'city-streetlights',
+    'city-complaints',
+    'city-surveys'
+  ],
+  'Finance Officer': [
+    'dashboard',
+    'analytics',
+    'city-overview',
+    'city-master-plan',
+    'city-projects',
+    'city-budget',
+    'city-reports',
+    'city-ai'
   ],
   'Office Manager': [
     'dashboard',
     'complaints',
     'notices',
     'appointments',
-    'settings'
+    'settings',
+    'city-overview',
+    'city-complaints',
+    'city-departments',
+    'city-reports',
+    'city-citizens'
   ],
   'Project Manager': [
     'dashboard',
     'projects',
-    'analytics'
+    'analytics',
+    'city-overview',
+    'city-master-plan',
+    'city-gis',
+    'city-projects',
+    'city-roads',
+    'city-reports',
+    'city-ai'
   ],
   'Media Manager': [
     'dashboard',
     'news',
     'gallery',
-    'notices'
+    'notices',
+    'city-overview',
+    'city-reports',
+    'city-citizens'
   ],
   'Data Entry Operator': [
     'dashboard',
     'projects',
     'complaints',
     'notices',
-    'appointments'
+    'appointments',
+    'city-overview',
+    'city-areas',
+    'city-roads',
+    'city-water-sewerage',
+    'city-sanitation',
+    'city-parks',
+    'city-health-edu',
+    'city-markets',
+    'city-streetlights',
+    'city-projects',
+    'city-complaints',
+    'city-surveys'
   ]
 };
 
