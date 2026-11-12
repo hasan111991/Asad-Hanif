@@ -1,1376 +1,2874 @@
 import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth, AdminModuleId } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
-import { useLanguage } from '../context/LanguageContext';
-import { AdminRole, ComplaintStatus, ProjectStatus } from '../types';
 import {
-  ShieldAlert,
+  AdminRole,
+  AssemblyActivity,
+  AssemblyActivityCategory,
+  CitizenComplaint,
+  ComplaintStatus,
+  ContactMessage,
+  FundingType,
+  NewsCategory,
+  NewsItem,
+  NoticeCategory,
+  Project,
+  ProjectCategory,
+  ProjectStatus,
+  PublicNotice
+} from '../types';
+import { getAssetUrl, PORTRAIT_IMAGE_PATH, CHICHAWATNI_SCENE_PATH } from '../utils/assetUrl';
+import { AdminLogin } from './AdminLogin';
+import { QRCardModal } from './QRCardModal';
+import { MonthlyReportModal } from './MonthlyReportModal';
+import {
   LayoutDashboard,
-  MessageSquare,
   HardHat,
-  ClipboardList,
-  Sparkles,
-  Bot,
-  Database,
+  MessageSquare,
+  Bell,
+  CalendarClock,
+  Newspaper,
+  Image as ImageIcon,
+  BarChart3,
+  Settings as SettingsIcon,
   Users,
-  LogOut,
-  Plus,
-  Search,
-  Filter,
-  CheckCircle2,
-  AlertCircle,
-  FileSpreadsheet,
-  Download,
-  Upload,
-  Send,
-  Building,
-  MapPin,
-  Clock,
-  ArrowLeft,
+  ShieldAlert,
   Lock,
+  LogOut,
+  ExternalLink,
   Menu,
   X,
-  ChevronRight
+  Plus,
+  Pencil,
+  Trash2,
+  Download,
+  QrCode,
+  FileSpreadsheet,
+  Database,
+  CheckCircle2,
+  AlertCircle,
+  Send,
+  Search
 } from 'lucide-react';
 
-export const AdminPortal: React.FC<{ onExit: () => void }> = ({ onExit }) => {
-  const { currentUser, isAuthenticated, login, logout, hasRole, allStaff, updateStaffRole } = useAuth();
+interface AdminPortalProps {
+  activeSubRoute: AdminModuleId;
+  onNavigateRoute: (route: AdminModuleId) => void;
+  onExitToPublic: () => void;
+}
+
+const PROJECT_CATEGORIES: ProjectCategory[] = [
+  'Roads and Infrastructure',
+  'Education',
+  'Healthcare',
+  'Clean Drinking Water',
+  'Electricity',
+  'Sanitation',
+  'Public Facilities'
+];
+
+const PROJECT_STATUSES: ProjectStatus[] = [
+  'Proposed',
+  'Approved',
+  'In Progress',
+  'Completed'
+];
+
+const COMPLAINT_STATUSES: ComplaintStatus[] = [
+  'Received',
+  'Under Review',
+  'Referred to Department',
+  'Resolved',
+  'Closed'
+];
+
+const NOTICE_CATEGORIES: NoticeCategory[] = [
+  'Public Announcements',
+  'Development Updates',
+  'Office Notifications',
+  'Public Meetings',
+  'Important Documents'
+];
+
+const NEWS_CATEGORIES: NewsCategory[] = [
+  'Latest Updates',
+  'Press Releases',
+  'Assembly News',
+  'Constituency Visits',
+  'Public Darbar'
+];
+
+const ASSEMBLY_CATEGORIES: AssemblyActivityCategory[] = [
+  'Question Raised',
+  'Bill & Resolution',
+  'Committee Participation',
+  'Parliamentary Activity',
+  'Official Announcement'
+];
+
+const ADMIN_ROLES: AdminRole[] = [
+  'Super Admin',
+  'Office Manager',
+  'Project Manager',
+  'Media Manager',
+  'Data Entry Operator'
+];
+
+export const AdminPortal: React.FC<AdminPortalProps> = ({
+  activeSubRoute,
+  onNavigateRoute,
+  onExitToPublic
+}) => {
   const {
+    currentUser,
+    isAuthenticated,
+    authLoading,
+    logout,
+    canAccessModule,
+    allStaff,
+    createStaffAccount,
+    updateStaffRole,
+    toggleStaffStatus,
+    deleteStaffAccount
+  } = useAuth();
+
+  const {
+    profile,
     unionCouncils,
-    complaints,
-    updateComplaintStatus,
     projects,
+    assemblyActivities,
+    complaints,
+    contactMessages,
+    notices,
+    news,
+    gallery,
+    smsLogs,
+    settings,
+    auditLogs,
+    seedInitialFirestore,
+    updateProfile,
     addProject,
     updateProject,
-    surveys,
-    submitSurvey,
-    recommendations,
-    addRecommendation,
-    updateRecommendationStatus,
-    auditLogs,
-    exportDatabaseJSON,
-    importDatabaseJSON,
-    settings,
-    updateSettings
+    deleteProject,
+    addAssemblyActivity,
+    updateAssemblyActivity,
+    deleteAssemblyActivity,
+    updateComplaintStatus,
+    addNotice,
+    updateNotice,
+    deleteNotice,
+    updateContactStatus,
+    deleteContactMessage,
+    addNews,
+    updateNews,
+    deleteNews,
+    addGalleryItem,
+    deleteGalleryItem,
+    updateSettings,
+    exportDatabaseJSON
   } = useData();
-  const { language } = useLanguage();
 
-  // Login form state
-  const [loginEmail, setLoginEmail] = useState('admin@chasadhanif.pk');
-  const [selectedRole, setSelectedRole] = useState<AdminRole>('Super Admin');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showQrModal, setShowQrModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [feedbackBanner, setFeedbackBanner] = useState<{
+    type: 'success' | 'error';
+    text: string;
+  } | null>(null);
 
-  // Active admin module
-  const [activeModule, setActiveModule] = useState<
-    'dashboard' | 'complaints' | 'projects' | 'surveys' | 'ai_recommendations' | 'ai_assistant' | 'data_management' | 'staff' | 'settings'
-  >('dashboard');
+  // Module UI States
+  const [projectFormOpen, setProjectFormOpen] = useState(false);
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [projectDraft, setProjectDraft] = useState<Omit<Project, 'id'>>({
+    title: '',
+    titleUrdu: '',
+    category: 'Roads and Infrastructure',
+    categoryUrdu: 'سڑکیں اور انفراسٹرکچر',
+    unionCouncil: 'UC-91',
+    location: 'Chichawatni',
+    locationUrdu: 'چیچہ وطنی',
+    description: '',
+    descriptionUrdu: '',
+    status: 'Proposed',
+    statusUrdu: 'مجوزہ',
+    department: 'Highway & Roads Department Sahiwal',
+    departmentUrdu: 'محکمہ ہائی ویز ساہیوال',
+    budget: 'Rs. 25 Million',
+    startDate: new Date().toISOString().split('T')[0],
+    completionDate: '2026-12-31',
+    imageUrl: CHICHAWATNI_SCENE_PATH,
+    fundingType: 'Government-Funded',
+    fundingTypeUrdu: 'سرکاری فنڈنگ',
+    progressPercent: 15,
+    latitude: 30.5333,
+    longitude: 72.7000
+  });
 
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  // Complaints filter state
+  // Complaints triage state
+  const [complaintFilter, setComplaintFilter] = useState<string>('all');
   const [complaintSearch, setComplaintSearch] = useState('');
-  const [selectedComplaintStatus, setSelectedComplaintStatus] = useState<string>('all');
-  const [editingComplaint, setEditingComplaint] = useState<any>(null);
+  const [triagingComplaint, setTriagingComplaint] = useState<CitizenComplaint | null>(null);
+  const [triageStatus, setTriageStatus] = useState<ComplaintStatus>('Under Review');
+  const [triageDept, setTriageDept] = useState('');
+  const [triageOfficer, setTriageOfficer] = useState('');
+  const [triageRemarks, setTriageRemarks] = useState('');
+  const [triageSms, setTriageSms] = useState(true);
 
-  // New Project modal/form
-  const [showNewProjectModal, setShowNewProjectModal] = useState(false);
-  const [newProjectTitle, setNewProjectTitle] = useState('');
-  const [newProjectUC, setNewProjectUC] = useState('UC-45');
-  const [newProjectCategory, setNewProjectCategory] = useState<any>('Roads and Infrastructure');
-  const [newProjectBudget, setNewProjectBudget] = useState('PKR 45.0 Million');
-  const [newProjectLocation, setNewProjectLocation] = useState('');
-  const [newProjectDesc, setNewProjectDesc] = useState('');
+  // Notice modal state
+  const [noticeFormOpen, setNoticeFormOpen] = useState(false);
+  const [editingNotice, setEditingNotice] = useState<PublicNotice | null>(null);
+  const [noticeDraft, setNoticeDraft] = useState<Omit<PublicNotice, 'id'>>({
+    title: '',
+    titleUrdu: '',
+    category: 'Public Announcements',
+    categoryUrdu: 'عوامی اعلانات',
+    publishDate: new Date().toISOString().split('T')[0],
+    description: '',
+    descriptionUrdu: '',
+    fileUrl: '',
+    fileName: 'PP203-Official-Notice.pdf',
+    fileSize: '420 KB',
+    fileType: 'PDF',
+    isPublished: true,
+    officialRef: 'PP203/SEC/2026'
+  });
 
-  // Field Survey state
-  const [showSurveyModal, setShowSurveyModal] = useState(false);
-  const [surveyorName, setSurveyorName] = useState('');
-  const [surveyUC, setSurveyUC] = useState('UC-50');
-  const [surveyVillage, setSurveyVillage] = useState('');
-  const [surveyType, setSurveyType] = useState<any>('Infrastructure');
-  const [surveyRoadCond, setSurveyRoadCond] = useState('');
-  const [surveyFacilityCond, setSurveyFacilityCond] = useState('');
-  const [surveyIssues, setSurveyIssues] = useState('');
+  // Appointments notes state
+  const [editingInquiry, setEditingInquiry] = useState<ContactMessage | null>(null);
+  const [inquiryStatus, setInquiryStatus] = useState<ContactMessage['status']>('Reviewed');
+  const [inquiryNotes, setInquiryNotes] = useState('');
 
-  // AI Assistant Chat state
-  const [chatMessages, setChatMessages] = useState<Array<{ sender: 'user' | 'assistant'; text: string }>>([
-    {
-      sender: 'assistant',
-      text: 'Welcome to the PP-203 AI Administrative Assistant. I have indexed your verified constituency databases for Chichawatni: 11 Union Councils, education facilities, healthcare centers, road conditions, and citizen complaints. How can I assist you with constituent data, gap analysis, or report generation today?'
-    }
-  ]);
-  const [chatInput, setChatInput] = useState('');
-  const [isAiGenerating, setIsAiGenerating] = useState(false);
+  // News & Assembly dual-tab state
+  const [editorialSubTab, setEditorialSubTab] = useState<'news' | 'assembly'>('news');
+  const [newsFormOpen, setNewsFormOpen] = useState(false);
+  const [editingNews, setEditingNews] = useState<NewsItem | null>(null);
+  const [newsDraft, setNewsDraft] = useState<Omit<NewsItem, 'id'>>({
+    title: '',
+    titleUrdu: '',
+    category: 'Latest Updates',
+    categoryUrdu: 'تازہ ترین اپڈیٹس',
+    date: new Date().toISOString().split('T')[0],
+    summary: '',
+    summaryUrdu: '',
+    content: '',
+    contentUrdu: '',
+    imageUrl: CHICHAWATNI_SCENE_PATH,
+    isFeatured: false
+  });
 
-  // New AI recommendation generation
-  const [isGeneratingRec, setIsGeneratingRec] = useState(false);
+  const [assemblyFormOpen, setAssemblyFormOpen] = useState(false);
+  const [editingAssembly, setEditingAssembly] = useState<AssemblyActivity | null>(null);
+  const [assemblyDraft, setAssemblyDraft] = useState<Omit<AssemblyActivity, 'id'>>({
+    title: '',
+    titleUrdu: '',
+    category: 'Question Raised',
+    categoryUrdu: 'اسمبلی سوال',
+    sessionDate: new Date().toISOString().split('T')[0],
+    referenceNo: 'PAP-Q-2026',
+    summary: '',
+    summaryUrdu: '',
+    status: 'Submitted'
+  });
 
-  // Handle Login
-  const handleLoginSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    login(loginEmail, selectedRole);
+  // Gallery state
+  const [galleryTitle, setGalleryTitle] = useState('');
+  const [galleryTitleUr, setGalleryTitleUr] = useState('');
+  const [galleryType, setGalleryType] = useState<'photo' | 'video'>('photo');
+  const [galleryUrl, setGalleryUrl] = useState(CHICHAWATNI_SCENE_PATH);
+  const [galleryCategory, setGalleryCategory] = useState('Constituency Visit');
+
+  // Settings & Profile form state
+  const [settingsDraft, setSettingsDraft] = useState(settings);
+  const [profileDraft, setProfileDraft] = useState(profile);
+
+  // Sync settings/profile drafts if needed cleanly
+  React.useEffect(() => {
+    setSettingsDraft(settings);
+  }, [settings]);
+
+  React.useEffect(() => {
+    setProfileDraft(profile);
+  }, [profile]);
+
+  // Staff provisioning state
+  const [staffName, setStaffName] = useState('');
+  const [staffEmail, setStaffEmail] = useState('');
+  const [staffPassword, setStaffPassword] = useState('');
+  const [staffRole, setStaffRole] = useState<AdminRole>('Office Manager');
+  const [staffPhone, setStaffPhone] = useState('');
+  const [auditSearch, setAuditSearch] = useState('');
+
+  const notify = (type: 'success' | 'error', text: string) => {
+    setFeedbackBanner({ type, text });
+    setTimeout(() => setFeedbackBanner(null), 5000);
   };
 
-  // AI Assistant Query Handler
-  const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!chatInput.trim() || isAiGenerating) return;
-
-    const query = chatInput.trim();
-    setChatMessages(prev => [...prev, { sender: 'user', text: query }]);
-    setChatInput('');
-    setIsAiGenerating(true);
-
-    try {
-      const qLower = query.toLowerCase();
-      let responseText = '';
-
-      if (qLower.includes('complaint') || qLower.includes('grievance') || qLower.includes('issue')) {
-        const total = complaints.length;
-        const resolved = complaints.filter(c => c.status === 'Resolved').length;
-        const pending = total - resolved;
-        responseText = `Based on verified PP-203 records:\n• Total complaints: ${total}\n• Resolved complaints: ${resolved}\n• Under action: ${pending}\n• Top sectors: Water Supply & Sewerage (45% of total).\n• Most active areas: UC-45 (Railway/Purana Bazaar) and UC-50 (Chak 168/9-L).`;
-      } else if (qLower.includes('health') || qLower.includes('hospital') || qLower.includes('bhu')) {
-        responseText = `Healthcare Coverage in PP-203:\n• 1 THQ Hospital Chichawatni (120 beds, 24/7 Trauma & Dialysis).\n• 2 Rural Health Centers (RHC): Okanwala Bangla & Ghaziabad.\n• Identified Gap: Southwestern rural BHUs (UC-51 & UC-54) lack 24/7 maternity staff; nighttime obstetric emergencies require long transit to THQ.`;
-      } else if (qLower.includes('school') || qLower.includes('education') || qLower.includes('college')) {
-        responseText = `Education Facilities in PP-203:\n• 6 Degree & Associate Colleges (Govt Degree College for Boys, Govt Associate College for Women, TEVTA).\n• Gaps identified: Critical classroom shortage in Chak 34/14-L (UC-53) and need for solar power backup in rural girls' elementary schools.`;
-      } else if (qLower.includes('recommend') || qLower.includes('priority') || qLower.includes('budget')) {
-        responseText = `Top 3 Recommended Constituency Interventions:\n1. Solar RO Water Plants in High-Fluoride Chaks (UC-53 & UC-55) — Est. Cost: PKR 14.5M – 18.0M.\n2. Upgradation of BHU Chak 110/12-L to 24/7 Maternity Center — Est. Cost: PKR 22.0M.\n3. Farm-to-Market Metalled Road Linking Chak 168/9-L to Kamalia Bypass — Est. Cost: PKR 48.0M.`;
-      } else {
-        responseText = `Constituency Overview for PP-203 Chichawatni:\n• 11 Union Councils (3 Urban, 8 Rural) covering 345,000+ residents.\n• Major economic driver: Agriculture & Grain Market (Ghalla Mandi) supported by Lower Bari Doab Canal (LBDC) distributaries 9-L, 12-L, 14-L.\n• Secretariat Status: Active public Khuli Kachehri every Tuesday & Thursday.`;
-      }
-
-      setTimeout(() => {
-        setChatMessages(prev => [...prev, { sender: 'assistant', text: responseText }]);
-        setIsAiGenerating(false);
-      }, 600);
-    } catch {
-      setIsAiGenerating(false);
-    }
-  };
-
-  const handleGenerateAIRecommendation = () => {
-    setIsGeneratingRec(true);
-    setTimeout(() => {
-      addRecommendation({
-        title: 'Solarization of Primary Schools in Tail-End Rural Chaks',
-        titleUrdu: 'ٹیل کے دیہی چکوں میں پرائمری اسکولوں کی سولر پاور پر منتقلی',
-        location: 'Chak 112/12-L & Chak 114/12-L',
-        unionCouncil: 'UC-48',
-        problemIdentified: 'Frequent 6-8 hour unannounced load shedding during summer disrupts elementary education and water pumping.',
-        evidenceUsed: 'Field Survey srv-102 and 5 citizen petitions.',
-        sourceRecords: 'Education Facility DB edu-5, Surveys srv-102.',
-        estimatedPopulationAffected: 4200,
-        estimatedCostRange: 'PKR 8.5 – 10.0 Million (10kW hybrid solar per school)',
-        priorityLevel: 'High',
-        expectedBenefits: 'Guarantees 100% uninterrupted power for computer labs, lighting, and fans for 1,200+ students.',
-        risksAndLimitations: 'Requires security fencing around battery racks.',
-        suggestedNextAction: 'Submit request to Punjab School Education Department (SED) ADP window.',
-        confidenceLevel: 92,
-        status: 'Pending Review'
-      });
-      setIsGeneratingRec(false);
-    }, 900);
-  };
-
-  const adminNavItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'complaints', label: `Complaints (${complaints.length})`, icon: MessageSquare },
-    { id: 'projects', label: `Projects (${projects.length})`, icon: HardHat },
-    { id: 'surveys', label: `Surveys (${surveys.length})`, icon: ClipboardList },
-    { id: 'ai_recommendations', label: 'AI Recommendations', icon: Sparkles },
-    { id: 'ai_assistant', label: 'AI Assistant', icon: Bot },
-    { id: 'data_management', label: 'Data Backup', icon: Database },
-    { id: 'staff', label: 'Staff Roles', icon: Users },
-  ];
-
-  // If Not Authenticated, show Mobile-First Login Screen
-  if (!isAuthenticated) {
+  if (authLoading) {
     return (
-      <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-3 xs:p-4">
-        <div className="w-full max-w-md bg-slate-800/90 border border-slate-700 rounded-3xl p-5 sm:p-8 shadow-2xl backdrop-blur-md">
-          <div className="text-center mb-6">
-            <div className="w-14 h-14 bg-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-              <Lock className="w-7 h-7 text-white" />
-            </div>
-            <span className="text-[10px] font-mono uppercase tracking-wider text-amber-400 font-bold block">
-              Private Access Only
-            </span>
-            <h2 className="text-xl sm:text-2xl font-bold text-white mt-1">
-              Secretariat Staff Portal
-            </h2>
-            <p className="text-xs text-slate-400 mt-1">
-              PP-203 Smart Constituency Management System
-            </p>
-          </div>
-
-          <form onSubmit={handleLoginSubmit} className="space-y-4">
-            <div>
-              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
-                Staff Email
-              </label>
-              <input
-                type="email"
-                required
-                value={loginEmail}
-                onChange={(e) => setLoginEmail(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-white min-h-[44px]"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
-                Role Permission Level
-              </label>
-              <select
-                value={selectedRole}
-                onChange={(e) => setSelectedRole(e.target.value as AdminRole)}
-                className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-white min-h-[44px]"
-              >
-                <option value="Super Admin">Super Admin (All Privileges)</option>
-                <option value="Office Manager">Office Manager (Secretariat)</option>
-                <option value="Complaint Manager">Complaint Manager</option>
-                <option value="Project Manager">Project Manager</option>
-                <option value="Field Survey Officer">Field Survey Officer</option>
-                <option value="Read-only Analyst">Read-only Analyst</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
-                Password
-              </label>
-              <input
-                type="password"
-                defaultValue="secretariat2026"
-                placeholder="••••••••••••"
-                className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-white min-h-[44px]"
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full min-h-[48px] bg-[#087A43] hover:bg-[#064D2B] text-white font-bold py-3 rounded-xl transition shadow-lg text-sm flex items-center justify-center gap-2 mt-2 active:scale-98"
-            >
-              <span>Authenticate & Enter Portal</span>
-            </button>
-          </form>
-
-          {/* Quick Demo Switcher */}
-          <div className="mt-6 pt-4 border-t border-slate-700 text-xs">
-            <span className="text-slate-400 block mb-2 font-medium">Quick Test Roles:</span>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => { setLoginEmail('admin@chasadhanif.pk'); setSelectedRole('Super Admin'); }}
-                className="min-h-[44px] bg-slate-700/60 hover:bg-slate-700 p-2 rounded-xl text-[11px] text-slate-200 text-left font-mono truncate active:scale-95"
-              >
-                Super Admin
-              </button>
-              <button
-                type="button"
-                onClick={() => { setLoginEmail('complaints@chasadhanif.pk'); setSelectedRole('Complaint Manager'); }}
-                className="min-h-[44px] bg-slate-700/60 hover:bg-slate-700 p-2 rounded-xl text-[11px] text-slate-200 text-left font-mono truncate active:scale-95"
-              >
-                Complaint Mgr
-              </button>
-              <button
-                type="button"
-                onClick={() => { setLoginEmail('projects@chasadhanif.pk'); setSelectedRole('Project Manager'); }}
-                className="min-h-[44px] bg-slate-700/60 hover:bg-slate-700 p-2 rounded-xl text-[11px] text-slate-200 text-left font-mono truncate active:scale-95"
-              >
-                Project Mgr
-              </button>
-              <button
-                type="button"
-                onClick={() => { setLoginEmail('survey@chasadhanif.pk'); setSelectedRole('Field Survey Officer'); }}
-                className="min-h-[44px] bg-slate-700/60 hover:bg-slate-700 p-2 rounded-xl text-[11px] text-slate-200 text-left font-mono truncate active:scale-95"
-              >
-                Survey Officer
-              </button>
-            </div>
-          </div>
-
-          <div className="mt-6 text-center">
-            <button
-              onClick={onExit}
-              className="min-h-[44px] text-xs text-slate-400 hover:text-white flex items-center justify-center gap-1.5 mx-auto"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Return to Public Website</span>
-            </button>
-          </div>
+      <div className="min-h-screen bg-[#123B28] text-white flex items-center justify-center p-6">
+        <div className="text-center space-y-3">
+          <div className="w-10 h-10 border-4 border-[#C9A227] border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-xs font-semibold tracking-wider uppercase text-emerald-100">
+            Verifying Secretariat Session...
+          </p>
         </div>
       </div>
     );
   }
 
-  // Authenticated Admin Dashboard Layout
-  return (
-    <div className="min-h-screen bg-slate-100 flex flex-col w-full">
-      {/* Top Admin Header (Mobile responsive) */}
-      <header className="bg-slate-900 text-white px-3 sm:px-8 py-3 flex items-center justify-between shadow-md sticky top-0 z-40">
-        <div className="flex items-center gap-2.5 min-w-0">
-          {/* Mobile Drawer Trigger (Hamburger) */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden w-11 h-11 flex items-center justify-center rounded-xl text-slate-300 hover:text-white hover:bg-slate-800 transition shrink-0"
-            aria-label="Toggle admin modules"
-          >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+  if (!isAuthenticated || !currentUser) {
+    return <AdminLogin onExitToPublic={onExitToPublic} />;
+  }
 
-          <div className="w-8 h-8 rounded-lg bg-[#087A43] flex items-center justify-center font-bold text-white text-xs shrink-0">
-            PP
-          </div>
-          <div className="min-w-0">
-            <h1 className="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5 truncate">
-              <span>PP-203 Admin</span>
-              <span className="text-[10px] font-mono bg-emerald-950 text-emerald-400 border border-emerald-800 px-1.5 py-0.5 rounded truncate max-w-[110px] sm:max-w-none">
-                {currentUser?.role}
-              </span>
-            </h1>
-            <p className="text-[10px] sm:text-[11px] text-slate-400 font-mono truncate hidden xs:block">
-              {currentUser?.email}
-            </p>
-          </div>
+  const navItems: {
+    id: AdminModuleId;
+    label: string;
+    icon: React.ComponentType<{ className?: string }>;
+  }[] = [
+    { id: 'dashboard', label: 'Overview', icon: LayoutDashboard },
+    { id: 'projects', label: 'Projects CMS', icon: HardHat },
+    { id: 'complaints', label: 'Complaints', icon: MessageSquare },
+    { id: 'notices', label: 'Public Notices', icon: Bell },
+    { id: 'appointments', label: 'Appointments', icon: CalendarClock },
+    { id: 'news', label: 'News & Assembly', icon: Newspaper },
+    { id: 'gallery', label: 'Media Gallery', icon: ImageIcon },
+    { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+    { id: 'settings', label: 'Settings & Profile', icon: SettingsIcon },
+    { id: 'staff', label: 'Staff & Roles', icon: Users },
+    { id: 'audit', label: 'Audit Logs', icon: ShieldAlert }
+  ];
+
+  const isRouteAllowed = canAccessModule(activeSubRoute);
+  const currentNavMeta = navItems.find((n) => n.id === activeSubRoute) || navItems[0];
+
+  const resolvedComplaints = complaints.filter(
+    (c) => c.status === 'Resolved' || c.status === 'Closed'
+  ).length;
+  const resolutionRate =
+    complaints.length > 0 ? Math.round((resolvedComplaints / complaints.length) * 100) : 0;
+  const pendingInquiries = contactMessages.filter((m) => m.status === 'Pending').length;
+
+  const handleExportJSON = () => {
+    const json = exportDatabaseJSON();
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `PP203-Secretariat-Backup-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    notify('success', 'Full constituency JSON export downloaded.');
+  };
+
+  const handleSaveProject = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (editingProject) {
+        await updateProject(editingProject.id, projectDraft);
+        notify('success', 'Development project updated in Firestore.');
+      } else {
+        await addProject(projectDraft);
+        notify('success', 'New development project published to Firestore.');
+      }
+      setProjectFormOpen(false);
+      setEditingProject(null);
+    } catch (err) {
+      notify('error', 'Failed to save project record.');
+    }
+  };
+
+  const handleOpenEditProject = (p: Project) => {
+    setEditingProject(p);
+    const { id: _id, ...rest } = p;
+    setProjectDraft(rest);
+    setProjectFormOpen(true);
+  };
+
+  const handleOpenNewProject = () => {
+    setEditingProject(null);
+    setProjectDraft({
+      title: '',
+      titleUrdu: '',
+      category: 'Roads and Infrastructure',
+      categoryUrdu: 'سڑکیں اور انفراسٹرکچر',
+      unionCouncil: 'UC-91',
+      location: 'Chichawatni',
+      locationUrdu: 'چیچہ وطنی',
+      description: '',
+      descriptionUrdu: '',
+      status: 'Proposed',
+      statusUrdu: 'مجوزہ',
+      department: 'Highway & Roads Department Sahiwal',
+      departmentUrdu: 'محکمہ ہائی ویز ساہیوال',
+      budget: 'Rs. 25 Million',
+      startDate: new Date().toISOString().split('T')[0],
+      completionDate: '2026-12-31',
+      imageUrl: CHICHAWATNI_SCENE_PATH,
+      fundingType: 'Government-Funded',
+      fundingTypeUrdu: 'سرکاری فنڈنگ',
+      progressPercent: 10,
+      latitude: 30.5333,
+      longitude: 72.7000
+    });
+    setProjectFormOpen(true);
+  };
+
+  const handleOpenTriage = (c: CitizenComplaint) => {
+    setTriagingComplaint(c);
+    setTriageStatus(c.status);
+    setTriageDept(c.departmentReferred || '');
+    setTriageOfficer(c.assignedOfficer || '');
+    setTriageRemarks(c.adminRemarks || '');
+    setTriageSms(true);
+  };
+
+  const handleSubmitTriage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!triagingComplaint) return;
+    try {
+      await updateComplaintStatus(
+        triagingComplaint.trackingId,
+        triageStatus,
+        triageRemarks,
+        triageDept,
+        triageOfficer,
+        triageSms
+      );
+      setTriagingComplaint(null);
+      notify(
+        'success',
+        `Complaint ${triagingComplaint.trackingId} updated to "${triageStatus}".`
+      );
+    } catch {
+      notify('error', 'Failed to update complaint status.');
+    }
+  };
+
+  const handleSaveNotice = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (editingNotice) {
+        await updateNotice(editingNotice.id, noticeDraft);
+        notify('success', 'Official notice updated.');
+      } else {
+        await addNotice(noticeDraft);
+        notify('success', 'Official notice created.');
+      }
+      setNoticeFormOpen(false);
+      setEditingNotice(null);
+    } catch {
+      notify('error', 'Failed to save notice.');
+    }
+  };
+
+  const handleSaveInquiryUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingInquiry) return;
+    try {
+      await updateContactStatus(editingInquiry.id, inquiryStatus, inquiryNotes);
+      setEditingInquiry(null);
+      notify('success', 'Inquiry / Appointment record updated.');
+    } catch {
+      notify('error', 'Failed to update inquiry.');
+    }
+  };
+
+  const handleSaveNews = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (editingNews) {
+        await updateNews(editingNews.id, newsDraft);
+        notify('success', 'News update saved.');
+      } else {
+        await addNews(newsDraft);
+        notify('success', 'News update published.');
+      }
+      setNewsFormOpen(false);
+      setEditingNews(null);
+    } catch {
+      notify('error', 'Failed to save news article.');
+    }
+  };
+
+  const handleSaveAssembly = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (editingAssembly) {
+        await updateAssemblyActivity(editingAssembly.id, assemblyDraft);
+        notify('success', 'Punjab Assembly activity updated.');
+      } else {
+        await addAssemblyActivity(assemblyDraft);
+        notify('success', 'Punjab Assembly activity published.');
+      }
+      setAssemblyFormOpen(false);
+      setEditingAssembly(null);
+    } catch {
+      notify('error', 'Failed to save Assembly record.');
+    }
+  };
+
+  const handleAddGallery = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!galleryTitle.trim() || !galleryUrl.trim()) return;
+    try {
+      await addGalleryItem({
+        title: galleryTitle.trim(),
+        titleUrdu: galleryTitleUr.trim() || galleryTitle.trim(),
+        category: galleryCategory,
+        categoryUrdu: galleryCategory,
+        mediaType: galleryType,
+        mediaUrl: galleryUrl.trim(),
+        date: new Date().toISOString().split('T')[0],
+        caption: galleryTitle.trim(),
+        captionUrdu: galleryTitleUr.trim() || galleryTitle.trim()
+      });
+      setGalleryTitle('');
+      setGalleryTitleUr('');
+      notify('success', 'Media item added to Gallery.');
+    } catch {
+      notify('error', 'Could not add gallery item.');
+    }
+  };
+
+  const handleSaveSettingsAndProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await updateSettings(settingsDraft);
+      await updateProfile(profileDraft);
+      notify('success', 'Portal settings and Representative Profile saved to Firestore.');
+    } catch {
+      notify('error', 'Failed to save settings.');
+    }
+  };
+
+  const handleCreateStaff = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const res = await createStaffAccount({
+      email: staffEmail,
+      password: staffPassword,
+      displayName: staffName,
+      role: staffRole,
+      phone: staffPhone
+    });
+    if (res.success) {
+      setStaffName('');
+      setStaffEmail('');
+      setStaffPassword('');
+      setStaffPhone('');
+      notify('success', `Staff account provisioned (${staffRole}).`);
+    } else {
+      notify('error', res.error || 'Could not create staff user.');
+    }
+  };
+
+  const filteredComplaints = complaints.filter((c) => {
+    const matchesFilter = complaintFilter === 'all' || c.status === complaintFilter;
+    const q = complaintSearch.toLowerCase();
+    const matchesSearch =
+      !q ||
+      c.trackingId.toLowerCase().includes(q) ||
+      c.citizenName.toLowerCase().includes(q) ||
+      c.unionCouncil.toLowerCase().includes(q) ||
+      c.category.toLowerCase().includes(q);
+    return matchesFilter && matchesSearch;
+  });
+
+  const filteredAudit = auditLogs.filter((log) => {
+    const q = auditSearch.toLowerCase();
+    return (
+      !q ||
+      log.action.toLowerCase().includes(q) ||
+      log.adminEmail.toLowerCase().includes(q) ||
+      log.details.toLowerCase().includes(q)
+    );
+  });
+
+  const SidebarContent = () => (
+    <div className="flex flex-col h-full bg-[#123B28] text-white">
+      {/* Brand Block */}
+      <div className="p-5 border-b border-white/10 flex items-center gap-3">
+        <div className="w-10 h-10 rounded-full border-2 border-[#C9A227] overflow-hidden shrink-0">
+          <img
+            src={getAssetUrl(profile.photoUrl || PORTRAIT_IMAGE_PATH)}
+            alt="Secretariat Crest"
+            className="w-full h-full object-cover object-top"
+          />
         </div>
-
-        <div className="flex items-center gap-2 shrink-0">
-          <button
-            onClick={onExit}
-            className="min-h-[40px] text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-xl text-slate-300 transition flex items-center gap-1.5"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Public Site</span>
-          </button>
-
-          <button
-            onClick={logout}
-            className="min-h-[40px] text-xs bg-red-950 hover:bg-red-900 text-red-200 border border-red-800 px-3 py-1.5 rounded-xl transition flex items-center gap-1.5"
-            title="Log Out"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Log Out</span>
-          </button>
+        <div className="min-w-0">
+          <span className="font-editorial text-sm font-bold text-white block truncate">
+            PP-203 Secretariat
+          </span>
+          <span className="text-[11px] text-[#C9A227] block truncate">
+            {currentUser.role}
+          </span>
         </div>
-      </header>
+      </div>
 
-      {/* Desktop Horizontal Tabs Bar */}
-      <div className="hidden md:flex bg-white border-b border-slate-200 px-4 sm:px-8 py-2 overflow-x-auto items-center gap-1 shadow-2xs scrollbar-none">
-        {adminNavItems.map(item => {
+      {/* Navigation Links */}
+      <nav className="flex-1 overflow-y-auto p-3 space-y-1">
+        {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = activeModule === item.id;
+          const allowed = canAccessModule(item.id);
+          const active = activeSubRoute === item.id;
           return (
             <button
               key={item.id}
-              onClick={() => setActiveModule(item.id as any)}
-              className={`min-h-[40px] flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
-                isActive
-                  ? 'bg-emerald-50 text-[#087A43] font-bold border border-emerald-200 shadow-2xs'
-                  : 'text-slate-600 hover:bg-slate-50'
+              type="button"
+              onClick={() => {
+                onNavigateRoute(item.id);
+                setSidebarOpen(false);
+              }}
+              className={`w-full min-h-[42px] px-3 py-2 rounded-xl text-xs font-semibold flex items-center justify-between transition cursor-pointer ${
+                active
+                  ? 'bg-[#087A43] text-white shadow-xs border border-[#C9A227]/40'
+                  : allowed
+                    ? 'text-emerald-100/85 hover:bg-white/10 hover:text-white'
+                    : 'text-emerald-200/40 hover:bg-white/5'
               }`}
             >
-              <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#087A43]' : 'text-slate-400'}`} />
-              <span>{item.label}</span>
+              <span className="flex items-center gap-2.5 truncate">
+                <Icon className="w-4 h-4 shrink-0 text-[#C9A227]" />
+                <span className="truncate">{item.label}</span>
+              </span>
+              {!allowed && <Lock className="w-3.5 h-3.5 shrink-0 opacity-70" />}
             </button>
           );
         })}
+      </nav>
+
+      {/* Bottom Actions */}
+      <div className="p-3 border-t border-white/10 space-y-1.5">
+        <button
+          type="button"
+          onClick={onExitToPublic}
+          className="w-full min-h-[40px] px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-semibold text-white flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <ExternalLink className="w-3.5 h-3.5 text-[#C9A227]" />
+          <span>Public Website</span>
+        </button>
+        <button
+          type="button"
+          onClick={logout}
+          className="w-full min-h-[40px] px-3 py-2 rounded-xl bg-red-950/60 hover:bg-red-900 text-xs font-semibold text-red-100 flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <LogOut className="w-3.5 h-3.5" />
+          <span>Sign Out</span>
+        </button>
       </div>
+    </div>
+  );
 
-      {/* Mobile Collapsible Module Drawer */}
-      {mobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex">
-          <div className="w-4/5 max-w-xs bg-white h-full flex flex-col p-4 shadow-2xl animate-fade-in">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
-              <span className="font-bold text-slate-900 text-sm">Admin Navigation</span>
-              <button
-                onClick={() => setMobileMenuOpen(false)}
-                className="w-10 h-10 flex items-center justify-center text-slate-500 rounded-lg hover:bg-slate-100"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+  return (
+    <div className="min-h-screen bg-[#F7F9F7] text-[#1B241E] flex w-full max-w-full overflow-x-hidden">
+      {/* Desktop Fixed Sidebar */}
+      <aside className="hidden lg:block w-64 shrink-0 sticky top-0 h-screen">
+        <SidebarContent />
+      </aside>
 
-            <nav className="flex-1 overflow-y-auto py-3 space-y-1">
-              {adminNavItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = activeModule === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => {
-                      setActiveModule(item.id as any);
-                      setMobileMenuOpen(false);
-                    }}
-                    className={`w-full min-h-[44px] flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition ${
-                      isActive
-                        ? 'bg-emerald-50 text-[#087A43] font-bold border border-emerald-200'
-                        : 'text-slate-700 hover:bg-slate-50'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <Icon className="w-4 h-4 text-emerald-700" />
-                      <span>{item.label}</span>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-slate-400" />
-                  </button>
-                );
-              })}
-            </nav>
-
-            <div className="pt-3 border-t border-slate-200 text-xs text-slate-500">
-              <span className="font-mono block truncate">{currentUser?.email}</span>
-              <span className="text-emerald-700 font-bold block mt-0.5">{currentUser?.role}</span>
-            </div>
+      {/* Mobile Drawer Sidebar */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden flex bg-black/60 backdrop-blur-xs">
+          <div className="w-72 max-w-[82%] h-full shadow-2xl">
+            <SidebarContent />
           </div>
-
-          <div className="flex-1" onClick={() => setMobileMenuOpen(false)} />
+          <div className="flex-1" onClick={() => setSidebarOpen(false)}>
+            <button
+              type="button"
+              onClick={() => setSidebarOpen(false)}
+              className="m-3 w-10 h-10 bg-white rounded-full flex items-center justify-center text-slate-900 shadow-lg cursor-pointer"
+              aria-label="Close sidebar"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
       )}
 
-      {/* Admin Body Content */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-3 xs:p-4 sm:p-8 space-y-6">
-        {/* Module 1: Dashboard Overview */}
-        {activeModule === 'dashboard' && (
-          <div className="space-y-6 animate-fade-in">
-            {/* KPI Cards (1-col on 320px, 2-col on standard mobile, 4-col on desktop) */}
-            <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-              <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs">
-                <span className="text-xs text-slate-400 font-medium block">Total Complaints</span>
-                <div className="text-2xl font-bold text-slate-900 mt-1">{complaints.length}</div>
-                <div className="text-[11px] text-emerald-700 font-semibold mt-1">
-                  {complaints.filter(c => c.status === 'Resolved').length} Resolved
-                </div>
-              </div>
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Top Bar */}
+        <header className="sticky top-0 z-30 bg-white border-b border-slate-200 px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <button
+              type="button"
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 text-[#123B28] hover:bg-slate-50 cursor-pointer shrink-0"
+              aria-label="Open menu"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <div className="min-w-0">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-[#087A43] block">
+                Private Admin CMS · /admin/{activeSubRoute}
+              </span>
+              <h1 className="font-editorial text-sm sm:text-lg font-bold text-[#123B28] truncate">
+                {currentNavMeta.label}
+              </h1>
+            </div>
+          </div>
 
-              <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs">
-                <span className="text-xs text-slate-400 font-medium block">Projects Managed</span>
-                <div className="text-2xl font-bold text-slate-900 mt-1">{projects.length}</div>
-                <div className="text-[11px] text-blue-700 font-semibold mt-1">
-                  PKR 481.5M Allocated
-                </div>
-              </div>
-
-              <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs">
-                <span className="text-xs text-slate-400 font-medium block">Field Surveys</span>
-                <div className="text-2xl font-bold text-slate-900 mt-1">{surveys.length}</div>
-                <div className="text-[11px] text-amber-700 font-semibold mt-1">
-                  100% Geo-verified
-                </div>
-              </div>
-
-              <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs">
-                <span className="text-xs text-slate-400 font-medium block">AI Recommendations</span>
-                <div className="text-2xl font-bold text-purple-700 mt-1">{recommendations.length}</div>
-                <div className="text-[11px] text-purple-700 font-semibold mt-1">
-                  Active Gap Detection
-                </div>
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <div className="hidden sm:block text-right">
+              <div className="text-xs font-bold text-[#123B28]">{currentUser.displayName}</div>
+              <div className="text-[11px] text-slate-500">
+                {currentUser.email} · {currentUser.role}
               </div>
             </div>
+            <button
+              type="button"
+              onClick={() => setShowQrModal(true)}
+              className="min-h-[40px] px-3 py-2 rounded-xl bg-[#F7F9F7] border border-slate-200 text-xs font-bold text-[#123B28] hover:bg-emerald-50 inline-flex items-center gap-1.5 cursor-pointer"
+              title="QR Code & Visiting Card"
+            >
+              <QrCode className="w-4 h-4 text-[#087A43]" />
+              <span className="hidden md:inline">QR Card</span>
+            </button>
+          </div>
+        </header>
 
-            {/* Audit Logs & Quick Action */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6">
-              <div className="lg:col-span-8 bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 shadow-xs space-y-3.5">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-slate-900 text-xs sm:text-sm">Administrative Audit Logs</h3>
-                  <span className="text-[10px] text-slate-400 font-mono">Immutable Trail</span>
-                </div>
-
-                <div className="space-y-2.5">
-                  {auditLogs.slice(0, 5).map((log) => (
-                    <div key={log.id} className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex flex-col xs:flex-row xs:items-start justify-between gap-1 text-xs">
-                      <div className="min-w-0">
-                        <span className="font-bold text-slate-800 block truncate">{log.action}</span>
-                        <p className="text-slate-600 mt-0.5 leading-relaxed">{log.details}</p>
-                        <span className="text-[10px] text-slate-400 font-mono mt-0.5 block truncate">
-                          By: {log.adminEmail}
-                        </span>
-                      </div>
-                      <span className="text-[10px] text-slate-400 font-mono shrink-0">
-                        {log.timestamp.split('T')[0]}
-                      </span>
-                    </div>
-                  ))}
-                </div>
+        {/* Feedback Alert Banner */}
+        {feedbackBanner && (
+          <div className="px-4 sm:px-6 pt-4">
+            <div
+              className={`rounded-xl px-4 py-3 text-xs font-semibold flex items-center justify-between gap-3 border ${
+                feedbackBanner.type === 'success'
+                  ? 'bg-emerald-50 border-emerald-200 text-[#123B28]'
+                  : 'bg-red-50 border-red-200 text-red-800'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                {feedbackBanner.type === 'success' ? (
+                  <CheckCircle2 className="w-4 h-4 text-[#087A43] shrink-0" />
+                ) : (
+                  <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+                )}
+                <span>{feedbackBanner.text}</span>
               </div>
-
-              <div className="lg:col-span-4 bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 shadow-xs space-y-3">
-                <h3 className="font-bold text-slate-900 text-xs sm:text-sm">Quick Action Shortcuts</h3>
-                <div className="space-y-2">
-                  <button
-                    onClick={() => setActiveModule('complaints')}
-                    className="w-full text-left min-h-[44px] p-3 rounded-xl bg-slate-50 hover:bg-emerald-50 border border-slate-200 text-xs font-semibold text-slate-800 hover:text-emerald-800 transition flex items-center justify-between active:scale-98"
-                  >
-                    <span>Process Complaints</span>
-                    <span className="text-[10px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-mono">
-                      {complaints.filter(c => c.status !== 'Resolved').length}
-                    </span>
-                  </button>
-
-                  <button
-                    onClick={() => { setShowNewProjectModal(true); setActiveModule('projects'); }}
-                    className="w-full text-left min-h-[44px] p-3 rounded-xl bg-slate-50 hover:bg-emerald-50 border border-slate-200 text-xs font-semibold text-slate-800 hover:text-emerald-800 transition flex items-center justify-between active:scale-98"
-                  >
-                    <span>Add Development Scheme</span>
-                    <Plus className="w-4 h-4 text-emerald-700" />
-                  </button>
-
-                  <button
-                    onClick={() => { setShowSurveyModal(true); setActiveModule('surveys'); }}
-                    className="w-full text-left min-h-[44px] p-3 rounded-xl bg-slate-50 hover:bg-emerald-50 border border-slate-200 text-xs font-semibold text-slate-800 hover:text-emerald-800 transition flex items-center justify-between active:scale-98"
-                  >
-                    <span>Record Field Survey</span>
-                    <ClipboardList className="w-4 h-4 text-emerald-700" />
-                  </button>
-
-                  <button
-                    onClick={() => setActiveModule('ai_assistant')}
-                    className="w-full text-left min-h-[44px] p-3 rounded-xl bg-purple-50 hover:bg-purple-100 border border-purple-200 text-xs font-semibold text-purple-900 transition flex items-center justify-between active:scale-98"
-                  >
-                    <span>Query AI Assistant</span>
-                    <Bot className="w-4 h-4 text-purple-700" />
-                  </button>
-                </div>
-              </div>
+              <button
+                type="button"
+                onClick={() => setFeedbackBanner(null)}
+                className="text-slate-400 hover:text-slate-700 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
           </div>
         )}
 
-        {/* Module 2: Complaints Management (Mobile cards + Desktop Table) */}
-        {activeModule === 'complaints' && (
-          <div className="space-y-4 sm:space-y-6 animate-fade-in">
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200">
-              <div className="flex flex-col xs:flex-row items-stretch xs:items-center gap-2 flex-1">
-                <div className="relative flex-1">
-                  <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    placeholder="Search tracking ID, citizen, locality..."
-                    value={complaintSearch}
-                    onChange={(e) => setComplaintSearch(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-600 min-h-[44px]"
-                  />
-                </div>
-
-                <select
-                  value={selectedComplaintStatus}
-                  onChange={(e) => setSelectedComplaintStatus(e.target.value)}
-                  className="text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 min-h-[44px]"
-                >
-                  <option value="all">All Statuses</option>
-                  <option value="Received">Received</option>
-                  <option value="Under Review">Under Review</option>
-                  <option value="Referred to Department">Referred to Department</option>
-                  <option value="In Progress">In Progress</option>
-                  <option value="Resolved">Resolved</option>
-                </select>
+        {/* Viewport Content */}
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 space-y-6">
+          {!isRouteAllowed ? (
+            <div className="bg-white border border-red-200 rounded-2xl p-8 text-center max-w-lg mx-auto space-y-3 shadow-xs">
+              <div className="w-12 h-12 rounded-full bg-red-50 text-red-600 flex items-center justify-center mx-auto">
+                <Lock className="w-6 h-6" />
               </div>
-
-              <div className="text-xs text-slate-500 font-medium text-right sm:text-left shrink-0">
-                {complaints.length} Total Registered
-              </div>
+              <h2 className="font-editorial text-xl font-bold text-[#123B28]">
+                Access Denied
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Your Secretariat role (<strong className="text-[#123B28]">{currentUser.role}</strong>) does not have permission to access <span className="font-mono">/admin/{activeSubRoute}</span>.
+              </p>
+              <button
+                type="button"
+                onClick={() => onNavigateRoute('dashboard')}
+                className="min-h-[42px] bg-[#123B28] text-white text-xs font-bold px-5 py-2 rounded-xl hover:bg-[#087A43] cursor-pointer"
+              >
+                Return to Overview
+              </button>
             </div>
-
-            {/* Mobile Cards (< sm) */}
-            <div className="sm:hidden space-y-3">
-              {complaints
-                .filter(c => {
-                  if (selectedComplaintStatus !== 'all' && c.status !== selectedComplaintStatus) return false;
-                  if (complaintSearch) {
-                    const q = complaintSearch.toLowerCase();
-                    return c.trackingId.toLowerCase().includes(q) || c.citizenName.toLowerCase().includes(q) || c.locality.toLowerCase().includes(q);
-                  }
-                  return true;
-                })
-                .map((comp) => (
-                  <div key={comp.id} className="bg-white p-4 rounded-2xl border border-slate-200 space-y-2.5 shadow-xs text-xs">
-                    <div className="flex items-center justify-between">
-                      <span className="font-mono font-bold text-[#087A43] text-sm">{comp.trackingId}</span>
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                        comp.status === 'Resolved' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
-                      }`}>
-                        {comp.status}
+          ) : (
+            <>
+              {/* 1. OVERVIEW DASHBOARD */}
+              {activeSubRoute === 'dashboard' && (
+                <div className="space-y-6">
+                  {/* KPI Cards */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                    <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
+                      <span className="text-xs text-slate-500 font-medium block">
+                        Development Projects
+                      </span>
+                      <div className="text-2xl sm:text-3xl font-bold text-[#123B28] mt-1 tabular-nums">
+                        {projects.length}
+                      </div>
+                      <span className="text-[11px] text-[#087A43] font-semibold mt-1 inline-block">
+                        {projects.filter((p) => p.status === 'In Progress').length} In Progress
                       </span>
                     </div>
 
-                    <div>
-                      <strong className="text-slate-900 block">{comp.citizenName} ({comp.phone})</strong>
-                      <span className="text-slate-500">{comp.unionCouncil} — {comp.locality}</span>
+                    <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
+                      <span className="text-xs text-slate-500 font-medium block">
+                        Grievances & Resolution
+                      </span>
+                      <div className="text-2xl sm:text-3xl font-bold text-[#087A43] mt-1 tabular-nums">
+                        {complaints.length} · {resolutionRate}%
+                      </div>
+                      <span className="text-[11px] text-slate-500 font-semibold mt-1 inline-block">
+                        {resolvedComplaints} Resolved / Closed
+                      </span>
                     </div>
 
-                    <div className="text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-100 leading-snug">
-                      "{comp.description}"
+                    <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
+                      <span className="text-xs text-slate-500 font-medium block">
+                        Official Gazette Notices
+                      </span>
+                      <div className="text-2xl sm:text-3xl font-bold text-[#123B28] mt-1 tabular-nums">
+                        {notices.length}
+                      </div>
+                      <span className="text-[11px] text-[#087A43] font-semibold mt-1 inline-block">
+                        {notices.filter((n) => n.isPublished).length} Published Live
+                      </span>
                     </div>
 
-                    <div className="pt-1 flex items-center justify-between">
-                      <span className="text-slate-400 text-[10px]">Dept: {comp.departmentReferred || 'Unassigned'}</span>
-                      <button
-                        onClick={() => setEditingComplaint(comp)}
-                        className="min-h-[40px] px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-[#087A43] hover:text-white font-bold text-xs transition"
-                      >
-                        Update Status
-                      </button>
+                    <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
+                      <span className="text-xs text-slate-500 font-medium block">
+                        Pending Appointments
+                      </span>
+                      <div className="text-2xl sm:text-3xl font-bold text-amber-700 mt-1 tabular-nums">
+                        {pendingInquiries}
+                      </div>
+                      <span className="text-[11px] text-slate-500 font-semibold mt-1 inline-block">
+                        {contactMessages.length} Total Messages
+                      </span>
                     </div>
                   </div>
-                ))}
-            </div>
 
-            {/* Desktop Table (sm and above) */}
-            <div className="hidden sm:block bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-slate-50 text-slate-500 uppercase font-bold text-[10px] tracking-wider border-b border-slate-200">
-                  <tr>
-                    <th className="px-5 py-3.5">Tracking ID</th>
-                    <th className="px-5 py-3.5">Citizen & Phone</th>
-                    <th className="px-5 py-3.5">UC & Locality</th>
-                    <th className="px-5 py-3.5">Category</th>
-                    <th className="px-5 py-3.5">Status</th>
-                    <th className="px-5 py-3.5">Department</th>
-                    <th className="px-5 py-3.5 text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700">
-                  {complaints
-                    .filter(c => {
-                      if (selectedComplaintStatus !== 'all' && c.status !== selectedComplaintStatus) return false;
-                      if (complaintSearch) {
-                        const q = complaintSearch.toLowerCase();
-                        return c.trackingId.toLowerCase().includes(q) || c.citizenName.toLowerCase().includes(q) || c.locality.toLowerCase().includes(q);
-                      }
-                      return true;
-                    })
-                    .map((comp) => (
-                      <tr key={comp.id} className="hover:bg-slate-50 transition">
-                        <td className="px-5 py-3.5 font-mono font-bold text-[#087A43]">{comp.trackingId}</td>
-                        <td className="px-5 py-3.5">
-                          <strong className="block text-slate-900">{comp.citizenName}</strong>
-                          <span className="text-[11px] font-mono text-slate-400">{comp.phone}</span>
-                        </td>
-                        <td className="px-5 py-3.5">
-                          <span>{comp.unionCouncil}</span>
-                          <span className="block text-[11px] text-slate-400">{comp.locality}</span>
-                        </td>
-                        <td className="px-5 py-3.5">{comp.category}</td>
-                        <td className="px-5 py-3.5">
-                          <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                            comp.status === 'Resolved' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
-                          }`}>
-                            {comp.status}
-                          </span>
-                        </td>
-                        <td className="px-5 py-3.5 text-slate-500">{comp.departmentReferred || 'Not yet assigned'}</td>
-                        <td className="px-5 py-3.5 text-right">
-                          <button
-                            onClick={() => setEditingComplaint(comp)}
-                            className="bg-slate-100 hover:bg-[#087A43] hover:text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition"
-                          >
-                            Update
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Update Complaint Modal (Mobile Responsive) */}
-            {editingComplaint && (
-              <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-                <div className="bg-white rounded-2xl max-w-lg w-full p-4 sm:p-6 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                    <h3 className="font-bold text-slate-900 text-sm truncate">
-                      Update {editingComplaint.trackingId}
-                    </h3>
-                    <button
-                      onClick={() => setEditingComplaint(null)}
-                      className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-slate-700"
-                    >
-                      ✕
-                    </button>
-                  </div>
-
-                  <div className="space-y-3 text-xs">
+                  {/* Quick Actions Strip */}
+                  <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 flex flex-wrap items-center justify-between gap-3">
                     <div>
-                      <span className="text-slate-400 block mb-1">Citizen Issue:</span>
-                      <p className="bg-slate-50 p-2.5 rounded-lg border border-slate-200 leading-relaxed">
-                        {editingComplaint.description}
+                      <h2 className="font-bold text-sm text-[#123B28]">
+                        Secretariat Quick Actions
+                      </h2>
+                      <p className="text-xs text-slate-500">
+                        Generate official stationery, print public service PDF summaries, or export backups.
                       </p>
                     </div>
-
-                    <div>
-                      <label className="block font-bold text-slate-700 uppercase tracking-wider mb-1">
-                        Status Workflow
-                      </label>
-                      <select
-                        defaultValue={editingComplaint.status}
-                        id="modal-status-select"
-                        className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg min-h-[44px]"
-                      >
-                        <option value="Received">Received</option>
-                        <option value="Under Review">Under Review</option>
-                        <option value="Referred to Department">Referred to Department</option>
-                        <option value="In Progress">In Progress</option>
-                        <option value="Resolved">Resolved</option>
-                        <option value="Closed">Closed</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block font-bold text-slate-700 uppercase tracking-wider mb-1">
-                        Referred Department
-                      </label>
-                      <input
-                        type="text"
-                        defaultValue={editingComplaint.departmentReferred || ''}
-                        id="modal-dept-input"
-                        placeholder="e.g. Municipal Committee / PHED / MEPCO"
-                        className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg min-h-[44px]"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block font-bold text-slate-700 uppercase tracking-wider mb-1">
-                        Secretariat Remarks / Action Taken
-                      </label>
-                      <textarea
-                        rows={3}
-                        defaultValue={editingComplaint.adminRemarks || ''}
-                        id="modal-remarks-input"
-                        placeholder="State action taken or resolution report..."
-                        className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg min-h-[80px]"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="pt-2 border-t border-slate-100 flex flex-col xs:flex-row justify-end gap-2 text-xs">
-                    <button
-                      onClick={() => setEditingComplaint(null)}
-                      className="min-h-[44px] px-4 py-2 rounded-xl border border-slate-200 text-slate-600"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={() => {
-                        const status = (document.getElementById('modal-status-select') as HTMLSelectElement).value as ComplaintStatus;
-                        const dept = (document.getElementById('modal-dept-input') as HTMLInputElement).value;
-                        const remarks = (document.getElementById('modal-remarks-input') as HTMLTextAreaElement).value;
-
-                        updateComplaintStatus(editingComplaint.id, status, remarks, dept);
-                        setEditingComplaint(null);
-                      }}
-                      className="min-h-[44px] px-5 py-2 rounded-xl bg-[#087A43] text-white font-bold"
-                    >
-                      Save Updates
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Module 3: Projects Management */}
-        {activeModule === 'projects' && (
-          <div className="space-y-4 sm:space-y-6 animate-fade-in">
-            <div className="flex flex-col xs:flex-row items-stretch xs:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200">
-              <h3 className="font-bold text-slate-900 text-xs sm:text-sm">
-                Development Projects ({projects.length})
-              </h3>
-              <button
-                onClick={() => setShowNewProjectModal(true)}
-                className="min-h-[44px] bg-[#087A43] hover:bg-[#064D2B] text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition active:scale-98"
-              >
-                <Plus className="w-4 h-4 text-amber-300" />
-                <span>Add New Project</span>
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-              {projects.map((p) => (
-                <div key={p.id} className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs space-y-3.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded">
-                      {p.unionCouncil}
-                    </span>
-                    <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
-                      p.status === 'Completed' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
-                    }`}>
-                      {p.status} ({p.progressPercent}%)
-                    </span>
-                  </div>
-
-                  <div>
-                    <h4 className="font-bold text-slate-900 text-sm line-clamp-2">{p.title}</h4>
-                    <p className="text-xs text-slate-500 mt-0.5 truncate">{p.location}</p>
-                    <div className="mt-2 text-xs font-mono font-bold text-[#087A43]">{p.budget}</div>
-                  </div>
-
-                  <div className="space-y-1.5 pt-2 border-t border-slate-100 text-xs">
-                    <label className="text-slate-400 font-medium">Update Progress (%):</label>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="range"
-                        min="0"
-                        max="100"
-                        value={p.progressPercent}
-                        onChange={(e) => updateProject(p.id, { progressPercent: Number(e.target.value) })}
-                        className="w-full accent-emerald-600 h-6"
-                      />
-                      <span className="font-mono font-bold w-10 text-right">{p.progressPercent}%</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* New Project Modal (Mobile-First) */}
-            {showNewProjectModal && (
-              <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-                <div className="bg-white rounded-2xl max-w-lg w-full p-4 sm:p-6 space-y-3.5 shadow-xl max-h-[90vh] overflow-y-auto">
-                  <h3 className="font-bold text-slate-900 text-sm sm:text-base">Create New Development Project</h3>
-                  <div className="space-y-3 text-xs">
-                    <div>
-                      <label className="block font-bold text-slate-700 mb-1">Project Title</label>
-                      <input
-                        type="text"
-                        value={newProjectTitle}
-                        onChange={(e) => setNewProjectTitle(e.target.value)}
-                        placeholder="e.g. Rural Water Supply Pipeline Extension"
-                        className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm min-h-[44px]"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 xs:grid-cols-2 gap-3">
-                      <div>
-                        <label className="block font-bold text-slate-700 mb-1">Union Council</label>
-                        <select
-                          value={newProjectUC}
-                          onChange={(e) => setNewProjectUC(e.target.value)}
-                          className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg min-h-[44px]"
-                        >
-                          {unionCouncils.map(uc => <option key={uc.code} value={uc.code}>{uc.code}</option>)}
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block font-bold text-slate-700 mb-1">Budget</label>
-                        <input
-                          type="text"
-                          value={newProjectBudget}
-                          onChange={(e) => setNewProjectBudget(e.target.value)}
-                          className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg min-h-[44px]"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block font-bold text-slate-700 mb-1">Location / Chak</label>
-                      <input
-                        type="text"
-                        value={newProjectLocation}
-                        onChange={(e) => setNewProjectLocation(e.target.value)}
-                        placeholder="e.g. Chak 168/9-L Link Access"
-                        className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg min-h-[44px]"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block font-bold text-slate-700 mb-1">Project Description</label>
-                      <textarea
-                        rows={3}
-                        value={newProjectDesc}
-                        onChange={(e) => setNewProjectDesc(e.target.value)}
-                        placeholder="Details of civil works, pipeline length, or road width..."
-                        className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg min-h-[80px]"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col xs:flex-row justify-end gap-2 text-xs pt-2">
-                    <button
-                      onClick={() => setShowNewProjectModal(false)}
-                      className="min-h-[44px] px-4 py-2 border rounded-xl"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (!newProjectTitle) return;
-                        addProject({
-                          title: newProjectTitle,
-                          titleUrdu: newProjectTitle,
-                          category: newProjectCategory,
-                          categoryUrdu: 'ترقیاتی منصوبہ',
-                          unionCouncil: newProjectUC,
-                          location: newProjectLocation || 'PP-203 Chichawatni',
-                          locationUrdu: newProjectLocation || 'پی پی 203 چیچہ وطنی',
-                          description: newProjectDesc || 'Government priority project for PP-203.',
-                          descriptionUrdu: 'سرکاری ترجیحی ترقیاتی منصوبہ۔',
-                          status: 'Approved',
-                          statusUrdu: 'منظور شدہ',
-                          department: 'Communication & Works (C&W)',
-                          departmentUrdu: 'محکمہ مواصلات و تعمیرات',
-                          budget: newProjectBudget,
-                          startDate: new Date().toISOString().split('T')[0],
-                          completionDate: '2027-06-30',
-                          imageUrl: '/images/chichawatni_scene_1794225848060.jpg',
-                          fundingType: 'Government-Funded',
-                          fundingTypeUrdu: 'سرکاری فنڈنگ',
-                          progressPercent: 10,
-                          latitude: 30.5333,
-                          longitude: 72.7000
-                        });
-                        setShowNewProjectModal(false);
-                      }}
-                      className="min-h-[44px] px-5 py-2 bg-[#087A43] text-white font-bold rounded-xl"
-                    >
-                      Save Project
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Module 4: Field Survey Management */}
-        {activeModule === 'surveys' && (
-          <div className="space-y-4 sm:space-y-6 animate-fade-in">
-            <div className="flex flex-col xs:flex-row items-stretch xs:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200">
-              <div>
-                <h3 className="font-bold text-slate-900 text-xs sm:text-sm">Field Surveys ({surveys.length})</h3>
-                <p className="text-xs text-slate-500">Collected by verified field survey officers.</p>
-              </div>
-              <button
-                onClick={() => setShowSurveyModal(true)}
-                className="min-h-[44px] bg-[#087A43] hover:bg-[#064D2B] text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition active:scale-98"
-              >
-                <Plus className="w-4 h-4 text-amber-300" />
-                <span>Submit Field Survey</span>
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
-              {surveys.map((srv) => (
-                <div key={srv.id} className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded">
-                      {srv.unionCouncil} — {srv.village}
-                    </span>
-                    <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
-                      {srv.surveyType}
-                    </span>
-                  </div>
-
-                  <div className="text-xs space-y-1 text-slate-700">
-                    <p><strong>Officer:</strong> {srv.surveyorName} ({srv.surveyorPhone})</p>
-                    <p><strong>Roads:</strong> {srv.roadCondition}</p>
-                    <p><strong>Facilities:</strong> {srv.facilityCondition}</p>
-                    <p><strong>Key Issues:</strong> {srv.issuesIdentified}</p>
-                  </div>
-
-                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-                    <span className="font-mono">{srv.timestamp.split('T')[0]}</span>
-                    <span className="text-emerald-700 font-semibold">{srv.status}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Submit Survey Modal */}
-            {showSurveyModal && (
-              <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-                <div className="bg-white rounded-2xl max-w-lg w-full p-4 sm:p-6 space-y-3.5 shadow-xl max-h-[90vh] overflow-y-auto">
-                  <h3 className="font-bold text-slate-900 text-sm sm:text-base">Submit Field Survey Inspection</h3>
-                  <div className="space-y-3 text-xs">
-                    <div>
-                      <label className="block font-bold text-slate-700 mb-1">Survey Officer Name</label>
-                      <input
-                        type="text"
-                        value={surveyorName}
-                        onChange={(e) => setSurveyorName(e.target.value)}
-                        placeholder="e.g. Malik Zeeshan"
-                        className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg min-h-[44px]"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 xs:grid-cols-2 gap-3">
-                      <div>
-                        <label className="block font-bold text-slate-700 mb-1">Union Council</label>
-                        <select
-                          value={surveyUC}
-                          onChange={(e) => setSurveyUC(e.target.value)}
-                          className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg min-h-[44px]"
-                        >
-                          {unionCouncils.map(uc => <option key={uc.code} value={uc.code}>{uc.code}</option>)}
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block font-bold text-slate-700 mb-1">Village / Chak</label>
-                        <input
-                          type="text"
-                          value={surveyVillage}
-                          onChange={(e) => setSurveyVillage(e.target.value)}
-                          placeholder="e.g. Chak 171/9-L"
-                          className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg min-h-[44px]"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block font-bold text-slate-700 mb-1">Road Condition Assessment</label>
-                      <input
-                        type="text"
-                        value={surveyRoadCond}
-                        onChange={(e) => setSurveyRoadCond(e.target.value)}
-                        placeholder="e.g. Fair condition; culvert requires slab"
-                        className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg min-h-[44px]"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block font-bold text-slate-700 mb-1">School / Health Assessment</label>
-                      <input
-                        type="text"
-                        value={surveyFacilityCond}
-                        onChange={(e) => setSurveyFacilityCond(e.target.value)}
-                        placeholder="e.g. Needs solar battery replacement"
-                        className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg min-h-[44px]"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block font-bold text-slate-700 mb-1">Observations & Notes</label>
-                      <textarea
-                        rows={3}
-                        value={surveyIssues}
-                        onChange={(e) => setSurveyIssues(e.target.value)}
-                        placeholder="State urgent ground needs..."
-                        className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg min-h-[80px]"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col xs:flex-row justify-end gap-2 text-xs pt-2">
-                    <button
-                      onClick={() => setShowSurveyModal(false)}
-                      className="min-h-[44px] px-4 py-2 border rounded-xl"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (!surveyVillage) return;
-                        submitSurvey({
-                          surveyorName: surveyorName || 'Field Survey Officer',
-                          surveyorPhone: '03001234567',
-                          unionCouncil: surveyUC,
-                          village: surveyVillage,
-                          surveyType,
-                          roadCondition: surveyRoadCond || 'Satisfactory',
-                          facilityCondition: surveyFacilityCond || 'Standard condition',
-                          issuesIdentified: surveyIssues || 'Routine check',
-                          notes: surveyIssues || 'Inspected on site',
-                          latitude: 30.5333,
-                          longitude: 72.7000
-                        });
-                        setShowSurveyModal(false);
-                      }}
-                      className="min-h-[44px] px-5 py-2 bg-[#087A43] text-white font-bold rounded-xl"
-                    >
-                      Save Survey
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Module 5: AI Development Recommendations */}
-        {activeModule === 'ai_recommendations' && (
-          <div className="space-y-4 sm:space-y-6 animate-fade-in">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200">
-              <div>
-                <h3 className="font-bold text-slate-900 text-xs sm:text-sm">
-                  AI-Powered Development Recommendation Engine
-                </h3>
-                <p className="text-xs text-slate-500">
-                  Synthesizes demographics, healthcare gaps, and citizen grievances.
-                </p>
-              </div>
-
-              <button
-                onClick={handleGenerateAIRecommendation}
-                disabled={isGeneratingRec}
-                className="min-h-[44px] bg-purple-700 hover:bg-purple-800 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center justify-center gap-2 transition active:scale-98 w-full sm:w-auto"
-              >
-                <Sparkles className="w-4 h-4 text-amber-300" />
-                <span>{isGeneratingRec ? 'Analyzing Data...' : 'Run Gap Analysis'}</span>
-              </button>
-            </div>
-
-            <div className="space-y-3.5 sm:space-y-4">
-              {recommendations.map((rec) => (
-                <div key={rec.id} className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 shadow-xs space-y-3">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
-                        rec.priorityLevel === 'Critical'
-                          ? 'bg-red-100 text-red-800'
-                          : rec.priorityLevel === 'High'
-                          ? 'bg-amber-100 text-amber-800'
-                          : 'bg-blue-100 text-blue-800'
-                      }`}>
-                        {rec.priorityLevel} Priority
-                      </span>
-                      <span className="text-xs font-mono font-bold text-[#087A43] bg-emerald-50 px-2 py-0.5 rounded">
-                        {rec.unionCouncil} — {rec.location}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-1.5 text-xs">
-                      <span className="text-slate-400">Confidence:</span>
-                      <span className="font-mono font-bold text-purple-700">{rec.confidenceLevel}%</span>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h4 className="font-bold text-slate-900 text-sm sm:text-base leading-snug">{rec.title}</h4>
-                    <p className="text-xs text-slate-600 mt-1 leading-relaxed">{rec.problemIdentified}</p>
-                  </div>
-
-                  <div className="grid grid-cols-1 xs:grid-cols-3 gap-2.5 bg-slate-50 p-3 rounded-xl border border-slate-100 text-xs">
-                    <div>
-                      <span className="text-slate-400 block font-medium">Population Affected:</span>
-                      <strong className="text-slate-800">{rec.estimatedPopulationAffected.toLocaleString()}</strong>
-                    </div>
-                    <div>
-                      <span className="text-slate-400 block font-medium">Est. Cost Range:</span>
-                      <strong className="text-slate-800">{rec.estimatedCostRange}</strong>
-                    </div>
-                    <div>
-                      <span className="text-slate-400 block font-medium">Status:</span>
-                      <span className="font-bold text-emerald-800">{rec.status}</span>
-                    </div>
-                  </div>
-
-                  <div className="pt-2 border-t border-slate-100 flex flex-col xs:flex-row items-stretch xs:items-center justify-between gap-2 text-xs">
-                    <span className="text-[11px] text-slate-400">
-                      Suggested Action: <strong className="text-[#087A43]">{rec.suggestedNextAction}</strong>
-                    </span>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap gap-2">
                       <button
-                        onClick={() => updateRecommendationStatus(rec.id, 'Accepted')}
-                        className="min-h-[44px] px-3.5 py-1.5 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-semibold text-xs active:scale-95 flex items-center justify-center"
+                        type="button"
+                        onClick={() => setShowQrModal(true)}
+                        className="min-h-[42px] px-4 py-2 rounded-xl bg-[#123B28] hover:bg-[#087A43] text-white text-xs font-bold inline-flex items-center gap-2 cursor-pointer"
                       >
-                        Accept into ADP
+                        <QrCode className="w-4 h-4 text-[#C9A227]" />
+                        <span>QR & Visiting Card</span>
                       </button>
+
                       <button
-                        onClick={() => updateRecommendationStatus(rec.id, 'Archived')}
-                        className="min-h-[44px] px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs active:scale-95 flex items-center justify-center"
+                        type="button"
+                        onClick={() => setShowReportModal(true)}
+                        className="min-h-[42px] px-4 py-2 rounded-xl bg-[#087A43] hover:bg-[#123B28] text-white text-xs font-bold inline-flex items-center gap-2 cursor-pointer"
                       >
-                        Archive
+                        <FileSpreadsheet className="w-4 h-4 text-[#C9A227]" />
+                        <span>Monthly Report PDF</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={handleExportJSON}
+                        className="min-h-[42px] px-4 py-2 rounded-xl bg-white border border-slate-300 hover:bg-slate-50 text-[#123B28] text-xs font-bold inline-flex items-center gap-2 cursor-pointer"
+                      >
+                        <Download className="w-4 h-4 text-[#087A43]" />
+                        <span>Export JSON</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          await seedInitialFirestore();
+                          notify('success', 'Firestore baseline seed checked/synced.');
+                        }}
+                        className="min-h-[42px] px-4 py-2 rounded-xl bg-white border border-slate-300 hover:bg-slate-50 text-[#123B28] text-xs font-bold inline-flex items-center gap-2 cursor-pointer"
+                      >
+                        <Database className="w-4 h-4 text-[#087A43]" />
+                        <span>Sync Baseline Seed</span>
                       </button>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
-        {/* Module 6: AI Admin Assistant Chat */}
-        {activeModule === 'ai_assistant' && (
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs flex flex-col h-[520px] sm:h-[640px] animate-fade-in overflow-hidden w-full">
-            <div className="p-3.5 sm:p-4 bg-slate-900 text-white flex items-center justify-between shrink-0">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 rounded-lg bg-purple-600 flex items-center justify-center shrink-0">
-                  <Bot className="w-4 h-4 text-white" />
-                </div>
-                <div className="min-w-0">
-                  <h3 className="font-bold text-xs sm:text-sm truncate">Constituency AI Assistant</h3>
-                  <p className="text-[10px] text-purple-200 truncate">Grounded in PP-203 databases</p>
-                </div>
-              </div>
-              <span className="text-[10px] font-mono bg-purple-950 text-purple-300 border border-purple-800 px-2 py-0.5 rounded shrink-0">
-                Grounded
-              </span>
-            </div>
+                  {/* Recent Complaints & Pending Appointments Split */}
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                    <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-bold text-sm text-[#123B28]">
+                          Recent Citizen Grievances
+                        </h3>
+                        {canAccessModule('complaints') && (
+                          <button
+                            type="button"
+                            onClick={() => onNavigateRoute('complaints')}
+                            className="text-xs font-bold text-[#087A43] hover:underline cursor-pointer"
+                          >
+                            Manage All
+                          </button>
+                        )}
+                      </div>
+                      <div className="divide-y divide-slate-100 text-xs">
+                        {complaints.slice(0, 5).map((c) => (
+                          <div key={c.trackingId} className="py-3 flex items-center justify-between gap-3">
+                            <div className="min-w-0">
+                              <div className="font-bold text-[#123B28] truncate">
+                                <span className="font-mono text-[#087A43] mr-2">
+                                  {c.trackingId}
+                                </span>
+                                {c.citizenName}
+                              </div>
+                              <div className="text-[11px] text-slate-500 truncate">
+                                {c.category} · {c.unionCouncil} ({c.locality})
+                              </div>
+                            </div>
+                            <span className="text-[11px] font-bold text-[#123B28] shrink-0">
+                              {c.status}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
 
-            <div className="flex-1 overflow-y-auto p-3.5 sm:p-6 space-y-3.5 text-xs">
-              {chatMessages.map((msg, i) => (
-                <div
-                  key={i}
-                  className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`max-w-[85%] rounded-2xl p-3 sm:p-4 leading-relaxed whitespace-pre-line ${
-                      msg.sender === 'user'
-                        ? 'bg-[#087A43] text-white rounded-br-none'
-                        : 'bg-slate-100 text-slate-800 rounded-bl-none border border-slate-200'
-                    }`}
-                  >
-                    {msg.text}
-                  </div>
-                </div>
-              ))}
-              {isAiGenerating && (
-                <div className="flex justify-start">
-                  <div className="bg-slate-100 text-slate-500 rounded-2xl p-3 text-xs flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-purple-600 animate-pulse" />
-                    <span>Formulating analysis from database records...</span>
+                    <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-bold text-sm text-[#123B28]">
+                          Latest Inquiries & Appointments
+                        </h3>
+                        {canAccessModule('appointments') && (
+                          <button
+                            type="button"
+                            onClick={() => onNavigateRoute('appointments')}
+                            className="text-xs font-bold text-[#087A43] hover:underline cursor-pointer"
+                          >
+                            Open Desk
+                          </button>
+                        )}
+                      </div>
+                      <div className="divide-y divide-slate-100 text-xs">
+                        {contactMessages.slice(0, 5).map((m) => (
+                          <div key={m.id} className="py-3 flex items-center justify-between gap-3">
+                            <div className="min-w-0">
+                              <div className="font-bold text-[#123B28] truncate">
+                                {m.name} ·{' '}
+                                <span className="text-slate-500 font-normal">
+                                  {m.inquiryType}
+                                </span>
+                              </div>
+                              <div className="text-[11px] text-slate-500 truncate">
+                                {m.message}
+                              </div>
+                            </div>
+                            <span className="text-[11px] font-bold text-amber-700 shrink-0">
+                              {m.status}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
-            </div>
 
-            {/* Quick Suggestions (Horizontal scroll on mobile) */}
-            <div className="px-3 py-2 bg-slate-50 border-t border-slate-200 flex items-center gap-1.5 text-[11px] overflow-x-auto scrollbar-none shrink-0">
-              <span className="text-slate-400 font-semibold shrink-0">Suggestions:</span>
-              <button
-                onClick={() => setChatInput('Show healthcare coverage and missing facilities')}
-                className="min-h-[44px] bg-white border border-slate-200 px-3 py-1.5 rounded-full text-slate-700 whitespace-nowrap flex items-center justify-center text-xs active:scale-95"
-              >
-                Healthcare Gaps
-              </button>
-              <button
-                onClick={() => setChatInput('Analyze unresolved public complaints by sector')}
-                className="min-h-[44px] bg-white border border-slate-200 px-3 py-1.5 rounded-full text-slate-700 whitespace-nowrap flex items-center justify-center text-xs active:scale-95"
-              >
-                Complaints Breakdown
-              </button>
-              <button
-                onClick={() => setChatInput('Recommend priority development projects with budget estimates')}
-                className="min-h-[44px] bg-white border border-slate-200 px-3 py-1.5 rounded-full text-slate-700 whitespace-nowrap flex items-center justify-center text-xs active:scale-95"
-              >
-                Priority Budget
-              </button>
-            </div>
-
-            <form onSubmit={handleSendMessage} className="p-2.5 sm:p-3 bg-white border-t border-slate-200 flex items-center gap-2 shrink-0">
-              <input
-                type="text"
-                placeholder="Ask any question about PP-203 chaks, schools, or projects..."
-                value={chatInput}
-                onChange={(e) => setChatInput(e.target.value)}
-                className="flex-1 px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600 min-h-[44px]"
-              />
-              <button
-                type="submit"
-                disabled={isAiGenerating}
-                className="w-11 h-11 bg-purple-700 hover:bg-purple-800 text-white rounded-xl transition flex items-center justify-center shrink-0 active:scale-95"
-                aria-label="Send query"
-              >
-                <Send className="w-4 h-4" />
-              </button>
-            </form>
-          </div>
-        )}
-
-        {/* Module 7: Data Management */}
-        {activeModule === 'data_management' && (
-          <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-8 shadow-xs space-y-5 animate-fade-in">
-            <h3 className="font-bold text-slate-900 text-sm sm:text-base">Constituency Database Backup & Export</h3>
-            <p className="text-xs text-slate-500">
-              Export entire verified constituency schema including Union Councils, facilities, complaints, projects, and GIS coordinates.
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
-              <div className="p-4 sm:p-5 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
-                <Download className="w-6 h-6 text-[#087A43]" />
-                <h4 className="font-bold text-xs sm:text-sm text-slate-900">Export Full JSON Database</h4>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Download a complete JSON snapshot of all 11 Union Councils, 80+ chaks, and audit logs.
-                </p>
-                <button
-                  onClick={() => {
-                    const json = exportDatabaseJSON();
-                    const blob = new Blob([json], { type: 'application/json' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `PP203_Constituency_Database_${new Date().toISOString().split('T')[0]}.json`;
-                    a.click();
-                    URL.revokeObjectURL(url);
-                  }}
-                  className="min-h-[44px] bg-[#087A43] text-white px-4 py-2 rounded-xl text-xs font-bold active:scale-98"
-                >
-                  Download JSON Backup
-                </button>
-              </div>
-
-              <div className="p-4 sm:p-5 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
-                <Upload className="w-6 h-6 text-blue-600" />
-                <h4 className="font-bold text-xs sm:text-sm text-slate-900">Restore from JSON</h4>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Upload and restore saved data structures or GIS layers into the live portal.
-                </p>
-                <input
-                  type="file"
-                  accept=".json"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const reader = new FileReader();
-                      reader.onload = (event) => {
-                        const content = event.target?.result as string;
-                        if (content) {
-                          importDatabaseJSON(content);
-                          alert('Database successfully restored!');
-                        }
-                      };
-                      reader.readAsText(file);
-                    }
-                  }}
-                  className="text-xs text-slate-500 file:mr-2 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-100 file:text-blue-700"
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Module 8: Staff Roles & Permissions */}
-        {activeModule === 'staff' && (
-          <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-8 shadow-xs space-y-5 animate-fade-in">
-            <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-2">
-              <div>
-                <h3 className="font-bold text-slate-900 text-sm sm:text-base">Secretariat Personnel & Roles</h3>
-                <p className="text-xs text-slate-500">Role-based access control (RBAC) enforced.</p>
-              </div>
-              <span className="text-xs text-emerald-800 font-semibold bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-                Super Admin
-              </span>
-            </div>
-
-            <div className="divide-y divide-slate-100">
-              {allStaff.map((staff) => (
-                <div key={staff.id} className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs">
-                  <div>
-                    <h4 className="font-bold text-slate-900 text-sm">{staff.displayName}</h4>
-                    <p className="text-slate-500 font-mono text-[11px]">{staff.email} • {staff.phone || 'N/A'}</p>
+              {/* 2. PROJECTS CRUD */}
+              {activeSubRoute === 'projects' && (
+                <div className="space-y-5">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                      <h2 className="font-bold text-base text-[#123B28]">
+                        PP-203 Development Schemes ({projects.length})
+                      </h2>
+                      <p className="text-xs text-slate-500">
+                        Manage constituency infrastructure, GPS coordinates, budgets, and progress metrics.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleOpenNewProject}
+                      className="min-h-[44px] bg-[#087A43] hover:bg-[#123B28] text-white text-xs font-bold px-4 py-2.5 rounded-xl inline-flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <Plus className="w-4 h-4 text-[#C9A227]" />
+                      <span>Add Development Project</span>
+                    </button>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    <span className="text-slate-400 font-medium">Role:</span>
-                    <select
-                      value={staff.role}
-                      disabled={currentUser?.role !== 'Super Admin'}
-                      onChange={(e) => updateStaffRole(staff.id, e.target.value as AdminRole)}
-                      className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 disabled:opacity-60 min-h-[44px]"
-                    >
-                      <option value="Super Admin">Super Admin</option>
-                      <option value="Office Manager">Office Manager</option>
-                      <option value="Complaint Manager">Complaint Manager</option>
-                      <option value="Project Manager">Project Manager</option>
-                      <option value="Field Survey Officer">Field Survey Officer</option>
-                      <option value="Read-only Analyst">Read-only Analyst</option>
-                    </select>
+                  {/* Mobile Cards */}
+                  <div className="md:hidden space-y-3">
+                    {projects.map((p) => (
+                      <div
+                        key={p.id}
+                        className="bg-white rounded-2xl border border-slate-200 p-4 space-y-2.5 text-xs"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <span className="font-bold text-[#087A43]">{p.category}</span>
+                          <span className="font-bold text-[#123B28] tabular-nums">
+                            {p.progressPercent}%
+                          </span>
+                        </div>
+                        <h3 className="font-bold text-sm text-[#123B28]">{p.title}</h3>
+                        <p className="text-slate-500">
+                          {p.unionCouncil} · {p.budget} · {p.status}
+                        </p>
+                        <div className="flex gap-2 pt-1">
+                          <button
+                            type="button"
+                            onClick={() => handleOpenEditProject(p)}
+                            className="flex-1 min-h-[40px] bg-[#F7F9F7] border border-slate-200 rounded-xl font-bold text-[#123B28] inline-flex items-center justify-center gap-1 cursor-pointer"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                            Edit
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => deleteProject(p.id)}
+                            className="min-h-[40px] px-3 bg-red-50 border border-red-200 rounded-xl font-bold text-red-700 cursor-pointer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Desktop Table */}
+                  <div className="hidden md:block bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-xs">
+                        <thead className="bg-[#F7F9F7] text-slate-500 uppercase text-[10px] tracking-wider border-b border-slate-200">
+                          <tr>
+                            <th className="px-4 py-3">Project Title</th>
+                            <th className="px-4 py-3">Category</th>
+                            <th className="px-4 py-3">UC</th>
+                            <th className="px-4 py-3">Budget</th>
+                            <th className="px-4 py-3">Status</th>
+                            <th className="px-4 py-3 text-right">Progress</th>
+                            <th className="px-4 py-3 text-right">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {projects.map((p) => (
+                            <tr key={p.id} className="hover:bg-[#F7F9F7]/70">
+                              <td className="px-4 py-3 font-bold text-[#123B28] max-w-xs truncate">
+                                {p.title}
+                              </td>
+                              <td className="px-4 py-3 text-slate-600">{p.category}</td>
+                              <td className="px-4 py-3 font-mono">{p.unionCouncil}</td>
+                              <td className="px-4 py-3 font-mono tabular-nums">{p.budget}</td>
+                              <td className="px-4 py-3 font-semibold text-[#087A43]">
+                                {p.status}
+                              </td>
+                              <td className="px-4 py-3 text-right font-mono tabular-nums">
+                                {p.progressPercent}%
+                              </td>
+                              <td className="px-4 py-3 text-right">
+                                <div className="inline-flex items-center gap-1.5">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenEditProject(p)}
+                                    className="p-2 rounded-lg hover:bg-emerald-50 text-[#087A43] cursor-pointer"
+                                    aria-label="Edit project"
+                                  >
+                                    <Pencil className="w-4 h-4" />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => deleteProject(p.id)}
+                                    className="p-2 rounded-lg hover:bg-red-50 text-red-600 cursor-pointer"
+                                    aria-label="Delete project"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
-              ))}
+              )}
+
+              {/* 3. COMPLAINTS & SMS DESK */}
+              {activeSubRoute === 'complaints' && (
+                <div className="space-y-6">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                    <div className="relative w-full md:w-80">
+                      <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="text"
+                        value={complaintSearch}
+                        onChange={(e) => setComplaintSearch(e.target.value)}
+                        placeholder="Search CMP ID, citizen name, UC..."
+                        className="w-full pl-9 pr-3 py-2 text-xs bg-white border border-slate-200 rounded-xl min-h-[42px]"
+                      />
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {['all', ...COMPLAINT_STATUSES].map((st) => (
+                        <button
+                          key={st}
+                          type="button"
+                          onClick={() => setComplaintFilter(st)}
+                          className={`min-h-[38px] px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer ${
+                            complaintFilter === st
+                              ? 'bg-[#123B28] text-white'
+                              : 'bg-white border border-slate-200 text-slate-600'
+                          }`}
+                        >
+                          {st === 'all' ? 'All Cases' : st}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Complaints List */}
+                  <div className="space-y-3">
+                    {filteredComplaints.length === 0 ? (
+                      <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center text-xs text-slate-500">
+                        No citizen complaints match the selected filter.
+                      </div>
+                    ) : (
+                      filteredComplaints.map((c) => (
+                        <div
+                          key={c.trackingId}
+                          className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 shadow-xs"
+                        >
+                          <div className="space-y-1.5 min-w-0">
+                            <div className="flex flex-wrap items-center gap-2 text-xs">
+                              <span className="font-mono font-bold text-[#087A43]">
+                                {c.trackingId}
+                              </span>
+                              <span>·</span>
+                              <strong className="text-[#123B28]">{c.citizenName}</strong>
+                              <span>·</span>
+                              <span className="font-mono text-slate-500">{c.phone}</span>
+                              <span>·</span>
+                              <span className="font-bold text-amber-700">{c.status}</span>
+                            </div>
+                            <div className="text-xs text-slate-500">
+                              {c.category} · {c.districtTehsil} ({c.unionCouncil} — {c.locality})
+                            </div>
+                            <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                              {c.description}
+                            </p>
+                            {c.departmentReferred && (
+                              <div className="text-[11px] text-[#087A43] font-semibold">
+                                Referred: {c.departmentReferred}
+                                {c.assignedOfficer ? ` (${c.assignedOfficer})` : ''}
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => handleOpenTriage(c)}
+                              className="w-full lg:w-auto min-h-[42px] bg-[#123B28] hover:bg-[#087A43] text-white text-xs font-bold px-4 py-2 rounded-xl cursor-pointer"
+                            >
+                              Update / Refer Case
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  {/* SMS Gateway Log History */}
+                  <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-3">
+                    <h3 className="font-bold text-sm text-[#123B28]">
+                      Recent SMS Dispatch Logs ({smsLogs.length})
+                    </h3>
+                    <div className="divide-y divide-slate-100 text-xs">
+                      {smsLogs.slice(0, 8).map((s) => (
+                        <div
+                          key={s.id}
+                          className="py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2"
+                        >
+                          <div>
+                            <span className="font-mono font-bold text-[#087A43] mr-2">
+                              {s.trackingId}
+                            </span>
+                            <span className="font-mono text-slate-500 mr-2">
+                              {s.recipientPhone}
+                            </span>
+                            <span className="text-slate-700">{s.message}</span>
+                          </div>
+                          <span className="text-[11px] font-semibold text-slate-500 font-mono shrink-0">
+                            {s.status} · {s.timestamp.split('T')[0]}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 4. PUBLIC NOTICES CMS */}
+              {activeSubRoute === 'notices' && (
+                <div className="space-y-5">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                      <h2 className="font-bold text-base text-[#123B28]">
+                        Official Public Notices & Gazette ({notices.length})
+                      </h2>
+                      <p className="text-xs text-slate-500">
+                        Create, publish/unpublish, or remove official notifications and downloadable bulletins.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingNotice(null);
+                        setNoticeDraft({
+                          title: '',
+                          titleUrdu: '',
+                          category: 'Public Announcements',
+                          categoryUrdu: 'عوامی اعلانات',
+                          publishDate: new Date().toISOString().split('T')[0],
+                          description: '',
+                          descriptionUrdu: '',
+                          fileUrl: '',
+                          fileName: 'PP203-Official-Notice.pdf',
+                          fileSize: '420 KB',
+                          fileType: 'PDF',
+                          isPublished: true,
+                          officialRef: 'PP203/SEC/2026'
+                        });
+                        setNoticeFormOpen(true);
+                      }}
+                      className="min-h-[44px] bg-[#087A43] hover:bg-[#123B28] text-white text-xs font-bold px-4 py-2.5 rounded-xl inline-flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <Plus className="w-4 h-4 text-[#C9A227]" />
+                      <span>Publish New Notice</span>
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {notices.map((n) => (
+                      <div
+                        key={n.id}
+                        className="bg-white rounded-2xl border border-slate-200 p-5 space-y-3 flex flex-col justify-between"
+                      >
+                        <div className="space-y-1.5">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="font-bold text-[#087A43]">{n.category}</span>
+                            <span
+                              className={`font-bold ${
+                                n.isPublished ? 'text-[#087A43]' : 'text-amber-700'
+                              }`}
+                            >
+                              {n.isPublished ? 'Published Live' : 'Draft / Unpublished'}
+                            </span>
+                          </div>
+                          <h3 className="font-bold text-sm text-[#123B28]">{n.title}</h3>
+                          <p className="text-xs text-slate-600 line-clamp-2">{n.description}</p>
+                        </div>
+
+                        <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs">
+                          <span className="font-mono text-slate-500">{n.publishDate}</span>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => updateNotice(n.id, { isPublished: !n.isPublished })}
+                              className="px-3 py-1.5 rounded-lg bg-[#F7F9F7] border border-slate-200 font-bold text-[#123B28] cursor-pointer"
+                            >
+                              {n.isPublished ? 'Unpublish' : 'Publish'}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingNotice(n);
+                                const { id: _id, ...rest } = n;
+                                setNoticeDraft(rest);
+                                setNoticeFormOpen(true);
+                              }}
+                              className="p-2 rounded-lg hover:bg-emerald-50 text-[#087A43] cursor-pointer"
+                              aria-label="Edit notice"
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => deleteNotice(n.id)}
+                              className="p-2 rounded-lg hover:bg-red-50 text-red-600 cursor-pointer"
+                              aria-label="Delete notice"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 5. APPOINTMENTS & CONTACT INQUIRIES */}
+              {activeSubRoute === 'appointments' && (
+                <div className="space-y-4">
+                  <div>
+                    <h2 className="font-bold text-base text-[#123B28]">
+                      Constituent Appointments & Contact Messages ({contactMessages.length})
+                    </h2>
+                    <p className="text-xs text-slate-500">
+                      Review Khuli Kachehri meeting requests, delegations, and general Secretariat inquiries.
+                    </p>
+                  </div>
+
+                  {contactMessages.length === 0 ? (
+                    <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center text-xs text-slate-500">
+                      No contact inquiries received yet.
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {contactMessages.map((m) => (
+                        <div
+                          key={m.id}
+                          className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4"
+                        >
+                          <div className="space-y-1.5 text-xs">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <strong className="text-sm text-[#123B28]">{m.name}</strong>
+                              <span>·</span>
+                              <span className="font-mono text-[#087A43]">{m.phone}</span>
+                              {m.email && (
+                                <>
+                                  <span>·</span>
+                                  <span className="text-slate-500">{m.email}</span>
+                                </>
+                              )}
+                              <span>·</span>
+                              <span className="font-bold text-amber-700">{m.status}</span>
+                            </div>
+                            <div className="text-slate-500">
+                              {m.inquiryType}
+                              {m.preferredDate ? ` · Preferred Date: ${m.preferredDate}` : ''}
+                            </div>
+                            <p className="text-slate-700 text-xs sm:text-sm leading-relaxed">
+                              {m.message}
+                            </p>
+                            {m.adminNotes && (
+                              <p className="text-[11px] text-[#087A43] font-semibold">
+                                Secretariat Note: {m.adminNotes}
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="flex items-center gap-2 shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingInquiry(m);
+                                setInquiryStatus(m.status);
+                                setInquiryNotes(m.adminNotes || '');
+                              }}
+                              className="min-h-[40px] px-4 py-2 rounded-xl bg-[#123B28] hover:bg-[#087A43] text-white text-xs font-bold cursor-pointer"
+                            >
+                              Update Status
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => deleteContactMessage(m.id)}
+                              className="min-h-[40px] px-3 py-2 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-bold cursor-pointer"
+                              aria-label="Delete inquiry"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* 6. NEWS & PUNJAB ASSEMBLY ACTIVITIES CMS */}
+              {activeSubRoute === 'news' && (
+                <div className="space-y-5">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="inline-flex bg-white border border-slate-200 p-1 rounded-xl">
+                      <button
+                        type="button"
+                        onClick={() => setEditorialSubTab('news')}
+                        className={`min-h-[40px] px-4 py-1.5 rounded-lg text-xs font-bold cursor-pointer ${
+                          editorialSubTab === 'news'
+                            ? 'bg-[#123B28] text-white'
+                            : 'text-slate-600'
+                        }`}
+                      >
+                        News & Press Releases ({news.length})
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEditorialSubTab('assembly')}
+                        className={`min-h-[40px] px-4 py-1.5 rounded-lg text-xs font-bold cursor-pointer ${
+                          editorialSubTab === 'assembly'
+                            ? 'bg-[#123B28] text-white'
+                            : 'text-slate-600'
+                        }`}
+                      >
+                        Punjab Assembly Activities ({assemblyActivities.length})
+                      </button>
+                    </div>
+
+                    {editorialSubTab === 'news' ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingNews(null);
+                          setNewsDraft({
+                            title: '',
+                            titleUrdu: '',
+                            category: 'Latest Updates',
+                            categoryUrdu: 'تازہ ترین اپڈیٹس',
+                            date: new Date().toISOString().split('T')[0],
+                            summary: '',
+                            summaryUrdu: '',
+                            content: '',
+                            contentUrdu: '',
+                            imageUrl: CHICHAWATNI_SCENE_PATH,
+                            isFeatured: false
+                          });
+                          setNewsFormOpen(true);
+                        }}
+                        className="min-h-[42px] bg-[#087A43] hover:bg-[#123B28] text-white text-xs font-bold px-4 py-2 rounded-xl inline-flex items-center gap-2 cursor-pointer"
+                      >
+                        <Plus className="w-4 h-4 text-[#C9A227]" />
+                        <span>Add News Update</span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingAssembly(null);
+                          setAssemblyDraft({
+                            title: '',
+                            titleUrdu: '',
+                            category: 'Question Raised',
+                            categoryUrdu: 'اسمبلی سوال',
+                            sessionDate: new Date().toISOString().split('T')[0],
+                            referenceNo: 'PAP-Q-2026',
+                            summary: '',
+                            summaryUrdu: '',
+                            status: 'Submitted'
+                          });
+                          setAssemblyFormOpen(true);
+                        }}
+                        className="min-h-[42px] bg-[#087A43] hover:bg-[#123B28] text-white text-xs font-bold px-4 py-2 rounded-xl inline-flex items-center gap-2 cursor-pointer"
+                      >
+                        <Plus className="w-4 h-4 text-[#C9A227]" />
+                        <span>Add Assembly Activity</span>
+                      </button>
+                    )}
+                  </div>
+
+                  {editorialSubTab === 'news' ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {news.map((item) => (
+                        <div
+                          key={item.id}
+                          className="bg-white rounded-2xl border border-slate-200 p-5 space-y-3 flex flex-col justify-between"
+                        >
+                          <div className="space-y-1.5">
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="font-bold text-[#087A43]">{item.category}</span>
+                              <span className="font-mono text-slate-500">{item.date}</span>
+                            </div>
+                            <h3 className="font-bold text-sm text-[#123B28]">{item.title}</h3>
+                            <p className="text-xs text-slate-600 line-clamp-2">{item.summary}</p>
+                          </div>
+                          <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                            <span className="font-semibold text-amber-700">
+                              {item.isFeatured ? 'Featured Spotlight' : 'Standard Update'}
+                            </span>
+                            <div className="flex items-center gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setEditingNews(item);
+                                  const { id: _id, ...rest } = item;
+                                  setNewsDraft(rest);
+                                  setNewsFormOpen(true);
+                                }}
+                                className="p-2 rounded-lg hover:bg-emerald-50 text-[#087A43] cursor-pointer"
+                              >
+                                <Pencil className="w-4 h-4" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => deleteNews(item.id)}
+                                className="p-2 rounded-lg hover:bg-red-50 text-red-600 cursor-pointer"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {assemblyActivities.map((act) => (
+                        <div
+                          key={act.id}
+                          className="bg-white rounded-2xl border border-slate-200 p-5 space-y-3 flex flex-col justify-between"
+                        >
+                          <div className="space-y-1.5">
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="font-bold text-[#087A43]">{act.category}</span>
+                              <span className="font-mono text-slate-500">{act.sessionDate}</span>
+                            </div>
+                            <h3 className="font-bold text-sm text-[#123B28]">{act.title}</h3>
+                            <p className="text-xs text-slate-600 line-clamp-2">{act.summary}</p>
+                          </div>
+                          <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                            <span className="font-mono text-slate-500">
+                              {act.referenceNo || 'PAP'} · {act.status || 'Recorded'}
+                            </span>
+                            <div className="flex items-center gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setEditingAssembly(act);
+                                  const { id: _id, ...rest } = act;
+                                  setAssemblyDraft(rest);
+                                  setAssemblyFormOpen(true);
+                                }}
+                                className="p-2 rounded-lg hover:bg-emerald-50 text-[#087A43] cursor-pointer"
+                              >
+                                <Pencil className="w-4 h-4" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => deleteAssemblyActivity(act.id)}
+                                className="p-2 rounded-lg hover:bg-red-50 text-red-600 cursor-pointer"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* 7. MEDIA GALLERY CMS */}
+              {activeSubRoute === 'gallery' && (
+                <div className="space-y-6">
+                  <form
+                    onSubmit={handleAddGallery}
+                    className="bg-white rounded-2xl border border-slate-200 p-5 space-y-4"
+                  >
+                    <h2 className="font-bold text-sm text-[#123B28]">
+                      Add Photo or Video to Public Gallery
+                    </h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                      <input
+                        type="text"
+                        required
+                        placeholder="Title (English)"
+                        value={galleryTitle}
+                        onChange={(e) => setGalleryTitle(e.target.value)}
+                        className="px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Title (Urdu)"
+                        value={galleryTitleUr}
+                        onChange={(e) => setGalleryTitleUr(e.target.value)}
+                        dir="rtl"
+                        className="px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+                      />
+                      <select
+                        value={galleryType}
+                        onChange={(e) => setGalleryType(e.target.value as 'photo' | 'video')}
+                        className="px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+                      >
+                        <option value="photo">Photo</option>
+                        <option value="video">Video</option>
+                      </select>
+                      <input
+                        type="text"
+                        placeholder="Category (e.g. Assembly, Visits)"
+                        value={galleryCategory}
+                        onChange={(e) => setGalleryCategory(e.target.value)}
+                        className="px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+                      />
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <input
+                        type="text"
+                        required
+                        placeholder="Media Path or URL (e.g. ./assets/images/chichawatni_scene_1794225848060.jpg)"
+                        value={galleryUrl}
+                        onChange={(e) => setGalleryUrl(e.target.value)}
+                        className="flex-1 px-3 py-2.5 text-xs font-mono bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+                      />
+                      <button
+                        type="submit"
+                        className="min-h-[42px] bg-[#087A43] hover:bg-[#123B28] text-white text-xs font-bold px-5 py-2 rounded-xl cursor-pointer"
+                      >
+                        Add Media Item
+                      </button>
+                    </div>
+                  </form>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {gallery.map((g) => (
+                      <div
+                        key={g.id}
+                        className="bg-white rounded-2xl border border-slate-200 overflow-hidden flex flex-col justify-between"
+                      >
+                        <div className="h-44 bg-slate-100 relative overflow-hidden">
+                          {g.mediaType === 'video' ? (
+                            <video
+                              src={getAssetUrl(g.mediaUrl)}
+                              className="w-full h-full object-cover"
+                              muted
+                            />
+                          ) : (
+                            <img
+                              src={getAssetUrl(g.mediaUrl)}
+                              alt={g.title}
+                              className="w-full h-full object-cover object-top"
+                            />
+                          )}
+                        </div>
+                        <div className="p-4 flex items-center justify-between gap-2 text-xs">
+                          <div className="min-w-0">
+                            <span className="font-bold text-[#087A43] uppercase text-[10px]">
+                              {g.mediaType} · {g.category}
+                            </span>
+                            <h3 className="font-bold text-[#123B28] truncate">{g.title}</h3>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => deleteGalleryItem(g.id)}
+                            className="p-2 rounded-lg hover:bg-red-50 text-red-600 cursor-pointer shrink-0"
+                            aria-label="Delete gallery item"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 8. PRIVACY-PRESERVING ANALYTICS */}
+              {activeSubRoute === 'analytics' && (
+                <div className="space-y-6">
+                  <div className="bg-white rounded-2xl border border-slate-200 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                      <h2 className="font-bold text-base text-[#123B28]">
+                        Privacy-Preserving Constituency Analytics
+                      </h2>
+                      <p className="text-xs text-slate-500">
+                        Aggregated grievance and project metrics with zero citizen PII exposed.
+                      </p>
+                    </div>
+                    <div className="text-xs font-mono bg-[#F7F9F7] px-3 py-2 rounded-xl border border-slate-200">
+                      GA4 Telemetry:{' '}
+                      <strong className="text-[#087A43]">
+                        {settings.ga4MeasurementId?.startsWith('G-')
+                          ? `${settings.ga4MeasurementId} (Anonymized IP)`
+                          : 'Not Configured'}
+                      </strong>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Complaints by Status */}
+                    <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-4">
+                      <h3 className="font-bold text-sm text-[#123B28]">
+                        Grievance Status Distribution
+                      </h3>
+                      <div className="space-y-3 text-xs">
+                        {COMPLAINT_STATUSES.map((st) => {
+                          const count = complaints.filter((c) => c.status === st).length;
+                          const pct =
+                            complaints.length > 0
+                              ? Math.round((count / complaints.length) * 100)
+                              : 0;
+                          return (
+                            <div key={st} className="space-y-1">
+                              <div className="flex justify-between tabular-nums">
+                                <span className="font-medium text-slate-700">{st}</span>
+                                <span className="font-mono font-bold text-[#123B28]">
+                                  {count} ({pct}%)
+                                </span>
+                              </div>
+                              <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-[#087A43] rounded-full"
+                                  style={{ width: `${pct}%` }}
+                                />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Projects by Category */}
+                    <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-4">
+                      <h3 className="font-bold text-sm text-[#123B28]">
+                        Development Portfolio by Sector
+                      </h3>
+                      <div className="space-y-3 text-xs">
+                        {PROJECT_CATEGORIES.map((cat) => {
+                          const count = projects.filter((p) => p.category === cat).length;
+                          const pct =
+                            projects.length > 0 ? Math.round((count / projects.length) * 100) : 0;
+                          return (
+                            <div key={cat} className="space-y-1">
+                              <div className="flex justify-between tabular-nums">
+                                <span className="font-medium text-slate-700">{cat}</span>
+                                <span className="font-mono font-bold text-[#123B28]">
+                                  {count} ({pct}%)
+                                </span>
+                              </div>
+                              <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-[#C9A227] rounded-full"
+                                  style={{ width: `${pct}%` }}
+                                />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Union Council Demand Table (No PII) */}
+                  <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-4">
+                    <h3 className="font-bold text-sm text-[#123B28]">
+                      Union Council Service Demand (Aggregated)
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
+                      {unionCouncils.map((uc) => {
+                        const ucComplaints = complaints.filter((c) => c.unionCouncil === uc.code).length;
+                        const ucProjects = projects.filter((p) => p.unionCouncil === uc.code).length;
+                        return (
+                          <div
+                            key={uc.code}
+                            className="bg-[#F7F9F7] border border-slate-200 rounded-xl p-3.5 space-y-1 tabular-nums"
+                          >
+                            <div className="font-bold text-[#123B28]">
+                              {uc.code} — {uc.name}
+                            </div>
+                            <div className="text-slate-600">
+                              Projects: <strong>{ucProjects}</strong> · Logged Grievances:{' '}
+                              <strong>{ucComplaints}</strong>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 9. PORTAL SETTINGS & REPRESENTATIVE PROFILE CMS */}
+              {activeSubRoute === 'settings' && (
+                <form onSubmit={handleSaveSettingsAndProfile} className="space-y-6">
+                  {/* Announcement & Widgets */}
+                  <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 space-y-4">
+                    <h2 className="font-bold text-base text-[#123B28] border-b border-slate-100 pb-2">
+                      Portal Integrations, Ticker & Gateway Settings
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                      <div>
+                        <label className="font-bold text-slate-700 block mb-1">
+                          Announcement Ticker (English)
+                        </label>
+                        <input
+                          type="text"
+                          value={settingsDraft.announcement}
+                          onChange={(e) =>
+                            setSettingsDraft({ ...settingsDraft, announcement: e.target.value })
+                          }
+                          className="w-full px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold text-slate-700 block mb-1">
+                          Announcement Ticker (Urdu)
+                        </label>
+                        <input
+                          type="text"
+                          dir="rtl"
+                          value={settingsDraft.announcementUrdu}
+                          onChange={(e) =>
+                            setSettingsDraft({ ...settingsDraft, announcementUrdu: e.target.value })
+                          }
+                          className="w-full px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="font-bold text-slate-700 block mb-1">
+                          WhatsApp Helpdesk Number
+                        </label>
+                        <input
+                          type="text"
+                          value={settingsDraft.whatsappNumber}
+                          onChange={(e) =>
+                            setSettingsDraft({ ...settingsDraft, whatsappNumber: e.target.value })
+                          }
+                          className="w-full px-3 py-2.5 font-mono bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="font-bold text-slate-700 block mb-1">
+                          GA4 Measurement ID (Privacy-Preserving)
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="G-XXXXXXXXXX"
+                          value={settingsDraft.ga4MeasurementId}
+                          onChange={(e) =>
+                            setSettingsDraft({
+                              ...settingsDraft,
+                              ga4MeasurementId: e.target.value.trim()
+                            })
+                          }
+                          className="w-full px-3 py-2.5 font-mono bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="font-bold text-slate-700 block mb-1">
+                          SMS Gateway Provider
+                        </label>
+                        <input
+                          type="text"
+                          value={settingsDraft.smsProvider}
+                          onChange={(e) =>
+                            setSettingsDraft({ ...settingsDraft, smsProvider: e.target.value })
+                          }
+                          className="w-full px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="font-bold text-slate-700 block mb-1">SMS Sender ID</label>
+                        <input
+                          type="text"
+                          value={settingsDraft.smsSenderId}
+                          onChange={(e) =>
+                            setSettingsDraft({ ...settingsDraft, smsSenderId: e.target.value })
+                          }
+                          className="w-full px-3 py-2.5 font-mono bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap gap-5 pt-2 text-xs font-semibold text-[#123B28]">
+                      <label className="inline-flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={settingsDraft.announcementActive}
+                          onChange={(e) =>
+                            setSettingsDraft({
+                              ...settingsDraft,
+                              announcementActive: e.target.checked
+                            })
+                          }
+                          className="w-4 h-4 accent-[#087A43]"
+                        />
+                        <span>Show Top Announcement Ticker</span>
+                      </label>
+                      <label className="inline-flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={settingsDraft.whatsappEnabled}
+                          onChange={(e) =>
+                            setSettingsDraft({
+                              ...settingsDraft,
+                              whatsappEnabled: e.target.checked
+                            })
+                          }
+                          className="w-4 h-4 accent-[#087A43]"
+                        />
+                        <span>Enable Floating WhatsApp Widget</span>
+                      </label>
+                      <label className="inline-flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={settingsDraft.smsEnabled}
+                          onChange={(e) =>
+                            setSettingsDraft({ ...settingsDraft, smsEnabled: e.target.checked })
+                          }
+                          className="w-4 h-4 accent-[#087A43]"
+                        />
+                        <span>Enable Citizen SMS Status Notifications</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Representative Profile / About CMS */}
+                  <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 space-y-4">
+                    <h2 className="font-bold text-base text-[#123B28] border-b border-slate-100 pb-2">
+                      Representative Profile & About Section CMS
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                      <div>
+                        <label className="font-bold text-slate-700 block mb-1">Full Name (EN)</label>
+                        <input
+                          type="text"
+                          value={profileDraft.fullName}
+                          onChange={(e) =>
+                            setProfileDraft({ ...profileDraft, fullName: e.target.value })
+                          }
+                          className="w-full px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold text-slate-700 block mb-1">Full Name (UR)</label>
+                        <input
+                          type="text"
+                          dir="rtl"
+                          value={profileDraft.fullNameUrdu}
+                          onChange={(e) =>
+                            setProfileDraft({ ...profileDraft, fullNameUrdu: e.target.value })
+                          }
+                          className="w-full px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="font-bold text-slate-700 block mb-1">
+                          Education & Background (EN)
+                        </label>
+                        <input
+                          type="text"
+                          value={profileDraft.education}
+                          onChange={(e) =>
+                            setProfileDraft({ ...profileDraft, education: e.target.value })
+                          }
+                          className="w-full px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold text-slate-700 block mb-1">
+                          Secretariat Hours (EN)
+                        </label>
+                        <input
+                          type="text"
+                          value={profileDraft.officeHours}
+                          onChange={(e) =>
+                            setProfileDraft({ ...profileDraft, officeHours: e.target.value })
+                          }
+                          className="w-full px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="font-bold text-slate-700 block mb-1">Biography (EN)</label>
+                        <textarea
+                          rows={3}
+                          value={profileDraft.bio}
+                          onChange={(e) =>
+                            setProfileDraft({ ...profileDraft, bio: e.target.value })
+                          }
+                          className="w-full p-3 bg-[#F7F9F7] border border-slate-200 rounded-xl"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold text-slate-700 block mb-1">Biography (UR)</label>
+                        <textarea
+                          rows={3}
+                          dir="rtl"
+                          value={profileDraft.bioUrdu}
+                          onChange={(e) =>
+                            setProfileDraft({ ...profileDraft, bioUrdu: e.target.value })
+                          }
+                          className="w-full p-3 bg-[#F7F9F7] border border-slate-200 rounded-xl"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="font-bold text-slate-700 block mb-1">
+                          Political Journey (EN)
+                        </label>
+                        <textarea
+                          rows={3}
+                          value={profileDraft.politicalJourney}
+                          onChange={(e) =>
+                            setProfileDraft({ ...profileDraft, politicalJourney: e.target.value })
+                          }
+                          className="w-full p-3 bg-[#F7F9F7] border border-slate-200 rounded-xl"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold text-slate-700 block mb-1">
+                          Political Journey (UR)
+                        </label>
+                        <textarea
+                          rows={3}
+                          dir="rtl"
+                          value={profileDraft.politicalJourneyUrdu}
+                          onChange={(e) =>
+                            setProfileDraft({
+                              ...profileDraft,
+                              politicalJourneyUrdu: e.target.value
+                            })
+                          }
+                          className="w-full p-3 bg-[#F7F9F7] border border-slate-200 rounded-xl"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end">
+                    <button
+                      type="submit"
+                      className="min-h-[46px] bg-[#087A43] hover:bg-[#123B28] text-white font-bold text-sm px-6 py-3 rounded-xl inline-flex items-center gap-2 cursor-pointer"
+                    >
+                      <Send className="w-4 h-4 text-[#C9A227]" />
+                      <span>Save All Settings & Profile</span>
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              {/* 10. STAFF & ROLES (SUPER ADMIN ONLY) */}
+              {activeSubRoute === 'staff' && (
+                <div className="space-y-6">
+                  <form
+                    onSubmit={handleCreateStaff}
+                    className="bg-white rounded-2xl border border-slate-200 p-5 space-y-4"
+                  >
+                    <h2 className="font-bold text-base text-[#123B28]">
+                      Provision New Secretariat Staff Account
+                    </h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
+                      <input
+                        type="text"
+                        required
+                        placeholder="Staff Full Name"
+                        value={staffName}
+                        onChange={(e) => setStaffName(e.target.value)}
+                        className="px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+                      />
+                      <input
+                        type="email"
+                        required
+                        placeholder="staff@chasadhanif.pk"
+                        value={staffEmail}
+                        onChange={(e) => setStaffEmail(e.target.value)}
+                        className="px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+                      />
+                      <input
+                        type="password"
+                        required
+                        minLength={6}
+                        placeholder="Initial Password (min 6 chars)"
+                        value={staffPassword}
+                        onChange={(e) => setStaffPassword(e.target.value)}
+                        className="px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+                      />
+                      <select
+                        value={staffRole}
+                        onChange={(e) => setStaffRole(e.target.value as AdminRole)}
+                        className="px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+                      >
+                        {ADMIN_ROLES.map((r) => (
+                          <option key={r} value={r}>
+                            {r}
+                          </option>
+                        ))}
+                      </select>
+                      <button
+                        type="submit"
+                        className="min-h-[42px] bg-[#087A43] hover:bg-[#123B28] text-white font-bold rounded-xl px-4 cursor-pointer"
+                      >
+                        Create Staff User
+                      </button>
+                    </div>
+                  </form>
+
+                  <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-3">
+                    <h3 className="font-bold text-sm text-[#123B28]">
+                      Authorized Secretariat Staff Directory ({allStaff.length})
+                    </h3>
+                    <div className="divide-y divide-slate-100 text-xs">
+                      {allStaff.map((s) => (
+                        <div
+                          key={s.id}
+                          className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                        >
+                          <div>
+                            <strong className="text-[#123B28]">{s.displayName}</strong>{' '}
+                            <span className="font-mono text-slate-500">({s.email})</span>
+                            <div className="text-[11px] text-slate-500">
+                              Status:{' '}
+                              <strong
+                                className={
+                                  s.status === 'Active' ? 'text-[#087A43]' : 'text-red-600'
+                                }
+                              >
+                                {s.status}
+                              </strong>
+                            </div>
+                          </div>
+
+                          <div className="flex flex-wrap items-center gap-2">
+                            <select
+                              value={s.role}
+                              disabled={s.id === currentUser.id}
+                              onChange={(e) => updateStaffRole(s.id, e.target.value as AdminRole)}
+                              className="px-2.5 py-1.5 bg-[#F7F9F7] border border-slate-200 rounded-lg text-xs"
+                            >
+                              {ADMIN_ROLES.map((r) => (
+                                <option key={r} value={r}>
+                                  {r}
+                                </option>
+                              ))}
+                            </select>
+                            {s.id !== currentUser.id && (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    toggleStaffStatus(
+                                      s.id,
+                                      s.status === 'Active' ? 'Suspended' : 'Active'
+                                    )
+                                  }
+                                  className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white font-bold text-[#123B28] cursor-pointer"
+                                >
+                                  {s.status === 'Active' ? 'Suspend' : 'Activate'}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => deleteStaffAccount(s.id)}
+                                  className="p-2 rounded-lg text-red-600 hover:bg-red-50 cursor-pointer"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 11. READ-ONLY AUDIT LOGS (SUPER ADMIN ONLY) */}
+              {activeSubRoute === 'audit' && (
+                <div className="space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                      <h2 className="font-bold text-base text-[#123B28]">
+                        Immutable Admin Audit Logs ({filteredAudit.length})
+                      </h2>
+                      <p className="text-xs text-slate-500">
+                        Read-only system accountability record enforced by Firestore security rules.
+                      </p>
+                    </div>
+                    <input
+                      type="text"
+                      value={auditSearch}
+                      onChange={(e) => setAuditSearch(e.target.value)}
+                      placeholder="Filter by action or admin email..."
+                      className="w-full sm:w-72 px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl min-h-[42px]"
+                    />
+                  </div>
+
+                  <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+                    <div className="divide-y divide-slate-100 text-xs">
+                      {filteredAudit.length === 0 ? (
+                        <div className="p-8 text-center text-slate-500">
+                          No audit log entries recorded yet.
+                        </div>
+                      ) : (
+                        filteredAudit.map((log) => (
+                          <div
+                            key={log.id}
+                            className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2"
+                          >
+                            <div className="space-y-0.5">
+                              <strong className="text-[#123B28]">{log.action}</strong>
+                              <p className="text-slate-600">{log.details}</p>
+                            </div>
+                            <div className="text-[11px] font-mono text-slate-500 sm:text-right shrink-0">
+                              <div>{log.adminEmail}</div>
+                              <div>{log.timestamp.replace('T', ' ').slice(0, 19)}</div>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </main>
+      </div>
+
+      {/* MODALS */}
+      {showQrModal && <QRCardModal onClose={() => setShowQrModal(false)} />}
+      {showReportModal && <MonthlyReportModal onClose={() => setShowReportModal(false)} />}
+
+      {/* Project Form Modal */}
+      {projectFormOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+          <form
+            onSubmit={handleSaveProject}
+            className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-5 sm:p-7 space-y-4 shadow-2xl"
+          >
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="font-editorial text-lg font-bold text-[#123B28]">
+                {editingProject ? 'Edit Development Project' : 'New Development Project'}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setProjectFormOpen(false)}
+                className="w-9 h-9 rounded-lg hover:bg-slate-100 flex items-center justify-center cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
-          </div>
-        )}
-      </main>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <input
+                type="text"
+                required
+                placeholder="Project Title (EN)"
+                value={projectDraft.title}
+                onChange={(e) => setProjectDraft({ ...projectDraft, title: e.target.value })}
+                className="px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+              />
+              <input
+                type="text"
+                required
+                dir="rtl"
+                placeholder="Project Title (Urdu)"
+                value={projectDraft.titleUrdu}
+                onChange={(e) => setProjectDraft({ ...projectDraft, titleUrdu: e.target.value })}
+                className="px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+              />
+
+              <select
+                value={projectDraft.category}
+                onChange={(e) =>
+                  setProjectDraft({
+                    ...projectDraft,
+                    category: e.target.value as ProjectCategory,
+                    categoryUrdu: e.target.value
+                  })
+                }
+                className="px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+              >
+                {PROJECT_CATEGORIES.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                value={projectDraft.status}
+                onChange={(e) =>
+                  setProjectDraft({
+                    ...projectDraft,
+                    status: e.target.value as ProjectStatus,
+                    statusUrdu: e.target.value
+                  })
+                }
+                className="px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+              >
+                {PROJECT_STATUSES.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                value={projectDraft.unionCouncil}
+                onChange={(e) => setProjectDraft({ ...projectDraft, unionCouncil: e.target.value })}
+                className="px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+              >
+                {unionCouncils.map((uc) => (
+                  <option key={uc.code} value={uc.code}>
+                    {uc.code} — {uc.name}
+                  </option>
+                ))}
+              </select>
+
+              <input
+                type="text"
+                required
+                placeholder="Budget (e.g. Rs. 45 Million)"
+                value={projectDraft.budget}
+                onChange={(e) => setProjectDraft({ ...projectDraft, budget: e.target.value })}
+                className="px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+              />
+
+              <input
+                type="text"
+                required
+                placeholder="Executing Department"
+                value={projectDraft.department}
+                onChange={(e) =>
+                  setProjectDraft({
+                    ...projectDraft,
+                    department: e.target.value,
+                    departmentUrdu: e.target.value
+                  })
+                }
+                className="px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+              />
+
+              <input
+                type="number"
+                min={0}
+                max={100}
+                placeholder="Progress %"
+                value={projectDraft.progressPercent}
+                onChange={(e) =>
+                  setProjectDraft({
+                    ...projectDraft,
+                    progressPercent: Number(e.target.value)
+                  })
+                }
+                className="px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+              />
+
+              <input
+                type="text"
+                placeholder="Location (EN)"
+                value={projectDraft.location}
+                onChange={(e) => setProjectDraft({ ...projectDraft, location: e.target.value })}
+                className="px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+              />
+              <select
+                value={projectDraft.fundingType}
+                onChange={(e) =>
+                  setProjectDraft({
+                    ...projectDraft,
+                    fundingType: e.target.value as FundingType,
+                    fundingTypeUrdu: e.target.value
+                  })
+                }
+                className="px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+              >
+                <option value="Government-Funded">Government-Funded</option>
+                <option value="Department-Led">Department-Led</option>
+                <option value="MPA Priority Grant">MPA Priority Grant</option>
+                <option value="District ADP">District ADP</option>
+              </select>
+            </div>
+
+            <textarea
+              rows={3}
+              required
+              placeholder="Project Description (EN)"
+              value={projectDraft.description}
+              onChange={(e) => setProjectDraft({ ...projectDraft, description: e.target.value })}
+              className="w-full p-3 text-xs bg-[#F7F9F7] border border-slate-200 rounded-xl"
+            />
+            <textarea
+              rows={2}
+              dir="rtl"
+              placeholder="Project Description (Urdu)"
+              value={projectDraft.descriptionUrdu}
+              onChange={(e) =>
+                setProjectDraft({ ...projectDraft, descriptionUrdu: e.target.value })
+              }
+              className="w-full p-3 text-xs bg-[#F7F9F7] border border-slate-200 rounded-xl"
+            />
+
+            <div className="flex justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setProjectFormOpen(false)}
+                className="min-h-[42px] px-4 py-2 rounded-xl border border-slate-200 text-xs font-bold cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="min-h-[42px] px-5 py-2 rounded-xl bg-[#087A43] hover:bg-[#123B28] text-white text-xs font-bold cursor-pointer"
+              >
+                Save Project
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Complaint Triage Modal */}
+      {triagingComplaint && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+          <form
+            onSubmit={handleSubmitTriage}
+            className="bg-white rounded-2xl max-w-lg w-full p-5 sm:p-7 space-y-4 shadow-2xl"
+          >
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <span className="font-mono text-xs font-bold text-[#087A43]">
+                  {triagingComplaint.trackingId}
+                </span>
+                <h3 className="font-bold text-base text-[#123B28]">
+                  Triage & Refer Citizen Complaint
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setTriagingComplaint(null)}
+                className="w-9 h-9 rounded-lg hover:bg-slate-100 flex items-center justify-center cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">Status</label>
+                <select
+                  value={triageStatus}
+                  onChange={(e) => setTriageStatus(e.target.value as ComplaintStatus)}
+                  className="w-full px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+                >
+                  {COMPLAINT_STATUSES.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">
+                  Referred Department
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Municipal Committee Chichawatni / MEPCO / PHED"
+                  value={triageDept}
+                  onChange={(e) => setTriageDept(e.target.value)}
+                  className="w-full px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+                />
+              </div>
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">Assigned Officer</label>
+                <input
+                  type="text"
+                  placeholder="e.g. XEN Irrigation / SDO Highways"
+                  value={triageOfficer}
+                  onChange={(e) => setTriageOfficer(e.target.value)}
+                  className="w-full px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+                />
+              </div>
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">
+                  Public Secretariat Remarks
+                </label>
+                <textarea
+                  rows={3}
+                  value={triageRemarks}
+                  onChange={(e) => setTriageRemarks(e.target.value)}
+                  className="w-full p-3 bg-[#F7F9F7] border border-slate-200 rounded-xl"
+                />
+              </div>
+              <label className="inline-flex items-center gap-2 font-semibold text-[#123B28] cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={triageSms}
+                  onChange={(e) => setTriageSms(e.target.checked)}
+                  className="w-4 h-4 accent-[#087A43]"
+                />
+                <span>Dispatch SMS Status Notification to {triagingComplaint.phone}</span>
+              </label>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setTriagingComplaint(null)}
+                className="min-h-[42px] px-4 py-2 rounded-xl border border-slate-200 text-xs font-bold cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="min-h-[42px] px-5 py-2 rounded-xl bg-[#087A43] hover:bg-[#123B28] text-white text-xs font-bold cursor-pointer"
+              >
+                Save Update
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Notice Modal */}
+      {noticeFormOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+          <form
+            onSubmit={handleSaveNotice}
+            className="bg-white rounded-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto p-5 sm:p-7 space-y-4 shadow-2xl"
+          >
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="font-editorial text-lg font-bold text-[#123B28]">
+                {editingNotice ? 'Edit Public Notice' : 'Publish Official Notice'}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setNoticeFormOpen(false)}
+                className="w-9 h-9 rounded-lg hover:bg-slate-100 flex items-center justify-center cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="space-y-3 text-xs">
+              <input
+                type="text"
+                required
+                placeholder="Notice Title (EN)"
+                value={noticeDraft.title}
+                onChange={(e) => setNoticeDraft({ ...noticeDraft, title: e.target.value })}
+                className="w-full px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+              />
+              <input
+                type="text"
+                dir="rtl"
+                placeholder="Notice Title (Urdu)"
+                value={noticeDraft.titleUrdu}
+                onChange={(e) => setNoticeDraft({ ...noticeDraft, titleUrdu: e.target.value })}
+                className="w-full px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+              />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <select
+                  value={noticeDraft.category}
+                  onChange={(e) =>
+                    setNoticeDraft({
+                      ...noticeDraft,
+                      category: e.target.value as NoticeCategory,
+                      categoryUrdu: e.target.value
+                    })
+                  }
+                  className="px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+                >
+                  {NOTICE_CATEGORIES.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="date"
+                  value={noticeDraft.publishDate}
+                  onChange={(e) => setNoticeDraft({ ...noticeDraft, publishDate: e.target.value })}
+                  className="px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+                />
+              </div>
+              <textarea
+                rows={3}
+                required
+                placeholder="Description (EN)"
+                value={noticeDraft.description}
+                onChange={(e) => setNoticeDraft({ ...noticeDraft, description: e.target.value })}
+                className="w-full p-3 bg-[#F7F9F7] border border-slate-200 rounded-xl"
+              />
+              <textarea
+                rows={2}
+                dir="rtl"
+                placeholder="Description (Urdu)"
+                value={noticeDraft.descriptionUrdu}
+                onChange={(e) =>
+                  setNoticeDraft({ ...noticeDraft, descriptionUrdu: e.target.value })
+                }
+                className="w-full p-3 bg-[#F7F9F7] border border-slate-200 rounded-xl"
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setNoticeFormOpen(false)}
+                className="min-h-[42px] px-4 py-2 rounded-xl border border-slate-200 text-xs font-bold cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="min-h-[42px] px-5 py-2 rounded-xl bg-[#087A43] text-white text-xs font-bold cursor-pointer"
+              >
+                Save Notice
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Inquiry Modal */}
+      {editingInquiry && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+          <form
+            onSubmit={handleSaveInquiryUpdate}
+            className="bg-white rounded-2xl max-w-md w-full p-5 sm:p-6 space-y-4 shadow-2xl text-xs"
+          >
+            <h3 className="font-bold text-base text-[#123B28]">
+              Update Inquiry — {editingInquiry.name}
+            </h3>
+            <select
+              value={inquiryStatus}
+              onChange={(e) => setInquiryStatus(e.target.value as ContactMessage['status'])}
+              className="w-full px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+            >
+              <option value="Pending">Pending</option>
+              <option value="Reviewed">Reviewed</option>
+              <option value="Scheduled">Scheduled</option>
+              <option value="Completed">Completed</option>
+            </select>
+            <textarea
+              rows={3}
+              placeholder="Secretariat internal notes / meeting slot..."
+              value={inquiryNotes}
+              onChange={(e) => setInquiryNotes(e.target.value)}
+              className="w-full p-3 bg-[#F7F9F7] border border-slate-200 rounded-xl"
+            />
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setEditingInquiry(null)}
+                className="min-h-[40px] px-4 py-2 rounded-xl border border-slate-200 font-bold cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="min-h-[40px] px-5 py-2 rounded-xl bg-[#087A43] text-white font-bold cursor-pointer"
+              >
+                Save Status
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* News Modal */}
+      {newsFormOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+          <form
+            onSubmit={handleSaveNews}
+            className="bg-white rounded-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto p-5 sm:p-7 space-y-4 shadow-2xl text-xs"
+          >
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="font-editorial text-lg font-bold text-[#123B28]">
+                {editingNews ? 'Edit News Article' : 'Publish News Article'}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setNewsFormOpen(false)}
+                className="w-9 h-9 rounded-lg hover:bg-slate-100 flex items-center justify-center cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <input
+              type="text"
+              required
+              placeholder="Headline (EN)"
+              value={newsDraft.title}
+              onChange={(e) => setNewsDraft({ ...newsDraft, title: e.target.value })}
+              className="w-full px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+            />
+            <input
+              type="text"
+              dir="rtl"
+              placeholder="Headline (Urdu)"
+              value={newsDraft.titleUrdu}
+              onChange={(e) => setNewsDraft({ ...newsDraft, titleUrdu: e.target.value })}
+              className="w-full px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+            />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <select
+                value={newsDraft.category}
+                onChange={(e) =>
+                  setNewsDraft({
+                    ...newsDraft,
+                    category: e.target.value as NewsCategory,
+                    categoryUrdu: e.target.value
+                  })
+                }
+                className="px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+              >
+                {NEWS_CATEGORIES.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="date"
+                value={newsDraft.date}
+                onChange={(e) => setNewsDraft({ ...newsDraft, date: e.target.value })}
+                className="px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+              />
+            </div>
+            <textarea
+              rows={2}
+              required
+              placeholder="Short Summary (EN)"
+              value={newsDraft.summary}
+              onChange={(e) =>
+                setNewsDraft({ ...newsDraft, summary: e.target.value, content: e.target.value })
+              }
+              className="w-full p-3 bg-[#F7F9F7] border border-slate-200 rounded-xl"
+            />
+            <textarea
+              rows={2}
+              dir="rtl"
+              placeholder="Short Summary (Urdu)"
+              value={newsDraft.summaryUrdu}
+              onChange={(e) =>
+                setNewsDraft({
+                  ...newsDraft,
+                  summaryUrdu: e.target.value,
+                  contentUrdu: e.target.value
+                })
+              }
+              className="w-full p-3 bg-[#F7F9F7] border border-slate-200 rounded-xl"
+            />
+            <label className="inline-flex items-center gap-2 font-semibold text-[#123B28] cursor-pointer">
+              <input
+                type="checkbox"
+                checked={!!newsDraft.isFeatured}
+                onChange={(e) => setNewsDraft({ ...newsDraft, isFeatured: e.target.checked })}
+                className="w-4 h-4 accent-[#087A43]"
+              />
+              <span>Pin as Featured News Spotlight</span>
+            </label>
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setNewsFormOpen(false)}
+                className="min-h-[42px] px-4 py-2 rounded-xl border border-slate-200 font-bold cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="min-h-[42px] px-5 py-2 rounded-xl bg-[#087A43] text-white font-bold cursor-pointer"
+              >
+                Save Article
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Assembly Modal */}
+      {assemblyFormOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+          <form
+            onSubmit={handleSaveAssembly}
+            className="bg-white rounded-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto p-5 sm:p-7 space-y-4 shadow-2xl text-xs"
+          >
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="font-editorial text-lg font-bold text-[#123B28]">
+                {editingAssembly ? 'Edit Assembly Activity' : 'Add Assembly Activity'}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setAssemblyFormOpen(false)}
+                className="w-9 h-9 rounded-lg hover:bg-slate-100 flex items-center justify-center cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <input
+              type="text"
+              required
+              placeholder="Activity Title (EN)"
+              value={assemblyDraft.title}
+              onChange={(e) => setAssemblyDraft({ ...assemblyDraft, title: e.target.value })}
+              className="w-full px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+            />
+            <input
+              type="text"
+              dir="rtl"
+              placeholder="Activity Title (Urdu)"
+              value={assemblyDraft.titleUrdu}
+              onChange={(e) => setAssemblyDraft({ ...assemblyDraft, titleUrdu: e.target.value })}
+              className="w-full px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+            />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <select
+                value={assemblyDraft.category}
+                onChange={(e) =>
+                  setAssemblyDraft({
+                    ...assemblyDraft,
+                    category: e.target.value as AssemblyActivityCategory,
+                    categoryUrdu: e.target.value
+                  })
+                }
+                className="px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+              >
+                {ASSEMBLY_CATEGORIES.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="date"
+                value={assemblyDraft.sessionDate}
+                onChange={(e) =>
+                  setAssemblyDraft({ ...assemblyDraft, sessionDate: e.target.value })
+                }
+                className="px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+              />
+              <input
+                type="text"
+                placeholder="Ref No (e.g. PAP-Q-114)"
+                value={assemblyDraft.referenceNo || ''}
+                onChange={(e) =>
+                  setAssemblyDraft({ ...assemblyDraft, referenceNo: e.target.value })
+                }
+                className="px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
+              />
+            </div>
+            <textarea
+              rows={3}
+              required
+              placeholder="Summary (EN)"
+              value={assemblyDraft.summary}
+              onChange={(e) => setAssemblyDraft({ ...assemblyDraft, summary: e.target.value })}
+              className="w-full p-3 bg-[#F7F9F7] border border-slate-200 rounded-xl"
+            />
+            <textarea
+              rows={2}
+              dir="rtl"
+              placeholder="Summary (Urdu)"
+              value={assemblyDraft.summaryUrdu}
+              onChange={(e) =>
+                setAssemblyDraft({ ...assemblyDraft, summaryUrdu: e.target.value })
+              }
+              className="w-full p-3 bg-[#F7F9F7] border border-slate-200 rounded-xl"
+            />
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setAssemblyFormOpen(false)}
+                className="min-h-[42px] px-4 py-2 rounded-xl border border-slate-200 font-bold cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="min-h-[42px] px-5 py-2 rounded-xl bg-[#087A43] text-white font-bold cursor-pointer"
+              >
+                Save Assembly Record
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
     </div>
   );
 };

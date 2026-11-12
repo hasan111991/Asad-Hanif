@@ -3,36 +3,35 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PP-203 Smart Constituency Management &amp; Development Portal</title>
+    <title>Chaudhry Asad Hanif Jutt – Official Website</title>
     <script>
-      (function() {
+      // Single Page App redirect for GitHub Pages & static hosts supporting pathSegmentsToKeep
+      (function () {
         var l = window.location;
-        var pathname = l.pathname;
-        var parts = pathname.split('/').filter(Boolean);
-        // If repo path e.g. /repo-name/some-page on GitHub Pages
-        if (l.hostname.endsWith('github.io') && parts.length > 0) {
-          var repo = parts[0];
-          var remaining = parts.slice(1).filter(function(p) { return p !== 'docs' && p !== 'index.html' && p !== '404.html'; });
-          var subRoute = remaining.join('/');
-          if (subRoute) {
-            window.location.replace(l.origin + '/' + repo + '/#' + subRoute + l.search);
-            return;
-          }
-          window.location.replace(l.origin + '/' + repo + '/' + l.search + l.hash);
-          return;
-        }
-        // Custom domain or root
-        var last = parts[parts.length - 1];
-        if (last && last !== 'docs' && last !== 'index.html' && last !== '404.html') {
-          window.location.replace('/#' + last + l.search);
-        } else {
-          window.location.replace('/' + l.search + l.hash);
-        }
+        var pathSegmentsToKeep = l.hostname.endsWith('github.io') ? 1 : 0;
+        l.replace(
+          l.protocol +
+            '//' +
+            l.hostname +
+            (l.port ? ':' + l.port : '') +
+            l.pathname
+              .split('/')
+              .slice(0, 1 + pathSegmentsToKeep)
+              .join('/') +
+            '/?/' +
+            l.pathname
+              .slice(1)
+              .split('/')
+              .slice(pathSegmentsToKeep)
+              .join('/')
+              .replace(/&/g, '~and~') +
+            (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+            l.hash
+        );
       })();
     </script>
   </head>
-  <body style="font-family: sans-serif; text-align: center; padding: 50px 20px; background-color: #F7F9F7; color: #064D2B;">
-    <h2>Redirecting to PP-203 Portal...</h2>
-    <p>Please wait while we redirect you to the application.</p>
+  <body style="font-family: sans-serif; text-align: center; padding: 48px 20px; background: #F7F9F7; color: #123B28;">
+    <p>Redirecting to portal...</p>
   </body>
 </html>

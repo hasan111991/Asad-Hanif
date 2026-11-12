@@ -3,15 +3,13 @@ export type Language = 'en' | 'ur';
 export type AdminRole =
   | 'Super Admin'
   | 'Office Manager'
-  | 'Complaint Manager'
   | 'Project Manager'
   | 'Media Manager'
-  | 'Data Entry Operator'
-  | 'Field Survey Officer'
-  | 'Read-only Analyst';
+  | 'Data Entry Operator';
 
 export interface AdminUser {
   id: string;
+  uid?: string;
   email: string;
   displayName: string;
   role: AdminRole;
@@ -89,8 +87,6 @@ export interface VillageMouza {
   verifiedStatus: 'Verified' | 'Pending Field Survey';
 }
 
-export type FacilityCategory = 'Education' | 'Healthcare' | 'Water' | 'Infrastructure' | 'Agriculture';
-
 export interface EducationFacility {
   id: string;
   name: string;
@@ -148,7 +144,7 @@ export type ProjectCategory =
   | 'Sanitation'
   | 'Public Facilities';
 
-export type ProjectStatus = 'Proposed' | 'Under Assessment' | 'Approved' | 'In Progress' | 'Completed' | 'Verified';
+export type ProjectStatus = 'Proposed' | 'Approved' | 'In Progress' | 'Completed';
 
 export type FundingType = 'Government-Funded' | 'Department-Led' | 'MPA Priority Grant' | 'District ADP';
 
@@ -176,8 +172,26 @@ export interface Project {
   progressPercent: number;
   latitude: number;
   longitude: number;
-  beforeImageUrl?: string;
-  afterImageUrl?: string;
+}
+
+export type AssemblyActivityCategory =
+  | 'Question Raised'
+  | 'Bill & Resolution'
+  | 'Committee Participation'
+  | 'Parliamentary Activity'
+  | 'Official Announcement';
+
+export interface AssemblyActivity {
+  id: string;
+  title: string;
+  titleUrdu: string;
+  category: AssemblyActivityCategory;
+  categoryUrdu: string;
+  sessionDate: string;
+  referenceNo?: string;
+  summary: string;
+  summaryUrdu: string;
+  status?: string;
 }
 
 export type ComplaintCategory =
@@ -193,19 +207,16 @@ export type ComplaintCategory =
 export type ComplaintStatus =
   | 'Received'
   | 'Under Review'
-  | 'Verified'
-  | 'Assigned'
   | 'Referred to Department'
-  | 'In Progress'
   | 'Resolved'
-  | 'Closed'
-  | 'Rejected';
+  | 'Closed';
 
 export interface CitizenComplaint {
   id: string;
   trackingId: string;
   citizenName: string;
   phone: string;
+  districtTehsil: string;
   unionCouncil: string;
   locality: string;
   category: ComplaintCategory;
@@ -222,42 +233,17 @@ export interface CitizenComplaint {
   updatedAt: string;
 }
 
-export interface FieldSurvey {
+export interface ContactMessage {
   id: string;
-  surveyorName: string;
-  surveyorPhone: string;
-  unionCouncil: string;
-  village: string;
-  surveyType: 'Infrastructure' | 'School Inspection' | 'Healthcare Check' | 'Water/Sanitation' | 'Agriculture';
-  roadCondition: string;
-  facilityCondition: string;
-  issuesIdentified: string;
-  notes: string;
-  latitude: number;
-  longitude: number;
-  timestamp: string;
-  status: 'Submitted' | 'Verified' | 'Action Scheduled';
-  photoUrl?: string;
-}
-
-export interface AIRecommendation {
-  id: string;
-  title: string;
-  titleUrdu: string;
-  location: string;
-  unionCouncil: string;
-  problemIdentified: string;
-  evidenceUsed: string;
-  sourceRecords: string;
-  estimatedPopulationAffected: number;
-  estimatedCostRange: string;
-  priorityLevel: 'Critical' | 'High' | 'Medium' | 'Low';
-  expectedBenefits: string;
-  risksAndLimitations: string;
-  suggestedNextAction: string;
-  confidenceLevel: number;
+  name: string;
+  phone: string;
+  email?: string;
+  inquiryType: 'General Inquiry' | 'Appointment Request' | 'Delegation Meeting' | 'Development Feedback';
+  preferredDate?: string;
+  message: string;
+  status: 'Pending' | 'Reviewed' | 'Scheduled' | 'Completed';
+  adminNotes?: string;
   createdAt: string;
-  status: 'Pending Review' | 'Accepted' | 'Under Feasibility' | 'Archived';
 }
 
 export type NoticeCategory =
@@ -320,6 +306,18 @@ export interface GalleryMedia {
   captionUrdu: string;
 }
 
+export interface SmsLog {
+  id: string;
+  recipientPhone: string;
+  trackingId: string;
+  message: string;
+  provider: string;
+  senderId: string;
+  status: 'Queued' | 'Sent' | 'Failed' | 'Simulated';
+  sentBy: string;
+  timestamp: string;
+}
+
 export interface SiteSettings {
   announcement: string;
   announcementUrdu: string;
@@ -327,6 +325,10 @@ export interface SiteSettings {
   helplinePhone: string;
   whatsappNumber: string;
   whatsappEnabled: boolean;
+  smsProvider: string;
+  smsSenderId: string;
+  smsEnabled: boolean;
+  ga4MeasurementId: string;
   officeLocation: string;
   officeLocationUrdu: string;
   officeHours: string;
@@ -341,8 +343,15 @@ export interface AuditLog {
   id: string;
   action: string;
   adminEmail: string;
+  adminUid?: string;
   targetCollection?: string;
   targetId?: string;
   details: string;
   timestamp: string;
 }
+
+export type PolicyModalType =
+  | 'privacy'
+  | 'terms'
+  | 'data_protection'
+  | 'complaint_disclaimer';

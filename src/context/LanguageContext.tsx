@@ -9,78 +9,78 @@ interface LanguageContextType {
 }
 
 const translations: Record<string, { en: string; ur: string }> = {
-  // Navigation
+  // Primary 11 Navigation Items
   home: { en: 'Home', ur: 'صفحہ اول' },
-  about: { en: 'About Leader', ur: 'تعارف و قیادت' },
-  constituency: { en: 'Constituency Profile', ur: 'حلقہ کا تعارف' },
-  map: { en: 'GIS Map', ur: 'حلقہ کا نقشہ' },
-  unionCouncils: { en: 'Union Councils', ur: 'یونین کونسلیں' },
-  villages: { en: 'Villages & Chaks', ur: 'دیہات و چک' },
-  education: { en: 'Education', ur: 'تعلیمی ادارے' },
-  healthcare: { en: 'Healthcare', ur: 'صحت کی سہولیات' },
-  infrastructure: { en: 'Infrastructure', ur: 'انفراسٹرکچر' },
-  agriculture: { en: 'Agro-Economy', ur: 'زراعت و معیشت' },
-  projects: { en: 'Development Projects', ur: 'ترقیاتی منصوبے' },
-  complaints: { en: 'Public Complaints', ur: 'عوامی شکایات پورٹل' },
-  trackComplaint: { en: 'Track Complaint', ur: 'شکایت ٹریک کریں' },
-  notices: { en: 'Public Notices', ur: 'سرکاری اعلانات' },
-  news: { en: 'News & Media', ur: 'خبریں و اپ ڈیٹس' },
-  gallery: { en: 'Media Gallery', ur: 'تصویری گیلری' },
-  reports: { en: 'Monthly Reports', ur: 'ماہانہ رپورٹس' },
-  contact: { en: 'Contact & Secretariat', ur: 'رابطہ و سیکرٹریٹ' },
-  adminLogin: { en: 'Staff Portal', ur: 'اسٹاف پورٹل' },
+  about: { en: 'About', ur: 'تعارف' },
+  constituency: { en: 'PP-203', ur: 'پی پی 203' },
+  projects: { en: 'Projects', ur: 'منصوبے' },
+  map: { en: 'GIS Map', ur: 'جی آئی ایس نقشہ' },
+  assembly: { en: 'Assembly', ur: 'اسمبلی' },
+  complaints: { en: 'Public Portal', ur: 'عوامی پورٹل' },
+  notices: { en: 'Notices', ur: 'اعلانات' },
+  news: { en: 'News', ur: 'خبریں' },
+  gallery: { en: 'Gallery', ur: 'گیلری' },
+  contact: { en: 'Contact', ur: 'رابطہ' },
 
-  // General & Badges
-  portalTitle: { en: 'PP-203 Smart Constituency Management & Development Portal', ur: 'پی پی 203 اسمارٹ کانسٹی ٹیونسی مینجمنٹ و ڈویلپمنٹ پورٹل' },
-  portalSubtitle: { en: 'Chichawatni, District Sahiwal, Punjab, Pakistan', ur: 'تحصیل چیچہ وطنی، ضلع ساہیوال، پنجاب، پاکستان' },
-  verifiedOfficialPortal: { en: 'Verified Public Service Portal', ur: 'تصدیق شدہ عوامی خدمت پورٹل' },
-  callHelpline: { en: 'Helpline: +92 300 6902203', ur: 'ہیلپ لائن: 03006902203' },
-  whatappChat: { en: 'WhatsApp Helpdesk', ur: 'واٹس ایپ رابطہ' },
-  quickKhuliKachehri: { en: 'Public Darbar Every Tue & Thu', ur: 'ہر منگل و جمعرات کھلی کچہری' },
+  // General & Identity
+  portalTitle: {
+    en: 'Chaudhry Asad Hanif Jutt – Official Website',
+    ur: 'چوہدری اسد حنیف جٹ – سرکاری ویب سائٹ'
+  },
+  portalSubtitle: {
+    en: 'PP-203, Chichawatni, District Sahiwal, Punjab, Pakistan',
+    ur: 'حلقہ پی پی 203، چیچہ وطنی، ضلع ساہیوال، پنجاب، پاکستان'
+  },
+  verifiedOfficialPortal: {
+    en: 'Official Representative & Constituent Portal',
+    ur: 'سرکاری عوامی نمائندہ و خدمت پورٹل'
+  },
+  partyName: {
+    en: 'Pakistan Muslim League (N) – PML-N',
+    ur: 'پاکستان مسلم لیگ (ن)'
+  },
+  officialDisclaimerShort: {
+    en: 'Official Notice: This is the official political representative profile and constituent public service portal of Chaudhry Asad Hanif Jutt (MPA PP-203 Chichawatni), and is not a government department or ministry portal.',
+    ur: 'اہم اطلاع: یہ چوہدری اسد حنیف جٹ (ایم پی اے حلقہ پی پی 203 چیچہ وطنی) کی سرکاری سیاسی پروفائل اور عوامی خدمت کا پورٹل ہے، اور یہ کوئی سرکاری محکمہ یا وزارت کا پورٹل نہیں ہے۔'
+  },
 
-  // Hero Section
-  heroBadge: { en: 'Dedicated to PP-203 Chichawatni Development', ur: 'حلقہ پی پی 203 چیچہ وطنی کی فلاح و ترقی کے لیے وقف' },
-  heroTitle: { en: 'Empowering Chichawatni Through Transparent Governance', ur: 'شفاف حکمرانی، عوامی خدمت اور دیہی ترقی کا سفر' },
-  heroSubtitle: { en: 'Real-time tracking of development projects, citizen grievances, GIS constituency mapping, and transparent public infrastructure monitoring under the leadership of Chaudhry Asad Hanif Jutt.', ur: 'چوہدری اسد حنیف جٹ کی قیادت میں ترقیاتی منصوبوں کی نگرانی، عوامی شکایات کے فوری حل، جی آئی ایس نقشہ جات اور دیہی خوشحالی کا جدید ڈیجیٹل نظام۔' },
-  submitGrievanceBtn: { en: 'Submit a Complaint', ur: 'شکایت درج کروائیں' },
-  trackGrievanceBtn: { en: 'Track Grievance Status', ur: 'شکایت کا اسٹیٹس دیکھیں' },
-  exploreGisMap: { en: 'Explore Interactive GIS Map', ur: 'حلقے کا نقشہ دیکھیں' },
+  // Hero & CTAs
+  aboutMeBtn: { en: 'About Me', ur: 'میرا تعارف' },
+  publicServiceBtn: { en: 'Public Service', ur: 'عوامی خدمت' },
+  contactOfficeBtn: { en: 'Contact Office', ur: 'رابطہ آفس' },
+  submitGrievanceBtn: { en: 'Submit Complaint', ur: 'شکایت درج کروائیں' },
+  trackGrievanceBtn: { en: 'Track Complaint', ur: 'شکایت ٹریک کریں' },
+  exploreGisMap: { en: 'Constituency GIS Map', ur: 'حلقہ کا جی آئی ایس نقشہ' },
 
-  // Stats Counters
-  statUCs: { en: 'Union Councils', ur: 'یونین کونسلیں' },
-  statVillages: { en: 'Verified Villages & Chaks', ur: 'تصدیق شدہ دیہات و چک' },
-  statPopulation: { en: 'Estimated Constituents', ur: 'تخمینہ آبادی' },
-  statProjects: { en: 'Active & Completed Projects', ur: 'ترقیاتی منصوبے' },
-  statSchools: { en: 'Registered Schools & Colleges', ur: 'تعلیمی ادارے' },
-  statHealth: { en: 'Hospitals & Health Units', ur: 'ہسپتال و بی ایچ یو' },
-  statResolutionRate: { en: 'Grievance Resolution Rate', ur: 'شکایات کے حل کی شرح' },
+  // Stats
+  statUCs: { en: 'Union Councils Covered', ur: 'یونین کونسلیں' },
+  statProjects: { en: 'Development Initiatives', ur: 'ترقیاتی منصوبے' },
+  statAssembly: { en: 'Assembly Interventions', ur: 'اسمبلی سرگرمیاں' },
+  statResolutionRate: { en: 'Grievance Redressal Rate', ur: 'شکایات کے حل کی شرح' },
 
   // Complaints
-  complaintFormTitle: { en: 'Public Grievance Redressal Form', ur: 'عوامی شکایت کے اندراج کا فارم' },
+  complaintFormTitle: { en: 'Submit a Citizen Grievance', ur: 'شہری شکایت درج کروائیں' },
   citizenName: { en: 'Citizen Full Name', ur: 'شہری کا مکمل نام' },
-  mobileNumber: { en: 'Mobile Number (for SMS & Tracking)', ur: 'موبائل نمبر (اطلاع و ٹریکنگ کے لیے)' },
-  selectUC: { en: 'Select Union Council', ur: 'یونین کونسل منتخب کریں' },
-  localityPlaceholder: { en: 'Specific village, chak or street address', ur: 'مخصوص گاؤں، چک یا محلہ کا نام' },
-  category: { en: 'Category', ur: 'شکایت کا شعبہ' },
-  issueDescription: { en: 'Detailed Description of the Issue', ur: 'مسئلے کی مکمل تفصیل' },
-  consentCheck: { en: 'I confirm that this grievance is genuine and authorize the Secretariat to contact me for verification.', ur: 'میں تصدیق کرتا ہوں کہ یہ شکایت درست ہے اور سیکرٹریٹ کو رابطے کی اجازت دیتا ہوں۔' },
-  submitComplaint: { en: 'Submit Grievance to Secretariat', ur: 'شکایت سیکرٹریٹ میں جمع کروائیں' },
-  trackingModalTitle: { en: 'Track Citizen Complaint Status', ur: 'شہری شکایت کا اسٹیٹس ٹریک کریں' },
-  enterTrackingId: { en: 'Enter Tracking ID (e.g., PP203-2026-1042)', ur: 'شکایت نمبر درج کریں (مثلاً PP203-2026-1042)' },
-  enterMobileVerify: { en: 'Enter Registered Mobile Number', ur: 'رجسٹرڈ موبائل نمبر درج کریں' },
-  trackNow: { en: 'Verify & Track', ur: 'تصدیق اور ٹریک کریں' },
-  trackingNotice: { en: 'For privacy, complaint details are accessible only with the matching registered phone number.', ur: 'رازداری کے تحفظ کے لیے کوائف صرف درست موبائل نمبر کی تصدیق پر دکھائے جاتے ہیں۔' },
+  mobileNumber: { en: 'Mobile Number', ur: 'موبائل نمبر' },
+  districtTehsil: { en: 'District / Tehsil', ur: 'ضلع / تحصیل' },
+  selectUC: { en: 'Area / Union Council', ur: 'علاقہ / یونین کونسل' },
+  localityPlaceholder: { en: 'Village, Chak, or Mohallah', ur: 'گاؤں، چک یا محلہ' },
+  category: { en: 'Complaint Category', ur: 'شکایت کا شعبہ' },
+  issueDescription: { en: 'Description of Issue', ur: 'مسئلے کی تفصیل' },
+  consentCheck: {
+    en: 'I confirm this information is accurate and authorize the Secretariat of Chaudhry Asad Hanif Jutt to coordinate with relevant departments for resolution.',
+    ur: 'میں تصدیق کرتا ہوں کہ یہ معلومات درست ہیں اور چوہدری اسد حنیف جٹ کے سیکرٹریٹ کو متعلقہ محکموں سے رابطے کی اجازت دیتا ہوں۔'
+  },
+  submitComplaint: { en: 'Submit Complaint', ur: 'شکایت جمع کروائیں' },
+  trackingModalTitle: { en: 'Track Complaint Status', ur: 'شکایت کا اسٹیٹس ٹریک کریں' },
+  enterTrackingId: { en: 'Tracking ID (e.g. CMP-2026-1042)', ur: 'ٹریکنگ آئی ڈی درج کریں (مثلاً CMP-2026-1042)' },
+  trackNow: { en: 'Track Status', ur: 'اسٹیٹس دیکھیں' },
 
-  // Projects
-  allCategories: { en: 'All Categories', ur: 'تمام شعبہ جات' },
-  allStatuses: { en: 'All Statuses', ur: 'تمام صورتحال' },
-  budget: { en: 'Budget', ur: 'بجٹ' },
-  department: { en: 'Department', ur: 'متعلقہ محکمہ' },
-  progress: { en: 'Progress', ur: 'پیش رفت' },
-  viewDetails: { en: 'View Project Details', ur: 'تفصیلات دیکھیں' },
-
-  // Disclaimer
-  disclaimerText: { en: 'Official Data Disclaimer: This portal operates for public constituent outreach, grievance facilitation, and civic information under Chaudhry Asad Hanif Jutt. It is not a substitutive state gazette. All metrics reflect currently verified database records.', ur: 'سرکاری ڈس کلیمر: یہ پورٹل چوہدری اسد حنیف جٹ کے عوامی رابطہ و شکایات کے ازالے کے لیے ہے۔ تمام معلومات تصدیق شدہ ڈیٹا کی بنیاد پر ہیں۔' }
+  // Projects & Actions
+  budget: { en: 'Allocated Budget', ur: 'مختص بجٹ' },
+  department: { en: 'Executing Department', ur: 'متعلقہ محکمہ' },
+  progress: { en: 'Completion Progress', ur: 'کام کی پیش رفت' },
+  viewDetails: { en: 'View Details', ur: 'تفصیلات دیکھیں' },
 };
 
 const LanguageContext = createContext<LanguageContextType>({
@@ -92,13 +92,21 @@ const LanguageContext = createContext<LanguageContextType>({
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguageState] = useState<Language>(() => {
-    return (localStorage.getItem('pp203_lang') as Language) || 'en';
+    try {
+      return (localStorage.getItem('pp203_lang') as Language) || 'en';
+    } catch {
+      return 'en';
+    }
   });
 
   const isRTL = language === 'ur';
 
   useEffect(() => {
-    localStorage.setItem('pp203_lang', language);
+    try {
+      localStorage.setItem('pp203_lang', language);
+    } catch {
+      // ignore storage quota
+    }
     document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
     document.documentElement.lang = language;
   }, [language, isRTL]);

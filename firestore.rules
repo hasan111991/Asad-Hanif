@@ -1,31 +1,151 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Helper functions
+    // 1. Helpers
     function isAuthenticated() {
       return request.auth != null;
     }
 
+    function isBootstrappedSuperAdmin() {
+      return isAuthenticated()
+        && request.auth.token.email == 'hasanaamir815@gmail.com'
+        && request.auth.token.email_verified == true;
+    }
+
+    function adminExists() {
+      return isAuthenticated()
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    function adminData() {
+      return get(/databases/$(database)/documents/admins/$(request.auth.uid)).data;
+    }
+
     function isAdmin() {
-      return isAuthenticated() && 
-        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) &&
-        get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.status == 'Active';
+      return isBootstrappedSuperAdmin()
+        || (adminExists() && adminData().status == 'Active');
     }
 
     function isSuperAdmin() {
-      return isAuthenticated() && 
-        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) &&
-        get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.role == 'Super Admin' &&
-        get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.status == 'Active';
+      return isBootstrappedSuperAdmin()
+        || (adminExists() && adminData().status == 'Active' && adminData().role == 'Super Admin');
     }
 
-    // Admins collection: Super Admin only
-    match /admins/{adminId} {
-      allow read: if isAuthenticated();
-      allow write: if isSuperAdmin();
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128;
     }
 
-    // Public readable datasets (Union Councils, Villages, Facilities, Projects, Notices, News, Gallery)
+    function isValidComplaint(data, complaintId) {
+      return isValidId(complaintId)
+        && data.keys().hasAll([
+          'trackingId', 'citizenName', 'phone', 'districtTehsil',
+          'unionCouncil', 'category', 'description', 'status',
+          'priority', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'id', 'trackingId', 'citizenName', 'phone', 'districtTehsil',
+          'unionCouncil', 'locality', 'category', 'description', 'status',
+          'priority', 'departmentReferred', 'adminRemarks', 'assignedOfficer',
+          'resolutionEvidenceUrl', 'latitude', 'longitude', 'createdAt', 'updatedAt'
+        ])
+        && data.trackingId is string
+        && data.trackingId == complaintId
+        && data.trackingId.size() >= 8
+        && data.trackingId.size() <= 40
+        && data.citizenName is string
+        && data.citizenName.size() >= 2
+        && data.citizenName.size() <= 120
+        && data.phone is string
+        && data.phone.size() >= 7
+        && data.phone.size() <= 24
+        && data.districtTehsil is string
+        && data.districtTehsil.size() >= 2
+        && data.districtTehsil.size() <= 120
+        && data.unionCouncil is string
+        && data.unionCouncil.size() >= 2
+        && data.unionCouncil.size() <= 120
+        && data.category is string
+        && data.category.size() >= 2
+        && data.category.size() <= 100
+        && data.description is string
+        && data.description.size() >= 10
+        && data.description.size() <= 2500
+        && data.status == 'Received'
+        && data.priority in ['Normal', 'High', 'Urgent']
+        && data.createdAt is string
+        && data.createdAt.size() <= 64
+        && data.updatedAt is string
+        && data.updatedAt.size() <= 64;
+    }
+
+    function isValidContactMessage(data) {
+      return data.keys().hasAll([
+          'name', 'phone', 'inquiryType', 'message', 'status', 'createdAt'
+        ])
+        && data.keys().hasOnly([
+          'id', 'name', 'phone', 'email', 'inquiryType',
+          'preferredDate', 'message', 'status', 'adminNotes', 'createdAt'
+        ])
+        && data.name is string
+        && data.name.size() >= 2
+        && data.name.size() <= 120
+        && data.phone is string
+        && data.phone.size() >= 7
+        && data.phone.size() <= 24
+        && data.inquiryType in ['General Inquiry', 'Appointment Request', 'Delegation Meeting', 'Development Feedback']
+        && data.message is string
+        && data.message.size() >= 5
+        && data.message.size() <= 2000
+        && data.status == 'Pending'
+        && data.createdAt is string
+        && data.createdAt.size() <= 64;
+    }
+
+    // 2. Admins / Staff RBAC Collection
+    match /admins/{uid} {
+      allow get: if isAuthenticated() && (request.auth.uid == uid || isAdmin());
+      allow list: if isAdmin();
+      allow create, update, delete: if isSuperAdmin();
+    }
+
+    // 3. Public Representative Profile & Settings
+    match /profile/{profileId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // 4. Public Constituency CMS Collections
+    match /projects/{projectId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /assembly_activities/{activityId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /news/{newsId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /gallery/{galleryId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /public_notices/{noticeId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Legacy constituency baseline collections (read public, write admin)
     match /constituency/{docId} {
       allow read: if true;
       allow write: if isAdmin();
@@ -61,60 +181,39 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    match /projects/{projectId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    match /public_notices/{noticeId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    match /news/{newsId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    match /gallery/{galleryId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    match /settings/{settingId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    // Public Grievance Complaints:
-    // Anyone can create a complaint.
-    // Reading individual complaint requires knowledge of tracking ID or admin access.
-    // No public listing of all complaints.
+    // 5. Citizen Complaints (keyed by Tracking ID)
+    // Public can submit a complaint (status='Received') and look up a single document by exact Tracking ID.
+    // Public CANNOT list all complaints.
     match /complaints/{complaintId} {
-      allow create: if request.resource.data.citizenName is string
-                    && request.resource.data.phone is string
-                    && request.resource.data.unionCouncil is string
-                    && request.resource.data.description is string;
-      allow read: if isAdmin();
+      allow get: if isValidId(complaintId);
+      allow list: if isAdmin();
+      allow create: if isValidComplaint(request.resource.data, complaintId);
       allow update, delete: if isAdmin();
     }
 
-    // Field Surveys:
-    match /field_surveys/{surveyId} {
+    // 6. Secretariat Contact & Appointment Messages
+    match /contact_messages/{messageId} {
+      allow create: if isValidId(messageId) && isValidContactMessage(request.resource.data);
+      allow read, update, delete: if isAdmin();
+    }
+
+    // 7. Admin-Only SMS Notification Logs
+    match /sms_logs/{logId} {
       allow read: if isAdmin();
-      allow create, update: if isAdmin();
+      allow create: if isAdmin();
+      allow update, delete: if false;
     }
 
-    // AI Recommendations:
-    match /ai_recommendations/{recId} {
-      allow read, write: if isAdmin();
-    }
-
-    // Audit Logs:
+    // 8. Immutable Admin Audit Logs
     match /audit_logs/{logId} {
       allow read: if isAdmin();
-      allow create: if isAuthenticated();
-      allow update, delete: if false; // immutable logs
+      allow create: if isAdmin();
+      allow update, delete: if false;
+    }
+
+    // 9. Catch-all default deny
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

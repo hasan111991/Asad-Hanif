@@ -1,8 +1,9 @@
 import React from 'react';
-import { X, ShieldAlert, FileText, Lock } from 'lucide-react';
+import { PolicyModalType } from '../types';
+import { X, ShieldAlert, FileText, Lock, ShieldCheck } from 'lucide-react';
 
 interface PolicyModalProps {
-  type: 'privacy' | 'terms' | 'disclaimer' | null;
+  type: PolicyModalType | null;
   onClose: () => void;
 }
 
@@ -11,73 +12,87 @@ export const PolicyModals: React.FC<PolicyModalProps> = ({ type, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto p-4 sm:p-8 space-y-4 shadow-2xl relative">
+      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto p-5 sm:p-8 space-y-4 shadow-2xl relative border-t-4 border-[#C9A227]">
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 rtl:right-auto rtl:left-3 w-11 h-11 flex items-center justify-center text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 transition"
+          className="absolute top-3 right-3 rtl:right-auto rtl:left-3 w-11 h-11 flex items-center justify-center text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 transition cursor-pointer"
           aria-label="Close"
         >
           <X className="w-5 h-5" />
         </button>
 
-        {type === 'disclaimer' && (
-          <div className="space-y-4 text-xs sm:text-sm text-slate-700 leading-relaxed">
-            <div className="flex items-center gap-2.5 text-emerald-800">
-              <ShieldAlert className="w-6 h-6 text-amber-500" />
-              <h3 className="text-lg font-bold text-slate-900">Official Data & Legal Disclaimer</h3>
-            </div>
-            <p>
-              The <strong>PP-203 Smart Constituency Management & Development Portal</strong> is operated to facilitate constituent communication, public grievances, and transparent development tracking for the residents of PP-203 Chichawatni (District Sahiwal, Punjab) under the auspices of <strong>Chaudhry Asad Hanif Jutt</strong>.
-            </p>
-            <p>
-              This portal does not replace the official gazette of the Government of the Punjab or formal notifications issued by statutory administrative departments (C&W, PHED, Irrigation, Health, Education, Revenue). All budgets, progress percentages, and status indicators reflect verified project monitoring reports recorded by our constituency secretariat.
-            </p>
-            <p>
-              No political achievements or official credentials have been fabricated. Information published regarding parliamentary activities is subject to the official records and hansards of the Provincial Assembly of the Punjab.
-            </p>
-          </div>
-        )}
-
         {type === 'privacy' && (
           <div className="space-y-4 text-xs sm:text-sm text-slate-700 leading-relaxed">
-            <div className="flex items-center gap-2.5 text-emerald-800">
-              <Lock className="w-6 h-6 text-emerald-600" />
-              <h3 className="text-lg font-bold text-slate-900">Citizen Privacy & Grievance Protection</h3>
+            <div className="flex items-center gap-2.5 text-[#123B28]">
+              <Lock className="w-6 h-6 text-[#087A43] shrink-0" />
+              <h3 className="font-editorial text-lg font-bold">Privacy Policy</h3>
             </div>
             <p>
-              Your personal privacy is of paramount importance. When submitting a public grievance or inquiry, your phone number and full name are stored strictly in protected databases and used only to verify your identity and communicate status updates regarding your complaint.
+              The Office of <strong>Chaudhry Asad Hanif Jutt (MPA PP-203 Chichawatni)</strong> respects the privacy of every constituent using this portal. Personal information submitted through citizen grievance forms or secretariat contact forms is used exclusively to verify and resolve constituent service requests.
             </p>
-            <ul className="list-disc pl-5 space-y-1 text-xs text-slate-600">
-              <li>Citizen mobile numbers and personal identity records are never published publicly.</li>
-              <li>Complaint tracking requires two-factor validation (Reference Number matching the Registered Mobile Phone).</li>
-              <li>Under no circumstances is citizen grievance data shared with third-party advertisers or commercial entities.</li>
+            <ul className="list-disc pl-5 space-y-1.5 text-xs text-slate-600">
+              <li>Citizen names, phone numbers, and contact emails are never sold, rented, or publicly listed.</li>
+              <li>Aggregate analytics (if enabled) are strictly anonymous and contain zero personally identifiable information (PII).</li>
+              <li>Public Tracking ID lookups display only sanitized status, category, and department remarks.</li>
             </ul>
           </div>
         )}
 
         {type === 'terms' && (
           <div className="space-y-4 text-xs sm:text-sm text-slate-700 leading-relaxed">
-            <div className="flex items-center gap-2.5 text-emerald-800">
-              <FileText className="w-6 h-6 text-emerald-600" />
-              <h3 className="text-lg font-bold text-slate-900">Terms & Conditions of Service</h3>
+            <div className="flex items-center gap-2.5 text-[#123B28]">
+              <FileText className="w-6 h-6 text-[#087A43] shrink-0" />
+              <h3 className="font-editorial text-lg font-bold">Terms of Public Service</h3>
             </div>
             <p>
-              By accessing this digital portal, constituents and visitors agree to the following terms:
+              This portal serves as the official political representative profile and constituent service hub for <strong>PP-203 Chichawatni, District Sahiwal</strong>.
             </p>
-            <ul className="list-disc pl-5 space-y-1 text-xs text-slate-600">
-              <li>Users must submit accurate and authentic civic grievances. Misuse of the portal to lodge frivolous or defamatory claims is prohibited.</li>
-              <li>All GIS map information, Union Council boundaries, and facility pins are provided for civil engagement and baseline community assistance.</li>
-              <li>Any unauthorized attempt to breach administrative access controls or tamper with database records is strictly forbidden.</li>
+            <ul className="list-disc pl-5 space-y-1.5 text-xs text-slate-600">
+              <li>Users must submit truthful civic grievances and respectful constituent inquiries.</li>
+              <li>This website is operated by the office of an elected representative and is <strong>not</strong> a government ministry, statutory department, or official provincial gazette.</li>
+              <li>Unauthorized attempts to tamper with portal forms or administrative routes are prohibited.</li>
             </ul>
+          </div>
+        )}
+
+        {type === 'data_protection' && (
+          <div className="space-y-4 text-xs sm:text-sm text-slate-700 leading-relaxed">
+            <div className="flex items-center gap-2.5 text-[#123B28]">
+              <ShieldCheck className="w-6 h-6 text-[#087A43] shrink-0" />
+              <h3 className="font-editorial text-lg font-bold">Data Protection Notice</h3>
+            </div>
+            <p>
+              Citizen grievance tickets and appointment inquiries are stored in access-controlled Firebase Cloud Firestore databases protected by strict role-based security rules.
+            </p>
+            <ul className="list-disc pl-5 space-y-1.5 text-xs text-slate-600">
+              <li>Only authorized Secretariat personnel authenticated via verified accounts can triage and update constituent cases.</li>
+              <li>All administrative edits and status transitions are recorded in an immutable audit log.</li>
+              <li>Citizens may request corrections or removal of closed inquiry records by contacting the Central Secretariat.</li>
+            </ul>
+          </div>
+        )}
+
+        {type === 'complaint_disclaimer' && (
+          <div className="space-y-4 text-xs sm:text-sm text-slate-700 leading-relaxed">
+            <div className="flex items-center gap-2.5 text-[#123B28]">
+              <ShieldAlert className="w-6 h-6 text-[#C9A227] shrink-0" />
+              <h3 className="font-editorial text-lg font-bold">Complaint Submission Disclaimer</h3>
+            </div>
+            <p>
+              Submitting a grievance on this portal creates a constituent service ticket with the Secretariat of <strong>Chaudhry Asad Hanif Jutt (MPA PP-203 Chichawatni)</strong> to facilitate follow-up and referral with relevant municipal or provincial departments.
+            </p>
+            <p>
+              For life-threatening emergencies, active criminal incidents, or urgent medical trauma, please dial official emergency services (<strong>15 Police</strong> / <strong>1122 Rescue</strong>) immediately rather than waiting for online grievance triage.
+            </p>
           </div>
         )}
 
         <div className="pt-4 border-t border-slate-100 flex justify-end">
           <button
             onClick={onClose}
-            className="min-h-[44px] bg-[#087A43] text-white font-semibold text-xs px-6 py-2.5 rounded-xl hover:bg-[#064D2B] transition active:scale-95 flex items-center justify-center"
+            className="min-h-[44px] bg-[#123B28] text-white font-semibold text-xs px-6 py-2.5 rounded-xl hover:bg-[#087A43] transition cursor-pointer"
           >
-            I Understand
+            Close Notice
           </button>
         </div>
       </div>

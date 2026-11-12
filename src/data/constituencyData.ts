@@ -6,47 +6,48 @@ import {
   HealthcareFacility,
   InfrastructureItem,
   Project,
+  AssemblyActivity,
   CitizenComplaint,
-  FieldSurvey,
-  AIRecommendation,
+  ContactMessage,
   PublicNotice,
   NewsItem,
   GalleryMedia,
   SiteSettings,
-  AdminUser
+  AdminUser,
+  SmsLog
 } from '../types';
 
 export const initialProfile: LeaderProfile = {
   fullName: 'Chaudhry Asad Hanif Jutt',
   fullNameUrdu: 'چوہدری اسد حنیف جٹ',
-  title: 'Political Leader & Public Representative, PP-203',
-  titleUrdu: 'عوامی و سیاسی رہنما، حلقہ پی پی 203',
+  title: 'Member of Provincial Assembly, Punjab (MPA) — PP-203 Chichawatni',
+  titleUrdu: 'ممبر صوبائی اسمبلی پنجاب (ایم پی اے) — حلقہ پی پی 203 چیچہ وطنی',
   party: 'Pakistan Muslim League (N) – PML-N',
   partyUrdu: 'پاکستان مسلم لیگ (ن)',
   constituency: 'PP-203, Chichawatni, District Sahiwal, Punjab',
   constituencyUrdu: 'حلقہ پی پی 203، چیچہ وطنی، ضلع ساہیوال، پنجاب',
   district: 'District Sahiwal',
   districtUrdu: 'ضلع ساہیوال',
-  bio: 'Chaudhry Asad Hanif Jutt is a prominent political figure from Chichawatni, District Sahiwal. Dedicated to public welfare, transparent governance, and grassroots rural development, his mission focuses on uplifting agricultural infrastructure, expanding clean drinking water access, modernizing healthcare facilities, and resolving civic challenges for the constituents of PP-203.',
-  bioUrdu: 'چوہدری اسد حنیف جٹ تحصیل چیچہ وطنی، ضلع ساہیوال کے ممتاز سیاسی و عوامی رہنما ہیں۔ عوامی فلاح و بہبود، شفاف طرزِ حکمرانی اور دیہی علاقوں کی پائیدار ترقی ان کی اولین ترجیح ہے۔ ان کا مشن زراعت و آبپاشی کے بنیادی ڈھانچے کی بہتری، پینے کے صاف پانی کی فراہمی، بنیادی صحت کے مراکز کی اپ گریڈیشن اور حلقہ پی پی 203 کے شہریوں کے مسائل کا فوری حل ہے۔',
-  politicalJourney: 'Rooted in a respected political and agricultural family of Chichawatni, Chaudhry Asad Hanif Jutt has devoted years of continuous public outreach. Through direct engagement with local farmers, traders, educators, and youth, he champions transparent constituency representation and infrastructure upgrades across both urban and rural union councils.',
-  politicalJourneyUrdu: 'ضلع ساہیوال کے معزز سیاسی و زرعی گھرانے سے تعلق رکھنے والے چوہدری اسد حنیف جٹ نے طویل عوامی و سیاسی خدمات انجام دی ہیں۔ وہ کسانوں، تاجروں، نوجوانوں اور علاقائی معززین کے ساتھ قریبی رابطے میں رہ کر چیچہ وطنی کے حقوق اور ترقی کے لیے خدمات انجام دیتے رہے ہیں۔',
-  education: 'Higher Education / Graduate (District Sahiwal Records)',
-  educationUrdu: 'اعلیٰ تعلیم یافتہ (ضلع ساہیوال)',
-  assemblyTenure: 'Punjab Provincial Assembly (PP-203 Chichawatni Representation)',
-  assemblyTenureUrdu: 'صوبائی اسمبلی پنجاب (پی پی 203 چیچہ وطنی نمائندگی)',
-  officeAddress: 'Chaudhry Asad Hanif Public Secretariat, Bypass Road / GT Road, Chichawatni, District Sahiwal, Punjab',
-  officeAddressUrdu: 'چوہدری اسد حنیف عوامی سیکرٹریٹ، بائی پاس روڈ / جی ٹی روڈ، چیچہ وطنی، ضلع ساہیوال، پنجاب',
+  bio: 'Chaudhry Asad Hanif Jutt represents the people of PP-203 Chichawatni, District Sahiwal, in the Provincial Assembly of the Punjab under the banner of Pakistan Muslim League (N). His public service mandate centers on transparent governance, rural road connectivity, safe drinking water filtration, THQ & BHU healthcare upgrades, school infrastructure modernization, and responsive citizen grievance redressal.',
+  bioUrdu: 'چوہدری اسد حنیف جٹ پاکستان مسلم لیگ (ن) کے پلیٹ فارم سے حلقہ پی پی 203 چیچہ وطنی، ضلع ساہیوال کی نمائندگی کر رہے ہیں۔ ان کا مشن شفاف طرزِ حکمرانی، دیہی سڑکوں کی تعمیر، پینے کے صاف پانی کی فراہمی، ہسپتالوں و بنیادی مراکز صحت کی اپ گریڈیشن، تعلیمی اداروں کی بہتری اور شہری شکایات کا فوری ازالہ ہے۔',
+  politicalJourney: 'Rooted in a respected civic and agricultural family of Chichawatni, Chaudhry Asad Hanif Jutt has built a career centered on grassroots constituent engagement. Through regular open public kachehries, consultation with farmers at Ghalla Mandi, and legislative advocacy on irrigation and infrastructure, he works to ensure equitable provincial development across urban wards and rural chaks.',
+  politicalJourneyUrdu: 'تحصیل چیچہ وطنی کے معزز سیاسی و زرعی گھرانے سے تعلق رکھنے والے چوہدری اسد حنیف جٹ نے عوامی خدمت اور دیہی فلاح کو اپنا شعار بنایا ہے۔ باقاعدہ کھلی کچہریوں، کسانوں و تاجروں سے مشاورت اور اسمبلی فورم پر نمائندگی کے ذریعے وہ شہری و دیہی علاقوں کی متوازن ترقی کے لیے کوشاں ہیں۔',
+  education: 'Graduate / Higher Education (Subject to Final Official Verification)',
+  educationUrdu: 'اعلیٰ تعلیم یافتہ (حتمی سرکاری تصدیق سے مشروط)',
+  assemblyTenure: 'Provincial Assembly of the Punjab — PP-203 Chichawatni (Subject to Final Official Verification)',
+  assemblyTenureUrdu: 'صوبائی اسمبلی پنجاب — حلقہ پی پی 203 چیچہ وطنی',
+  officeAddress: 'Chaudhry Asad Hanif Jutt Public Secretariat, Near Bypass / GT Road, Chichawatni, District Sahiwal, Punjab',
+  officeAddressUrdu: 'چوہدری اسد حنیف جٹ عوامی سیکرٹریٹ، قریب بائی پاس / جی ٹی روڈ، چیچہ وطنی، ضلع ساہیوال، پنجاب',
   officeHours: 'Monday to Saturday: 10:00 AM – 4:00 PM (Public Khuli Kachehri: Tuesdays & Thursdays)',
   officeHoursUrdu: 'پیر تا ہفتہ: صبح 10:00 بجے تا شام 4:00 بجے (عوامی کھلی کچہری: منگل اور جمعرات)',
   officialEmail: 'secretariat@chasadhanif.pk',
   officialPhone: '+92 300 6902203',
-  verifiedNotice: 'Notice: Information on this portal is published for constituent outreach, open governance, and transparency. All development figures represent verified platform records.',
-  verifiedNoticeUrdu: 'نوٹ: اس پورٹل پر شائع شدہ معلومات عوامی آگاہی، شفافیت اور خدمت خلق کے لیے ہیں۔ ترقیاتی اعداد و شمار تصدیق شدہ ریکارڈ کی بنیاد پر ہیں۔',
-  photoUrl: '/images/chaudhry_asad_hanif_jutt.jpg',
-  leadPortraitUrl: '/images/chaudhry_asad_hanif_jutt.jpg',
-  assemblyImageUrl: '/images/punjab_assembly_1794225863446.jpg',
-  chichawatniSceneUrl: '/images/chichawatni_scene_1794225848060.jpg'
+  verifiedNotice: 'Official Notice: This is the official political representative profile and constituent public service portal of Chaudhry Asad Hanif Jutt (MPA PP-203 Chichawatni). It is not a government department or ministry portal.',
+  verifiedNoticeUrdu: 'اہم اطلاع: یہ چوہدری اسد حنیف جٹ (ایم پی اے پی پی 203 چیچہ وطنی) کی سرکاری سیاسی پروفائل اور عوامی خدمت پورٹل ہے، اور یہ کوئی سرکاری محکمہ یا وزارت کا پورٹل نہیں ہے۔',
+  photoUrl: './assets/images/chaudhry_asad_hanif_jutt.jpg',
+  leadPortraitUrl: './assets/images/chaudhry_asad_hanif_jutt.jpg',
+  assemblyImageUrl: './assets/images/punjab_assembly_1794225863446.jpg',
+  chichawatniSceneUrl: './assets/images/chichawatni_scene_1794225848060.jpg'
 };
 
 export const initialUnionCouncils: UnionCouncil[] = [
@@ -64,13 +65,13 @@ export const initialUnionCouncils: UnionCouncil[] = [
     longitude: 72.7000,
     keyVillages: ['Mohallah Railway Line', 'Purana Bazaar', 'Civil Lines', 'College Road Area'],
     keyVillagesUrdu: ['محلہ ریلوے لائن', 'پرانا بازار', 'سول لائنز', 'کالج روڈ ایریا'],
-    mainIssues: ['Old sewerage network replacement', 'Traffic congestion in commercial zones', 'Streetlights maintenance']
+    mainIssues: ['Old sewerage network replacement', 'Commercial traffic flow', 'Streetlight maintenance']
   },
   {
     id: 'uc-46',
     code: 'UC-46',
-    name: 'Chichawatni City-II (Grain Market / Grain Silos)',
-    nameUrdu: 'چیچہ وطنی سٹی-2 (غلہ منڈی / سیلو)',
+    name: 'Chichawatni City-II (Grain Market / Silos)',
+    nameUrdu: 'چیچہ وطنی سٹی-2 (غلہ منڈی)',
     type: 'Urban',
     headquarters: 'Ghalla Mandi Secretariat',
     headquartersUrdu: 'غلہ منڈی سیکرٹریٹ',
@@ -80,7 +81,7 @@ export const initialUnionCouncils: UnionCouncil[] = [
     longitude: 72.7085,
     keyVillages: ['Ghalla Mandi', 'Industrial Area', 'Sabzi Mandi Sector', 'Model Town Ward'],
     keyVillagesUrdu: ['غلہ منڈی', 'انڈسٹریل ایریا', 'سبزی منڈی سیکٹر', 'ماڈل ٹاؤن وارڈ'],
-    mainIssues: ['Heavy vehicle road rehabilitation', 'Solid waste transfer stations', 'Drinking water pressure']
+    mainIssues: ['Heavy cargo road paving', 'Drainage desilting', 'Water pressure management']
   },
   {
     id: 'uc-47',
@@ -94,9 +95,9 @@ export const initialUnionCouncils: UnionCouncil[] = [
     villagesCount: 6,
     latitude: 30.5265,
     longitude: 72.6890,
-    keyVillages: ['Housing Colony', 'Kamalia Bypass Area', 'Gulshan-e-Iqbal', 'Chak 167/9-L (Periphery)'],
+    keyVillages: ['Housing Colony', 'Kamalia Bypass Area', 'Gulshan-e-Iqbal', 'Chak 167/9-L'],
     keyVillagesUrdu: ['ہاؤسنگ کالونی', 'کمالیہ بائی پاس ایریا', 'گلشن اقبال', 'چک 167/9-ایل'],
-    mainIssues: ['Drainage link to main outfall', 'Park maintenance', 'High school expansion']
+    mainIssues: ['Stormwater outfall link', 'Bypass lighting', 'Secondary school classrooms']
   },
   {
     id: 'uc-48',
@@ -112,7 +113,7 @@ export const initialUnionCouncils: UnionCouncil[] = [
     longitude: 72.6320,
     keyVillages: ['Okanwala Town', 'Chak 112/12-L', 'Chak 113/12-L', 'Chak 114/12-L'],
     keyVillagesUrdu: ['اوکانوالہ ٹاؤن', 'چک 112/12-ایل', 'چک 113/12-ایل', 'چک 114/12-ایل'],
-    mainIssues: ['Canal water tail-end shortages', 'RHC doctor availability on weekends', 'Link road paving']
+    mainIssues: ['Canal tail-end water equity', 'RHC diagnostic equipment', 'Link road carpeting']
   },
   {
     id: 'uc-49',
@@ -128,7 +129,7 @@ export const initialUnionCouncils: UnionCouncil[] = [
     longitude: 72.7480,
     keyVillages: ['Ghaziabad Town', 'Chak 169/9-L', 'Chak 170/9-L', 'Kot Sher Muhammad'],
     keyVillagesUrdu: ['غازی آباد ٹاؤن', 'چک 169/9-ایل', 'چک 170/9-ایل', 'کوٹ شیر محمد'],
-    mainIssues: ['Water filtration plant filter replacement', 'Veterinary dispensary upgrade', 'Girls elementary school upgrade']
+    mainIssues: ['RO filtration plant maintenance', 'Girls school solarization', 'Rural sanitation']
   },
   {
     id: 'uc-50',
@@ -144,7 +145,7 @@ export const initialUnionCouncils: UnionCouncil[] = [
     longitude: 72.6710,
     keyVillages: ['Chak 168/9-L Main', 'Dera Rahim Jutt', 'Basti Ramzan', 'Chak 168 Minor'],
     keyVillagesUrdu: ['چک 168/9-ایل مین', 'ڈیرہ رحیم جٹ', 'بستی رمضان', 'چک 168 مائنر'],
-    mainIssues: ['Link road to main GT road damaged', 'Drainage standing water', 'Transformer capacity']
+    mainIssues: ['GT Road link road', 'Drainage embankment', 'Transformer load upgrade']
   },
   {
     id: 'uc-51',
@@ -160,7 +161,7 @@ export const initialUnionCouncils: UnionCouncil[] = [
     longitude: 72.6100,
     keyVillages: ['Chak 110/12-L', 'Chak 109/12-L', 'Chak 111/12-L', 'Basti Baloch'],
     keyVillagesUrdu: ['چک 110/12-ایل', 'چک 109/12-ایل', 'چک 111/12-ایل', 'بستی بلوچ'],
-    mainIssues: ['BHU solar power backup', 'Clean drinking water filtration', 'School boundary wall repair']
+    mainIssues: ['BHU 24/7 maternity upgrade', 'Clean drinking water filtration', 'Boundary walls']
   },
   {
     id: 'uc-52',
@@ -176,7 +177,7 @@ export const initialUnionCouncils: UnionCouncil[] = [
     longitude: 72.7820,
     keyVillages: ['Iqbal Nagar Mandi', 'Chak 31/14-L', 'Chak 32/14-L', 'Dera Khokhar'],
     keyVillagesUrdu: ['اقبال نگر منڈی', 'چک 31/14-ایل', 'چک 32/14-ایل', 'ڈیرہ کھوکھر'],
-    mainIssues: ['Drainage outlet siltation', 'Level crossing safety gates', 'Primary school classrooms']
+    mainIssues: ['Mandi transformer capacity', 'Drainage outlet clearing', 'School labs']
   },
   {
     id: 'uc-53',
@@ -192,7 +193,7 @@ export const initialUnionCouncils: UnionCouncil[] = [
     longitude: 72.8250,
     keyVillages: ['Chak 34/14-L', 'Chak 35/14-L', 'Basti Arain', 'Canal Colony'],
     keyVillagesUrdu: ['چک 34/14-ایل', 'چک 35/14-ایل', 'بستی آرائیں', 'کینال کالونی'],
-    mainIssues: ['Canal embankment reinforcement', 'Rural access bridge', 'Health dispensary medicine stocks']
+    mainIssues: ['Solar RO plant installation', 'Rural access bridge', 'Dispensary medicines']
   },
   {
     id: 'uc-54',
@@ -208,7 +209,7 @@ export const initialUnionCouncils: UnionCouncil[] = [
     longitude: 72.6450,
     keyVillages: ['Chak 171/9-L', 'Chak 172/9-L', 'Kot Qazi', 'Basti Gujjar'],
     keyVillagesUrdu: ['چک 171/9-ایل', 'چک 172/9-ایل', 'کوٹ قاضی', 'بستی گجر'],
-    mainIssues: ['Piped water scheme extension', 'Street brick soling', 'Fertilizer distribution oversight']
+    mainIssues: ['Piped water extension', 'Brick soling', 'Fertilizer oversight']
   },
   {
     id: 'uc-55',
@@ -224,7 +225,7 @@ export const initialUnionCouncils: UnionCouncil[] = [
     longitude: 72.6780,
     keyVillages: ['Chak 42/12-L', 'Chak 41/12-L', 'Basti Noor', 'Dera Sardar'],
     keyVillagesUrdu: ['چک 42/12-ایل', 'چک 41/12-ایل', 'بستی نور', 'ڈیرہ سردار'],
-    mainIssues: ['Electricity low voltage', 'Culvert bridge reconstruction', 'Veterinary camp requirement']
+    mainIssues: ['Voltage stabilization', 'Culvert bridge repair', 'Clean water plant']
   }
 ];
 
@@ -324,38 +325,6 @@ export const initialVillages: VillageMouza[] = [
     hasWaterPlant: false,
     roadCondition: 'Unpaved',
     verifiedStatus: 'Verified'
-  },
-  {
-    id: 'v-171-9l',
-    name: 'Chak 171/9-L',
-    nameUrdu: 'چک 171/9-ایل',
-    unionCouncilCode: 'UC-54',
-    type: 'Chak',
-    latitude: 30.5120,
-    longitude: 72.6450,
-    estimatedPopulation: 5300,
-    households: 690,
-    hasSchool: true,
-    hasHealthFacility: false,
-    hasWaterPlant: true,
-    roadCondition: 'Fair',
-    verifiedStatus: 'Verified'
-  },
-  {
-    id: 'v-42-12l',
-    name: 'Chak 42/12-L',
-    nameUrdu: 'چک 42/12-ایل',
-    unionCouncilCode: 'UC-55',
-    type: 'Chak',
-    latitude: 30.4520,
-    longitude: 72.6780,
-    estimatedPopulation: 4800,
-    households: 610,
-    hasSchool: true,
-    hasHealthFacility: false,
-    hasWaterPlant: false,
-    roadCondition: 'Poor',
-    verifiedStatus: 'Verified'
   }
 ];
 
@@ -372,7 +341,7 @@ export const initialEducation: EducationFacility[] = [
     teachersCount: 68,
     classroomsCount: 42,
     condition: 'Good',
-    missingFacilities: ['Modern IT / AI Lab expansion', 'Auditorium air conditioning'],
+    missingFacilities: ['IT lab expansion', 'Auditorium cooling'],
     latitude: 30.5340,
     longitude: 72.6980
   },
@@ -388,7 +357,7 @@ export const initialEducation: EducationFacility[] = [
     teachersCount: 74,
     classroomsCount: 48,
     condition: 'Good',
-    missingFacilities: ['Dedicated bus fleet for rural female students', 'Science laboratory reagents'],
+    missingFacilities: ['Rural student transport buses', 'Science lab upgrade'],
     latitude: 30.5315,
     longitude: 72.7025
   },
@@ -404,7 +373,7 @@ export const initialEducation: EducationFacility[] = [
     teachersCount: 52,
     classroomsCount: 36,
     condition: 'Good',
-    missingFacilities: ['Sports ground turf restoration', 'Clean drinking water RO filters'],
+    missingFacilities: ['Sports ground restoration', 'Drinking water chillers'],
     latitude: 30.5390,
     longitude: 72.7050
   },
@@ -420,28 +389,12 @@ export const initialEducation: EducationFacility[] = [
     teachersCount: 28,
     classroomsCount: 16,
     condition: 'Good',
-    missingFacilities: ['Advanced CNC machinery', 'Solar technology trainer modules'],
+    missingFacilities: ['Solar technician lab', 'CNC trainer modules'],
     latitude: 30.5440,
     longitude: 72.7120
   },
   {
     id: 'edu-5',
-    name: 'Govt. High School Okanwala Bangla',
-    nameUrdu: 'گورنمنٹ ہائی اسکول اوکانوالہ بنگلہ',
-    unionCouncil: 'UC-48',
-    level: 'High School',
-    gender: 'Boys',
-    sector: 'Government',
-    enrollment: 940,
-    teachersCount: 26,
-    classroomsCount: 18,
-    condition: 'Needs Renovation',
-    missingFacilities: ['4 additional classrooms', 'Computer laboratory hardware'],
-    latitude: 30.4675,
-    longitude: 72.6310
-  },
-  {
-    id: 'edu-6',
     name: 'Govt. Girls Higher Secondary School Ghaziabad',
     nameUrdu: 'گورنمنٹ گرلز ہائر سیکنڈری اسکول غازی آباد',
     unionCouncil: 'UC-49',
@@ -452,41 +405,25 @@ export const initialEducation: EducationFacility[] = [
     teachersCount: 32,
     classroomsCount: 22,
     condition: 'Good',
-    missingFacilities: ['Solar power installation', 'Boundary wall heightened security'],
+    missingFacilities: ['Solar power backup'],
     latitude: 30.5910,
     longitude: 72.7460
   },
   {
-    id: 'edu-7',
-    name: 'Govt. Elementary School Chak 168/9-L',
-    nameUrdu: 'گورنمنٹ ایلیمنٹری اسکول چک 168/9-ایل',
-    unionCouncil: 'UC-50',
-    level: 'Middle',
-    gender: 'Co-education',
+    id: 'edu-6',
+    name: 'Govt. High School Okanwala Bangla',
+    nameUrdu: 'گورنمنٹ ہائی اسکول اوکانوالہ بنگلہ',
+    unionCouncil: 'UC-48',
+    level: 'High School',
+    gender: 'Boys',
     sector: 'Government',
-    enrollment: 410,
-    teachersCount: 11,
-    classroomsCount: 8,
+    enrollment: 940,
+    teachersCount: 26,
+    classroomsCount: 18,
     condition: 'Needs Renovation',
-    missingFacilities: ['Clean drinking water filtration', 'Toilets refurbishment'],
-    latitude: 30.5605,
-    longitude: 72.6705
-  },
-  {
-    id: 'edu-8',
-    name: 'Govt. Primary School Chak 34/14-L',
-    nameUrdu: 'گورنمنٹ پرائمری اسکول چک 34/14-ایل',
-    unionCouncil: 'UC-53',
-    level: 'Primary',
-    gender: 'Co-education',
-    sector: 'Government',
-    enrollment: 280,
-    teachersCount: 6,
-    classroomsCount: 4,
-    condition: 'Critical Shortage',
-    missingFacilities: ['2 extra classrooms needed', 'Furniture for students', 'Boundary wall'],
-    latitude: 30.5875,
-    longitude: 72.8240
+    missingFacilities: ['4 new classrooms', 'Computer hardware'],
+    latitude: 30.4675,
+    longitude: 72.6310
   }
 ];
 
@@ -501,7 +438,7 @@ export const initialHealthcare: HealthcareFacility[] = [
     doctorsAvailable: 34,
     ambulanceAvailable: true,
     emergency24h: true,
-    services: ['24/7 Emergency', 'Dialysis Unit', 'Trauma Center', 'Labor Room', 'Pediatrics', 'Operation Theatres', 'Digital X-Ray & Ultrasound', 'Pathology Lab'],
+    services: ['24/7 Emergency', 'Dialysis Unit', 'Trauma Center', 'Labor Room', 'Pediatrics', 'Digital X-Ray'],
     condition: 'Functional',
     latitude: 30.5360,
     longitude: 72.6950
@@ -516,7 +453,7 @@ export const initialHealthcare: HealthcareFacility[] = [
     doctorsAvailable: 6,
     ambulanceAvailable: true,
     emergency24h: true,
-    services: ['Primary Emergency', 'Maternity Ward', 'OPD Consultations', 'Expanded Immunization (EPI)', 'Pharmacy'],
+    services: ['Primary Emergency', 'Maternity Ward', 'OPD', 'Vaccination'],
     condition: 'Functional',
     latitude: 30.4690,
     longitude: 72.6335
@@ -531,7 +468,7 @@ export const initialHealthcare: HealthcareFacility[] = [
     doctorsAvailable: 5,
     ambulanceAvailable: true,
     emergency24h: true,
-    services: ['General OPD', 'Emergency Care', 'Child Health & EPI', 'Basic Lab'],
+    services: ['General OPD', 'Emergency Care', 'Child Health & EPI'],
     condition: 'Requires Equipment',
     latitude: 30.5930,
     longitude: 72.7495
@@ -550,36 +487,6 @@ export const initialHealthcare: HealthcareFacility[] = [
     condition: 'Functional',
     latitude: 30.4960,
     longitude: 72.6110
-  },
-  {
-    id: 'health-5',
-    name: 'Basic Health Unit (BHU) Iqbal Nagar',
-    nameUrdu: 'بنیادی مرکز صحت (بی ایچ یو) اقبال نگر',
-    unionCouncil: 'UC-52',
-    type: 'Basic Health Unit (BHU)',
-    beds: 6,
-    doctorsAvailable: 2,
-    ambulanceAvailable: false,
-    emergency24h: false,
-    services: ['OPD', 'First Aid', 'Family Planning', 'Polio & EPI'],
-    condition: 'Functional',
-    latitude: 30.5760,
-    longitude: 72.7830
-  },
-  {
-    id: 'health-6',
-    name: 'Civil Dispensary Chak 171/9-L',
-    nameUrdu: 'سول ڈسپنسری چک 171/9-ایل',
-    unionCouncil: 'UC-54',
-    type: 'Dispensary',
-    beds: 2,
-    doctorsAvailable: 1,
-    ambulanceAvailable: false,
-    emergency24h: false,
-    services: ['Basic OPD', 'Free Medication Dispensation'],
-    condition: 'Staff Shortage',
-    latitude: 30.5130,
-    longitude: 72.6460
   }
 ];
 
@@ -587,33 +494,19 @@ export const initialInfrastructure: InfrastructureItem[] = [
   {
     id: 'inf-1',
     name: 'Chichawatni – Kamalia Road (Major Corridor)',
-    nameUrdu: 'چیچہ وطنی – کمالیہ روڈ (اہم شاہراہ)',
+    nameUrdu: 'چیچہ وطنی – کمالیہ روڈ',
     category: 'Main Road',
     unionCouncil: 'UC-45',
     location: 'Chichawatni Bridge to Kamalia Border',
     lengthKm: 14.5,
     condition: 'Fair',
     lastInspected: '2026-10-14',
-    notes: 'Heavy sugarcane cargo transport during crushing season requires asphalt overlay along KM 4-8.',
+    notes: 'Asphalt overlay prioritized along KM 4–8.',
     latitude: 30.5480,
     longitude: 72.6910
   },
   {
     id: 'inf-2',
-    name: 'Chichawatni – Harappa Link Road',
-    nameUrdu: 'چیچہ وطنی – ہڑپہ لنک روڈ',
-    category: 'Link Road',
-    unionCouncil: 'UC-52',
-    location: 'Iqbal Nagar to Harappa Boundary',
-    lengthKm: 11.2,
-    condition: 'Good',
-    lastInspected: '2026-09-20',
-    notes: 'Resurfacing completed under rural connectivity program. Shoulders well-maintained.',
-    latitude: 30.5720,
-    longitude: 72.7650
-  },
-  {
-    id: 'inf-3',
     name: 'Lower Bari Doab Canal (LBDC) Bridge at RD 240',
     nameUrdu: 'لوئر باری دوآب کینال برج آر ڈی 240',
     category: 'Canal Bridge',
@@ -621,49 +514,22 @@ export const initialInfrastructure: InfrastructureItem[] = [
     location: 'Chak 168/9-L Canal Crossing',
     condition: 'Good',
     lastInspected: '2026-10-02',
-    notes: 'Widened to two-lane motorized traffic with reinforced concrete railings.',
+    notes: 'Two-lane motorized concrete deck completed.',
     latitude: 30.5590,
     longitude: 72.6740
   },
   {
-    id: 'inf-4',
+    id: 'inf-3',
     name: 'Central RO Drinking Water Filtration Plant',
-    nameUrdu: 'مرکزی آر او فلٹریشن پلانٹ صاف پانی',
+    nameUrdu: 'مرکزی آر او فلٹریشن پلانٹ',
     category: 'Water Filtration Plant',
     unionCouncil: 'UC-45',
     location: 'Civil Lines Near Tehsil Complex',
     condition: 'Good',
     lastInspected: '2026-11-01',
-    notes: 'Produces 2,000 gallons/hour. Serving 1,200 households daily with zero bacterial contamination.',
+    notes: '2,000 gal/hr capacity serving 1,200 urban households.',
     latitude: 30.5345,
     longitude: 72.6995
-  },
-  {
-    id: 'inf-5',
-    name: 'Okanwala Rural RO Filtration Unit',
-    nameUrdu: 'اوکانوالہ دیہی آر او فلٹریشن یونٹ',
-    category: 'Water Filtration Plant',
-    unionCouncil: 'UC-48',
-    location: 'Near RHC Okanwala Bangla',
-    condition: 'Fair',
-    lastInspected: '2026-10-25',
-    notes: 'Requires replacement of pre-carbon filter cartridge. Solar inverter operational.',
-    latitude: 30.4685,
-    longitude: 72.6325
-  },
-  {
-    id: 'inf-6',
-    name: 'Drainage & Outfall Nullah Phase-II',
-    nameUrdu: 'نکاسی آب و آؤٹ فال نالہ فیز 2',
-    category: 'Drainage & Sewerage',
-    unionCouncil: 'UC-46',
-    location: 'Grain Market to Outer Agriculture Drain',
-    lengthKm: 3.8,
-    condition: 'Under Repair',
-    lastInspected: '2026-10-18',
-    notes: 'Desilting and concrete sidewall reinforcement underway to prevent monsoon waterlogging.',
-    latitude: 30.5420,
-    longitude: 72.7090
   }
 ];
 
@@ -686,7 +552,7 @@ export const initialProjects: Project[] = [
     budget: 'PKR 145.0 Million',
     startDate: '2026-03-15',
     completionDate: '2026-12-30',
-    imageUrl: '/images/chichawatni_scene_1794225848060.jpg',
+    imageUrl: './assets/images/chichawatni_scene_1794225848060.jpg',
     fundingType: 'Government-Funded',
     fundingTypeUrdu: 'سرکاری فنڈنگ',
     progressPercent: 68,
@@ -711,7 +577,7 @@ export const initialProjects: Project[] = [
     budget: 'PKR 88.5 Million',
     startDate: '2026-01-10',
     completionDate: '2026-11-20',
-    imageUrl: '/images/chichawatni_scene_1794225848060.jpg',
+    imageUrl: './assets/images/chichawatni_scene_1794225848060.jpg',
     fundingType: 'MPA Priority Grant',
     fundingTypeUrdu: 'ایم پی اے ترجیحی گرانٹ',
     progressPercent: 82,
@@ -725,9 +591,9 @@ export const initialProjects: Project[] = [
     category: 'Clean Drinking Water',
     categoryUrdu: 'صاف پینے کا پانی',
     unionCouncil: 'UC-48',
-    location: 'Okanwala Bangla, Chak 110/12-L, 168/9-L & Surrounding Chaks',
-    locationUrdu: 'اوکانوالہ بنگلہ، چک 110/12-ایل، چک 168/9-ایل و ملحقہ دیہات',
-    description: 'Installation of high-capacity reverse osmosis filtration plants operated by 15kW solar arrays with zero electricity cost burden on villagers.',
+    location: 'Okanwala Bangla, Chak 110/12-L & 168/9-L',
+    locationUrdu: 'اوکانوالہ بنگلہ، چک 110/12-ایل، چک 168/9-ایل',
+    description: 'Installation of high-capacity reverse osmosis filtration plants operated by 15kW solar arrays providing pure drinking water across rural belt.',
     descriptionUrdu: 'دیہی علاقوں میں 15 کلو واٹ سولر پاور پر مشتمل ریورس اوسموسس فلٹریشن پلانٹس کی تنصیب تاکہ دیہی آبادی کو بلا تعطل صاف پانی مل سکے۔',
     status: 'Completed',
     statusUrdu: 'مکمل شدہ',
@@ -736,7 +602,7 @@ export const initialProjects: Project[] = [
     budget: 'PKR 62.0 Million',
     startDate: '2025-08-01',
     completionDate: '2026-06-15',
-    imageUrl: '/images/punjab_assembly_1794225863446.jpg',
+    imageUrl: './assets/images/punjab_assembly_1794225863446.jpg',
     fundingType: 'Government-Funded',
     fundingTypeUrdu: 'سرکاری فنڈنگ',
     progressPercent: 100,
@@ -752,7 +618,7 @@ export const initialProjects: Project[] = [
     unionCouncil: 'UC-46',
     location: 'Ghalla Mandi Chichawatni',
     locationUrdu: 'غلہ منڈی چیچہ وطنی',
-    description: 'Paving 60,000 sq ft platform area, modern digital weighbridges (Kanda), farmer rest house and high-mast flood lighting.',
+    description: 'Paving 60,000 sq ft platform area, digital weighbridges, farmer rest house and high-mast flood lighting.',
     descriptionUrdu: '60 ہزار مربع فٹ پختہ پلیٹ فارم، جدید الیکٹرانک کنڈے، کسان ریسٹ ہاؤس اور ہائی ماسٹ فلڈ لائٹس کی تنصیب۔',
     status: 'Approved',
     statusUrdu: 'منظور شدہ',
@@ -761,7 +627,7 @@ export const initialProjects: Project[] = [
     budget: 'PKR 110.0 Million',
     startDate: '2026-11-01',
     completionDate: '2027-05-30',
-    imageUrl: '/images/chichawatni_scene_1794225848060.jpg',
+    imageUrl: './assets/images/chichawatni_scene_1794225848060.jpg',
     fundingType: 'Department-Led',
     fundingTypeUrdu: 'محکمہ جاتی منصوبہ',
     progressPercent: 15,
@@ -770,85 +636,187 @@ export const initialProjects: Project[] = [
   },
   {
     id: 'prj-105',
-    title: 'Rural Metalled Link Road Network (Chak 171/9-L to 168/9-L)',
-    titleUrdu: 'دیہی پختہ لنک روڈ نیٹ ورک (چک 171/9-ایل تا چک 168/9-ایل)',
-    category: 'Roads and Infrastructure',
-    categoryUrdu: 'سڑکیں اور انفراسٹرکچر',
-    unionCouncil: 'UC-54',
-    location: 'Connecting Chak 171/9-L to 168/9-L and LBDC Canal Road',
-    locationUrdu: 'چک 171/9-ایل تا چک 168/9-ایل کینال روڈ رابطہ',
-    description: '7.8 km asphalt carpeting with 12-foot metalled width to provide direct farm-to-market transit for grain and dairy produce.',
-    descriptionUrdu: '7.8 کلومیٹر کارپٹڈ سڑک، 12 فٹ چوڑائی، زرعی اجناس اور دودھ کی منڈی تک تیز رفتار رسائی۔',
-    status: 'Proposed',
-    statusUrdu: 'تجویز شدہ',
-    department: 'District Development Committee Sahiwal',
-    departmentUrdu: 'ڈسٹرکٹ ڈویلپمنٹ کمیٹی ساہیوال',
-    budget: 'PKR 76.5 Million',
-    startDate: '2027-01-15',
-    completionDate: '2027-08-30',
-    imageUrl: '/images/chichawatni_scene_1794225848060.jpg',
+    title: 'Govt. Girls Higher Secondary Science & Computer Wing (UC-49 & UC-52)',
+    titleUrdu: 'گورنمنٹ گرلز ہائر سیکنڈری اسکولز میں جدید سائنس و کمپیوٹر لیبز',
+    category: 'Education',
+    categoryUrdu: 'تعلیم و اسکول',
+    unionCouncil: 'UC-49',
+    location: 'Ghaziabad & Iqbal Nagar Schools',
+    locationUrdu: 'غازی آباد و اقبال نگر اسکولز',
+    description: 'Construction of 8 smart classrooms, solar-backed IT laboratories, and boundary security reinforcement for female students.',
+    descriptionUrdu: 'طالبات کے لیے 8 جدید کمرے، سولر کمپیوٹر لیبارٹریز اور چار دیواری کی مرمت و حفاظت۔',
+    status: 'In Progress',
+    statusUrdu: 'کام جاری ہے',
+    department: 'Punjab School Education Department',
+    departmentUrdu: 'محکمہ اسکول ایجوکیشن پنجاب',
+    budget: 'PKR 42.5 Million',
+    startDate: '2026-04-01',
+    completionDate: '2026-12-15',
+    imageUrl: './assets/images/punjab_assembly_1794225863446.jpg',
+    fundingType: 'District ADP',
+    fundingTypeUrdu: 'ضلعی ترقیاتی پروگرام',
+    progressPercent: 55,
+    latitude: 30.5910,
+    longitude: 72.7460
+  },
+  {
+    id: 'prj-106',
+    title: 'Low-Voltage Remediation & 100/200 kVA Transformer Deployment',
+    titleUrdu: 'دیہی علاقوں میں کم وولٹیج کے خاتمے کے لیے نئے ٹرانسفارمرز کی تنصیب',
+    category: 'Electricity',
+    categoryUrdu: 'بجلی و توانائی',
+    unionCouncil: 'UC-52',
+    location: '18 Rural Chaks Across Chichawatni',
+    locationUrdu: 'تحصیل چیچہ وطنی کے 18 دیہی چک',
+    description: 'Installation of 18 dedicated distribution transformers with new ABC insulated conductors in collaboration with MEPCO.',
+    descriptionUrdu: 'میپکو کے تعاون سے 18 دیہی چکوں میں 100 اور 200 کے وی اے کے نئے ٹرانسفارمرز اور تاروں کی تبدیلی۔',
+    status: 'Approved',
+    statusUrdu: 'منظور شدہ',
+    department: 'MEPCO Sahiwal Circle',
+    departmentUrdu: 'میپکو ساہیوال سرکل',
+    budget: 'PKR 34.0 Million',
+    startDate: '2026-10-15',
+    completionDate: '2027-02-28',
+    imageUrl: './assets/images/chichawatni_scene_1794225848060.jpg',
     fundingType: 'MPA Priority Grant',
     fundingTypeUrdu: 'ایم پی اے ترجیحی گرانٹ',
+    progressPercent: 30,
+    latitude: 30.5750,
+    longitude: 72.7820
+  },
+  {
+    id: 'prj-107',
+    title: 'Urban Sewerage & Outfall Drain Lining Phase-II',
+    titleUrdu: 'شہری سیوریج اور آؤٹ فال نالے کی پختہ تعمیر فیز 2',
+    category: 'Sanitation',
+    categoryUrdu: 'صفائی و نکاسی آب',
+    unionCouncil: 'UC-45',
+    location: 'Purana Bazaar to Outer Drain',
+    locationUrdu: 'پرانا بازار تا آؤٹر ڈرین',
+    description: 'Concrete lining of 3.8 km main drainage outfall and replacement of damaged sewage lines to prevent urban waterlogging.',
+    descriptionUrdu: '3.8 کلومیٹر طویل نکاسی آب کے نالے کی پختہ تعمیر اور پرانی سیوریج لائنوں کی تبدیلی۔',
+    status: 'Proposed',
+    statusUrdu: 'تجویز شدہ',
+    department: 'Municipal Committee Chichawatni',
+    departmentUrdu: 'میونسپل کمیٹی چیچہ وطنی',
+    budget: 'PKR 52.0 Million',
+    startDate: '2027-01-10',
+    completionDate: '2027-07-30',
+    imageUrl: './assets/images/chichawatni_scene_1794225848060.jpg',
+    fundingType: 'District ADP',
+    fundingTypeUrdu: 'ضلعی ترقیاتی پروگرام',
     progressPercent: 0,
-    latitude: 30.5360,
-    longitude: 72.6580
+    latitude: 30.5335,
+    longitude: 72.7010
+  }
+];
+
+export const initialAssemblyActivities: AssemblyActivity[] = [
+  {
+    id: 'asm-1',
+    title: 'Call Attention Notice on Tail-End Canal Water Equity on LBDC 9-L & 12-L Distributaries',
+    titleUrdu: 'لوئر باری دوآب کینال کی 9-ایل اور 12-ایل ڈسٹری بیوٹریز پر پانی کی منصفانہ تقسیم کے لیے توجہ دلاؤ نوٹس',
+    category: 'Question Raised',
+    categoryUrdu: 'اسمبلی سوال / توجہ دلاؤ نوٹس',
+    sessionDate: '2026-11-03',
+    referenceNo: 'PAP/CAN-2026/412',
+    summary: 'Raised urgent legislative inquiry directing the Punjab Irrigation Department to eliminate illegal water diversion and restore scheduled rotation to tail-end farmers of Chak 168/9-L, 171/9-L, and Okanwala.',
+    summaryUrdu: 'پنجاب اسمبلی کے اجلاس میں محکمہ آبپاشی سے ٹیل کے کاشتکاروں کو مکمل نہری پانی کی فراہمی اور پانی چوری کے خاتمے پر فوری عملدرآمد کا مطالبہ۔',
+    status: 'Response Tabled'
+  },
+  {
+    id: 'asm-2',
+    title: 'Resolution for Upgradation of THQ Hospital Chichawatni Trauma & Dialysis Unit',
+    titleUrdu: 'تحصیل ہیڈ کوارٹر ہسپتال چیچہ وطنی میں ٹراما اور ڈائیلاسز یونٹ کی اپ گریڈیشن کی قرارداد',
+    category: 'Bill & Resolution',
+    categoryUrdu: 'بل و قرارداد',
+    sessionDate: '2026-10-18',
+    referenceNo: 'PAP/RES-2026/189',
+    summary: 'Moved resolution advocating permanent specialist sanctioning, 10 additional dialysis machines, and continuous medicine budget allocation for Tehsil Chichawatni residents.',
+    summaryUrdu: 'چیچہ وطنی کے شہریوں کے لیے ہسپتال میں مستقل ماہر ڈاکٹروں کی تعیناتی، 10 نئی ڈائیلاسز مشینوں اور مفت ادویات کے بجٹ میں اضافے کی قرارداد۔',
+    status: 'Adopted / Referred'
+  },
+  {
+    id: 'asm-3',
+    title: 'Standing Committee Briefing on Kisan Card Subsidies & Certified Wheat Seed Verification',
+    titleUrdu: 'کسان کارڈ سبسڈی اور تصدیق شدہ گندم کے بیج کی نگرانی سے متعلق اسٹینڈنگ کمیٹی اجلاس',
+    category: 'Committee Participation',
+    categoryUrdu: 'کمیٹی کارروائی',
+    sessionDate: '2026-10-06',
+    referenceNo: 'PAP/SC-AGRI/2026/34',
+    summary: 'Reviewed fertilizer dealer pricing enforcement and expansion of interest-free agricultural input facilities for smallholders in District Sahiwal.',
+    summaryUrdu: 'ضلع ساہیوال کے چھوٹے کاشتکاروں کے لیے کھاد کی مقررہ قیمتوں پر دستیابی اور بلاسود زرعی قرضوں کے اجراء کا جائزہ لیا گیا۔',
+    status: 'Completed'
+  },
+  {
+    id: 'asm-4',
+    title: 'Parliamentary Budget Submission: Chichawatni Farm-to-Market Link Roads',
+    titleUrdu: 'بجٹ تجویز: چیچہ وطنی میں فارم ٹو مارکیٹ دیہی سڑکوں کی تعمیر',
+    category: 'Parliamentary Activity',
+    categoryUrdu: 'پارلیمانی سرگرمی',
+    sessionDate: '2026-09-22',
+    referenceNo: 'PAP/ADP-2026/203',
+    summary: 'Submitted formal Annual Development Programme (ADP) proposals covering 18 km of rural link corridors connecting southern and eastern chaks to Ghalla Mandi.',
+    summaryUrdu: 'دیہی چکوں کو غلہ منڈی چیچہ وطنی سے ملانے والی 18 کلومیٹر طویل سڑکوں کی سالانہ ترقیاتی پروگرام میں شمولیت کی سفارشات پیش کی گئیں۔',
+    status: 'In Budget Review'
   }
 ];
 
 export const initialComplaints: CitizenComplaint[] = [
   {
-    id: 'cmp-1001',
-    trackingId: 'PP203-2026-1042',
+    id: 'CMP-2026-1042',
+    trackingId: 'CMP-2026-1042',
     citizenName: 'Muhammad Arshad',
     phone: '03001234567',
+    districtTehsil: 'Chichawatni, District Sahiwal',
     unionCouncil: 'UC-45',
     locality: 'Purana Bazaar, Near Railway Station',
     category: 'Sanitation & Sewerage',
     description: 'The main sewage pipeline in street 4 has overflowed for the past three days, causing difficulties for shoppers and school-going children.',
-    status: 'In Progress',
+    status: 'Referred to Department',
     priority: 'Urgent',
     departmentReferred: 'Municipal Committee Chichawatni (Sanitation Wing)',
-    adminRemarks: 'Sanitation supervisor dispatched with desilting suction truck. Work underway.',
+    adminRemarks: 'Sanitation supervisor dispatched with desilting suction truck. Clearing work scheduled within 24 hours.',
     assignedOfficer: 'Engr. Tariq Mehmood',
-    resolutionEvidenceUrl: '',
     latitude: 30.5330,
     longitude: 72.7010,
     createdAt: '2026-11-06T09:30:00Z',
     updatedAt: '2026-11-08T11:00:00Z'
   },
   {
-    id: 'cmp-1002',
-    trackingId: 'PP203-2026-1098',
+    id: 'CMP-2026-1098',
+    trackingId: 'CMP-2026-1098',
     citizenName: 'Chaudhry Riaz Ahmad',
     phone: '03217654321',
+    districtTehsil: 'Chichawatni, District Sahiwal',
     unionCouncil: 'UC-50',
     locality: 'Chak 168/9-L Main Square',
     category: 'Water Supply',
-    description: 'The public RO water plant in our village had its motor burner due to low voltage. The village has been without drinking water for four days.',
+    description: 'The public RO water plant in our village had its motor damaged due to low voltage. The village has been without drinking water for four days.',
     status: 'Resolved',
     priority: 'High',
-    departmentReferred: 'Public Health Engineering Department',
-    adminRemarks: 'Motor replaced with 7.5 HP heavy-duty copper unit and voltage stabilizer installed. Pure water supply restored on Nov 8.',
+    departmentReferred: 'Public Health Engineering Department (PHED)',
+    adminRemarks: 'Motor replaced with 7.5 HP heavy-duty copper unit and voltage stabilizer installed. Pure water supply restored.',
     assignedOfficer: 'Sub-Engineer Nadeem Khan',
-    resolutionEvidenceUrl: '',
     latitude: 30.5615,
     longitude: 72.6712,
     createdAt: '2026-11-04T14:15:00Z',
     updatedAt: '2026-11-08T16:20:00Z'
   },
   {
-    id: 'cmp-1003',
-    trackingId: 'PP203-2026-1134',
+    id: 'CMP-2026-1134',
+    trackingId: 'CMP-2026-1134',
     citizenName: 'Sardar Farooq Gujjar',
     phone: '03459876543',
+    districtTehsil: 'Chichawatni, District Sahiwal',
     unionCouncil: 'UC-48',
     locality: 'Okanwala Bangla to Chak 112/12-L Link Road',
     category: 'Roads & Infrastructure',
-    description: 'Deep potholes have emerged after monsoon rains near the culvert, causing two motorcycle accidents this week.',
+    description: 'Deep potholes have emerged after rains near the culvert, creating hazards for farmers and commuters.',
     status: 'Under Review',
     priority: 'High',
     departmentReferred: 'C&W Department Highways Division',
-    adminRemarks: 'Inspected by field survey team. Included in emergency patch-work schedule.',
+    adminRemarks: 'Inspected by field team. Included in emergency patch-work schedule.',
     assignedOfficer: 'SDO Highways Chichawatni',
     latitude: 30.4688,
     longitude: 72.6330,
@@ -856,118 +824,49 @@ export const initialComplaints: CitizenComplaint[] = [
     updatedAt: '2026-11-09T12:00:00Z'
   },
   {
-    id: 'cmp-1004',
-    trackingId: 'PP203-2026-1175',
+    id: 'CMP-2026-1175',
+    trackingId: 'CMP-2026-1175',
     citizenName: 'Bashir Ahmad Khokhar',
     phone: '03025556677',
+    districtTehsil: 'Chichawatni, District Sahiwal',
     unionCouncil: 'UC-52',
     locality: 'Iqbal Nagar Mandi Road',
     category: 'Electricity',
-    description: '100 kVA transformer is constantly tripping due to overload in evening hours. Several businesses are losing refrigeration inventory.',
-    status: 'Referred to Department',
+    description: '100 kVA transformer is constantly tripping due to overload during evening hours.',
+    status: 'Received',
     priority: 'High',
     departmentReferred: 'MEPCO Chichawatni Sub-Division',
-    adminRemarks: 'Formal letter signed by MPA Secretariat sent to MEPCO Executive Engineer Sahiwal for 200 kVA upgrade.',
-    assignedOfficer: 'RO MEPCO',
+    adminRemarks: 'Ticket logged and queued for technical review with MEPCO.',
+    assignedOfficer: 'Office Intake Desk',
     latitude: 30.5755,
     longitude: 72.7825,
     createdAt: '2026-11-09T08:45:00Z',
-    updatedAt: '2026-11-09T15:30:00Z'
+    updatedAt: '2026-11-09T08:45:00Z'
   }
 ];
 
-export const initialSurveys: FieldSurvey[] = [
+export const initialContactMessages: ContactMessage[] = [
   {
-    id: 'srv-101',
-    surveyorName: 'Malik Zeeshan (Field Officer)',
-    surveyorPhone: '03014433221',
-    unionCouncil: 'UC-50',
-    village: 'Chak 168/9-L',
-    surveyType: 'Infrastructure',
-    roadCondition: 'Culvert requires reinforced slab; 800m brick soling needed at northern approach.',
-    facilityCondition: 'Primary school roof requires weather-proofing membrane.',
-    issuesIdentified: 'Canal distributary tail shortage affecting 300 acres of wheat sowing.',
-    notes: 'Meeting held with village notables at Dera Jutt. High constituent appreciation for the new water plant.',
-    latitude: 30.5610,
-    longitude: 72.6710,
-    timestamp: '2026-11-07T11:30:00Z',
-    status: 'Verified'
+    id: 'msg-101',
+    name: 'Haji Muhammad Shafiq',
+    phone: '03007788990',
+    email: 'shafiq.mandi@example.pk',
+    inquiryType: 'Delegation Meeting',
+    preferredDate: '2026-11-18',
+    message: 'Delegation of Ghalla Mandi commission agents requesting a brief meeting regarding covered platform drainage before winter rains.',
+    status: 'Scheduled',
+    adminNotes: 'Scheduled for Tuesday Public Darbar at 11:30 AM.',
+    createdAt: '2026-11-08T10:15:00Z'
   },
   {
-    id: 'srv-102',
-    surveyorName: 'Rana Waqas (Survey Inspector)',
-    surveyorPhone: '03038877665',
-    unionCouncil: 'UC-48',
-    village: 'Chak 113/12-L',
-    surveyType: 'School Inspection',
-    roadCondition: 'Fair asphalt condition on main approach.',
-    facilityCondition: 'Govt. Elementary Girls School has 3 incomplete classrooms from 2023 ADP.',
-    issuesIdentified: 'Female students have to travel 4 km to Okanwala for secondary schooling.',
-    notes: 'Recommended for High School upgradation in next Provincial ADP.',
-    latitude: 30.4720,
-    longitude: 72.6280,
-    timestamp: '2026-11-05T14:00:00Z',
-    status: 'Action Scheduled'
-  }
-];
-
-export const initialRecommendations: AIRecommendation[] = [
-  {
-    id: 'rec-1',
-    title: 'Solar RO Water Plants Installation in High-Fluoride Villages (UC-53 & UC-55)',
-    titleUrdu: 'ہائی فلورائیڈ والے دیہات (یو سی 53 اور 55) میں سولر آر او پلانٹس کی تنصیب',
-    location: 'Chak 34/14-L & Chak 42/12-L',
-    unionCouncil: 'UC-53 & UC-55',
-    problemIdentified: 'Groundwater laboratory tests show excessive TDS (>1,800 ppm) and fluoride levels, causing dental fluorosis and kidney ailments in rural populations.',
-    evidenceUsed: 'PHED Water Quality Survey 2025-26, 4 citizen complaints (PP203-Water-09), and Field Survey srv-102.',
-    sourceRecords: 'PHED Water Testing Log Sahiwal; Complaints DB #1002, #1008; Census Household Index 2023.',
-    estimatedPopulationAffected: 9700,
-    estimatedCostRange: 'PKR 14.5 – 18.0 Million (for 2 complete units with 15kW solar backup)',
-    priorityLevel: 'Critical',
-    expectedBenefits: 'Provides WHO-standard safe drinking water to over 1,200 rural households, eliminating waterborne diseases.',
-    risksAndLimitations: 'Requires community-based maintenance committee to safeguard solar panels against dust and theft.',
-    suggestedNextAction: 'Submit PC-1 to Public Health Engineering Department (PHED) Sahiwal Division for priority ADP inclusion.',
-    confidenceLevel: 94,
-    createdAt: '2026-11-08T10:00:00Z',
-    status: 'Accepted'
-  },
-  {
-    id: 'rec-2',
-    title: 'Upgradation of Basic Health Unit (BHU) Chak 110/12-L to 24/7 Rural Maternity Center',
-    titleUrdu: 'بی ایچ یو چک 110/12-ایل کی 24 گھنٹے میٹرنٹی سنٹر میں اپ گریڈیشن',
-    location: 'Chak 110/12-L Center',
-    unionCouncil: 'UC-51',
-    problemIdentified: 'Constituents must travel 28 km to THQ Hospital Chichawatni during night-time obstetric emergencies due to lack of 24/7 delivery room staff.',
-    evidenceUsed: 'Healthcare facilities directory records, 6 emergency transfer logs in 2026, and village elder petition.',
-    sourceRecords: 'Health Facility DB health-4, District Health Authority Sahiwal Report.',
-    estimatedPopulationAffected: 28400,
-    estimatedCostRange: 'PKR 22.0 – 26.5 Million',
-    priorityLevel: 'High',
-    expectedBenefits: 'Reduces maternal and neonatal transit risks by 70% for southwestern rural belt of PP-203.',
-    risksAndLimitations: 'Requires permanent sanctioning of 2 Lady Health Visitors (LHVs) and 1 Medical Officer by Punjab Health Department.',
-    suggestedNextAction: 'Move official resolution in Punjab Assembly Standing Committee on Health.',
-    confidenceLevel: 91,
-    createdAt: '2026-11-07T12:00:00Z',
-    status: 'Pending Review'
-  },
-  {
-    id: 'rec-3',
-    title: 'Farm-to-Market Metalled Road Linking Chak 168/9-L to Kamalia Bypass',
-    titleUrdu: 'چک 168/9-ایل تا کمالیہ بائی پاس فارم ٹو مارکیٹ پختہ سڑک کی تعمیر',
-    location: 'Chak 168/9-L Approach',
-    unionCouncil: 'UC-50',
-    problemIdentified: '6.4 km unpaved stretch turns impassable during sugarcane harvest and monsoon rains, causing 35% freight loss for local farmers.',
-    evidenceUsed: 'GIS Road Layer, 12 citizen complaints on road accessibility, Field Survey srv-101.',
-    sourceRecords: 'Road Infrastructure DB inf-1, Complaints DB #1003, #1012; Grain Mandi Arrivals Data.',
-    estimatedPopulationAffected: 12500,
-    estimatedCostRange: 'PKR 48.0 – 55.0 Million',
-    priorityLevel: 'High',
-    expectedBenefits: 'Reduces transport transit time from 45 minutes to 12 minutes, saving fuel and preventing crop damage.',
-    risksAndLimitations: 'Right-of-way demarcation required along irrigation canal embankment.',
-    suggestedNextAction: 'Request C&W Department Highways Division to prepare detailed survey and estimates.',
-    confidenceLevel: 89,
-    createdAt: '2026-11-06T15:00:00Z',
-    status: 'Under Feasibility'
+    id: 'msg-102',
+    name: 'Prof. Zahid Iqbal',
+    phone: '03336123456',
+    inquiryType: 'Appointment Request',
+    preferredDate: '2026-11-20',
+    message: 'Requesting appointment regarding computer laboratory expansion and student transport needs at Degree College Chichawatni.',
+    status: 'Pending',
+    createdAt: '2026-11-10T09:00:00Z'
   }
 ];
 
@@ -979,12 +878,12 @@ export const initialNotices: PublicNotice[] = [
     category: 'Public Meetings',
     categoryUrdu: 'عوامی اجلاس',
     publishDate: '2026-11-08',
-    description: 'Chaudhry Asad Hanif Jutt will preside over weekly open public grievance sessions every Tuesday and Thursday at the Central Secretariat Chichawatni. Officials from Revenue, Police, MEPCO and Municipal Committee will attend.',
-    descriptionUrdu: 'چوہدری اسد حنیف جٹ ہر منگل اور جمعرات کو مرکزی سیکرٹریٹ چیچہ وطنی میں کھلی کچہری منعقد کریں گے جس میں ریونیو، پولیس، میپکو اور بلدیہ کے افسران عوام کے مسائل سنیں گے۔',
+    description: 'Chaudhry Asad Hanif Jutt presides over open public grievance sessions every Tuesday and Thursday (10:00 AM – 4:00 PM) at the Central Secretariat Chichawatni.',
+    descriptionUrdu: 'چوہدری اسد حنیف جٹ ہر منگل اور جمعرات کو مرکزی سیکرٹریٹ چیچہ وطنی میں کھلی کچہری منعقد کریں گے جہاں عوام کے مسائل براہِ راست سنے جائیں گے۔',
     fileUrl: '#',
-    fileName: 'Public_Kachehri_Schedule_Nov2026.pdf',
+    fileName: 'Public_Kachehri_Schedule_Nov2026.txt',
     fileSize: '412 KB',
-    fileType: 'PDF',
+    fileType: 'PDF / Gazette',
     isPublished: true,
     officialRef: 'PP203/SEC/NOT-2026/89'
   },
@@ -995,30 +894,62 @@ export const initialNotices: PublicNotice[] = [
     category: 'Public Announcements',
     categoryUrdu: 'عوامی اعلانات',
     publishDate: '2026-11-04',
-    description: 'Special monitoring teams have been formed to ensure fair distribution of certified wheat seed varieties (Fakhar-e-Bakhar & Akbar-19) and eliminate black-marketing of DAP and Urea fertilizers across Chichawatni Tehsil.',
-    descriptionUrdu: 'تحصیل چیچہ وطنی میں گندم کے تصدیق شدہ بیج اور کھاد کی مقررہ سرکاری نرخوں پر دستیابی یقینی بنانے کے لیے خصوصی مانیٹرنگ ٹیمیں تشکیل دے دی گئی ہیں۔',
+    description: 'Monitoring teams have been coordinated to assist farmers in securing certified wheat seed varieties and fair fertilizer pricing across Tehsil Chichawatni.',
+    descriptionUrdu: 'تحصیل چیچہ وطنی میں گندم کے تصدیق شدہ بیج اور کھاد کی مقررہ سرکاری نرخوں پر دستیابی کے لیے مانیٹرنگ ڈیسک قائم کر دیا گیا ہے۔',
     fileUrl: '#',
-    fileName: 'Wheat_Seed_Kisan_Notification.pdf',
+    fileName: 'Wheat_Seed_Kisan_Notification.txt',
     fileSize: '530 KB',
-    fileType: 'PDF',
+    fileType: 'Circular',
     isPublished: true,
     officialRef: 'PP203/AGRI/CIR-2026/42'
   },
   {
     id: 'not-3',
-    title: 'Expression of Interest for Rural Electrification & Transformer Upgradation',
-    titleUrdu: 'دیہی علاقوں میں بجلی کے نئے ٹرانسفارمرز اور کم وولٹیج کے خاتمے کی سکیم',
+    title: 'Approved List: Rural Electrification & Transformer Upgradation',
+    titleUrdu: 'دیہی علاقوں میں بجلی کے نئے ٹرانسفارمرز اور کم وولٹیج کے خاتمے کی فہرست',
     category: 'Development Updates',
     categoryUrdu: 'ترقیاتی اپ ڈیٹس',
     publishDate: '2026-10-28',
-    description: 'List of 18 rural chaks approved for low-voltage remediation through installation of dedicated 100 kVA and 200 kVA distribution transformers in coordination with MEPCO.',
-    descriptionUrdu: 'میپکو کے تعاون سے چیچہ وطنی کے 18 دیہی چکوں میں کم وولٹیج کے خاتمے کے لیے نئے ٹرانسفارمرز کی منظوری کی تفصیلات جاری۔',
+    description: 'Summary of 18 rural chaks prioritized for low-voltage remediation through 100 kVA and 200 kVA distribution transformers.',
+    descriptionUrdu: 'میپکو کے تعاون سے چیچہ وطنی کے 18 دیہی چکوں میں کم وولٹیج کے خاتمے کے لیے نئے ٹرانسفارمرز کی منظوری کی تفصیلات۔',
     fileUrl: '#',
-    fileName: 'MEPCO_Rural_Transformer_List_2026.pdf',
+    fileName: 'MEPCO_Rural_Transformer_List_2026.txt',
     fileSize: '680 KB',
-    fileType: 'PDF',
+    fileType: 'Schedule',
     isPublished: true,
     officialRef: 'PP203/ELEC/SCH-2026/19'
+  },
+  {
+    id: 'not-4',
+    title: 'Constituency Secretariat Holiday & Winter Office Timings Circular',
+    titleUrdu: 'عوامی سیکرٹریٹ کے اوقات کار برائے موسم سرما کا سرکاری سرکلر',
+    category: 'Office Notifications',
+    categoryUrdu: 'دفتری اعلانات',
+    publishDate: '2026-10-15',
+    description: 'Revised winter citizen intake desk hours: Monday through Saturday from 10:00 AM to 4:00 PM. Urgent medical/emergency desk remains accessible via WhatsApp.',
+    descriptionUrdu: 'موسم سرما کے لیے عوامی سیکرٹریٹ کے نئے اوقات کار پیر تا ہفتہ صبح 10 بجے تا شام 4 بجے مقرر کیے گئے ہیں۔',
+    fileUrl: '#',
+    fileName: 'Secretariat_Winter_Hours_2026.txt',
+    fileSize: '215 KB',
+    fileType: 'Office Memo',
+    isPublished: true,
+    officialRef: 'PP203/OFF/TIM-2026/08'
+  },
+  {
+    id: 'not-5',
+    title: 'PP-203 Union Council Focal Persons & Citizen Facilitation Directory',
+    titleUrdu: 'پی پی 203 کی یونین کونسلوں کے فوکل پرسنز اور عوامی سہولت ڈائریکٹری',
+    category: 'Important Documents',
+    categoryUrdu: 'اہم دستاویزات',
+    publishDate: '2026-10-02',
+    description: 'Reference directory of Union Council liaison coordinators assisting elderly citizens and rural families with digital grievance filing.',
+    descriptionUrdu: 'یونین کونسل کی سطح پر شہریوں کی رہنمائی اور شکایات کے اندراج میں مدد کے لیے فوکل پرسنز کی مکمل فہرست۔',
+    fileUrl: '#',
+    fileName: 'PP203_UC_Focal_Directory.txt',
+    fileSize: '490 KB',
+    fileType: 'Directory',
+    isPublished: true,
+    officialRef: 'PP203/DOC/DIR-2026/03'
   }
 ];
 
@@ -1030,39 +961,39 @@ export const initialNews: NewsItem[] = [
     category: 'Constituency Visits',
     categoryUrdu: 'حلقے کے دورے',
     date: '2026-11-07',
-    summary: 'The public representative reviewed civil works, inspected medical equipment delivery, and directed contractors to meet the November 20 deadline.',
-    summaryUrdu: 'چوہدری اسد حنیف نے تعمیراتی کام کے معیار کا معائنہ کیا اور متعلقہ افسران کو ہدایت کی کہ ایمرجنسی وارڈ کو 20 نومبر تک ہر صورت فعال کیا جائے۔',
-    content: 'Chaudhry Asad Hanif Jutt conducted an unannounced visit to Tehsil Headquarter (THQ) Hospital Chichawatni to review the ongoing construction of the 30-bed Emergency & Trauma Unit. Speaking to doctors and patients, he reiterated that healthcare is a fundamental right and no negligence will be tolerated in medical stock availability or sanitation.',
-    contentUrdu: 'چوہدری اسد حنیف جٹ نے تحصیل ہیڈ کوارٹر ہسپتال چیچہ وطنی کا دورہ کیا۔ انہوں نے مریضوں سے مفت ادویات کی فراہمی کے بارے میں دریافت کیا اور کہا کہ ہسپتال میں جدید ٹراما اور ایمرجنسی سہولیات کی فراہمی ان کی ترجیحات میں شامل ہے۔',
-    imageUrl: '/images/chichawatni_scene_1794225848060.jpg',
+    summary: 'Reviewed civil works, inspected medical oxygen installations, and directed timely completion of the 30-bed Emergency & Trauma Unit.',
+    summaryUrdu: 'چوہدری اسد حنیف نے تعمیراتی کام کے معیار کا معائنہ کیا اور متعلقہ افسران کو ہدایت کی کہ ایمرجنسی وارڈ کو بروقت فعال کیا جائے۔',
+    content: 'Chaudhry Asad Hanif Jutt conducted an inspection visit to Tehsil Headquarter (THQ) Hospital Chichawatni to review progress on the 30-bed Emergency & Trauma Unit. Speaking with doctors and attendants, he emphasized timely availability of essential medicines and dignified emergency care for every constituent.',
+    contentUrdu: 'چوہدری اسد حنیف جٹ نے تحصیل ہیڈ کوارٹر ہسپتال چیچہ وطنی کا دورہ کیا۔ انہوں نے مریضوں سے مفت ادویات کی فراہمی کے بارے میں دریافت کیا اور کہا کہ ہسپتال میں جدید ٹراما اور ایمرجنسی سہولیات کی فراہمی ان کی اولین ترجیح ہے۔',
+    imageUrl: './assets/images/chichawatni_scene_1794225848060.jpg',
     isFeatured: true
   },
   {
     id: 'news-2',
-    title: 'Key Assembly Attention Notice Moved on Canal Water Scarcity at Tail-Ends of LBDC',
+    title: 'Assembly Attention Notice Moved on Canal Water Equity at Tail-Ends of LBDC',
     titleUrdu: 'لوئر باری دوآب کینال کی ٹیلوں پر پانی کی کمی کے خلاف پنجاب اسمبلی میں توجہ دلاؤ نوٹس',
     category: 'Assembly News',
     categoryUrdu: 'اسمبلی خبریں',
     date: '2026-11-03',
-    summary: 'Strong parliamentary representation made regarding water theft and irregular rotation hindering rabi crop sowing in Chichawatni rural union councils.',
-    summaryUrdu: 'چیچہ وطنی کے کاشتکاروں کے لیے نہری پانی کی منصفانہ تقسیم اور ٹیلوں تک پانی پہنچانے کے لیے اسمبلی فورم پر بھرپور آواز بلند کی گئی۔',
-    content: 'In the Punjab Assembly session, the voice of farmers of PP-203 was strongly represented through an official Call Attention Notice regarding acute canal tail shortages on 9-L, 12-L, and 14-L distributaries. The Irrigation Department has been tasked to submit a compliance report within 14 days.',
-    contentUrdu: 'پنجاب اسمبلی میں نہری پانی کی کمی کے حوالے سے توجہ دلاؤ نوٹس پیش کیا گیا جس میں 9-ایل، 12-ایل اور 14-ایل ڈسٹری بیوٹریز کی ٹیلوں پر کسانوں کو درپیش شدید مشکلات کا ازالہ کرنے کا مطالبہ کیا گیا۔',
-    imageUrl: '/images/punjab_assembly_1794225863446.jpg',
+    summary: 'Parliamentary representation made regarding canal rotation fairness supporting rabi wheat sowing across Chichawatni rural union councils.',
+    summaryUrdu: 'چیچہ وطنی کے کاشتکاروں کے لیے نہری پانی کی منصفانہ تقسیم اور ٹیلوں تک پانی پہنچانے کے لیے اسمبلی فورم پر آواز بلند کی گئی۔',
+    content: 'In the Punjab Assembly session, the concerns of farmers of PP-203 were formally presented through a Call Attention Notice regarding canal tail shortages on 9-L, 12-L, and 14-L distributaries.',
+    contentUrdu: 'پنجاب اسمبلی میں نہری پانی کی کمی کے حوالے سے توجہ دلاؤ نوٹس پیش کیا گیا جس میں 9-ایل، 12-ایل اور 14-ایل ڈسٹری بیوٹریز کی ٹیلوں پر کسانوں کو درپیش مسائل کے حل کا مطالبہ کیا گیا۔',
+    imageUrl: './assets/images/punjab_assembly_1794225863446.jpg',
     isFeatured: true
   },
   {
     id: 'news-3',
-    title: 'Over 250 Grievances Resolved at Central Public Darbar in Chichawatni',
-    titleUrdu: 'مرکزی پبلک دربار چیچہ وطنی میں 250 سے زائد عوامی مسائل موقع پر حل',
+    title: 'Over 250 Civic Grievances Addressed at Central Public Darbar in Chichawatni',
+    titleUrdu: 'مرکزی پبلک دربار چیچہ وطنی میں 250 سے زائد عوامی مسائل پر کارروائی',
     category: 'Public Darbar',
     categoryUrdu: 'عوامی دربار',
     date: '2026-10-29',
-    summary: 'Direct constituent interface with administrative officers yielded instant orders on revenue disputes, sewerage clearance, and school rehabilitation.',
-    summaryUrdu: 'عوامی کھلی کچہری میں ریونیو، بلدیہ، میپکو اور پولیس سے متعلق مسائل کے فوری حل کے احکامات جاری کیے گئے۔',
-    content: 'Hundreds of constituents from urban wards and remote chaks attended the bi-weekly public darbar at the Secretariat. More than 250 civic complaints were registered into the digital tracking portal, with department heads summoned to submit resolution compliance within 48 hours.',
-    contentUrdu: 'سیکرٹریٹ میں منعقدہ کھلی کچہری میں سینکڑوں شہریوں نے شرکت کی۔ ڈیجیٹل پورٹل پر شکایات کا اندراج کیا گیا اور متعلقہ محکموں کو فوری کارروائی کی ہدایت کی گئی۔',
-    imageUrl: '/images/chaudhry_asad_hanif_jutt.jpg',
+    summary: 'Direct constituent interface yielded immediate tracking registration and coordination with municipal, revenue, and electricity departments.',
+    summaryUrdu: 'عوامی کھلی کچہری میں ریونیو، بلدیہ، میپکو اور پولیس سے متعلق مسائل کے حل کے لیے متعلقہ محکموں کو ہدایات جاری کی گئیں۔',
+    content: 'Hundreds of constituents from urban wards and remote chaks attended the bi-weekly public darbar at the Central Secretariat. Citizen applications were digitized into the grievance tracking portal for transparent follow-up.',
+    contentUrdu: 'سیکرٹریٹ میں منعقدہ کھلی کچہری میں سینکڑوں شہریوں نے شرکت کی۔ تمام درخواستوں کو ڈیجیٹل ٹریکنگ سسٹم میں درج کر کے متعلقہ محکموں کو ارسال کیا گیا۔',
+    imageUrl: './assets/images/chaudhry_asad_hanif_jutt.jpg',
     isFeatured: false
   }
 ];
@@ -1075,21 +1006,21 @@ export const initialGallery: GalleryMedia[] = [
     category: 'Public Meetings',
     categoryUrdu: 'عوامی ملاقاتیں',
     mediaType: 'photo',
-    mediaUrl: '/images/chaudhry_asad_hanif_jutt.jpg',
+    mediaUrl: './assets/images/chaudhry_asad_hanif_jutt.jpg',
     date: '2026-11-06',
-    caption: 'Chaudhry Asad Hanif Jutt addressing rural community elders and farmers at the Secretariat.',
-    captionUrdu: 'چوہدری اسد حنیف جٹ سیکرٹریٹ میں معززین علاقہ اور کسانوں کے وفد سے خطاب کر رہے ہیں۔'
+    caption: 'Chaudhry Asad Hanif Jutt engaging with community elders and farmers of PP-203 Chichawatni.',
+    captionUrdu: 'چوہدری اسد حنیف جٹ معززین علاقہ اور کسانوں کے وفد سے ملاقات کر رہے ہیں۔'
   },
   {
     id: 'gal-2',
-    title: 'Chichawatni GT Road Corridor & Civic Development',
+    title: 'Chichawatni GT Road Corridor & Civic Infrastructure',
     titleUrdu: 'چیچہ وطنی جی ٹی روڈ کوریڈور و شہری ترقیاتی کام',
     category: 'Development',
     categoryUrdu: 'ترقیاتی کام',
     mediaType: 'photo',
-    mediaUrl: '/images/chichawatni_scene_1794225848060.jpg',
+    mediaUrl: './assets/images/chichawatni_scene_1794225848060.jpg',
     date: '2026-10-25',
-    caption: 'Modernized road infrastructure providing rapid transit across Chichawatni Tehsil.',
+    caption: 'Upgraded road corridor connecting Chichawatni commercial and agricultural belts.',
     captionUrdu: 'چیچہ وطنی میں سڑکوں کے جدید بنیادی ڈھانچے کا منظر۔'
   },
   {
@@ -1099,77 +1030,69 @@ export const initialGallery: GalleryMedia[] = [
     category: 'Parliamentary',
     categoryUrdu: 'پارلیمانی سرگرمیاں',
     mediaType: 'photo',
-    mediaUrl: '/images/punjab_assembly_1794225863446.jpg',
+    mediaUrl: './assets/images/punjab_assembly_1794225863446.jpg',
     date: '2026-10-15',
-    caption: 'Parliamentary initiatives and legislative interventions for District Sahiwal & PP-203.',
+    caption: 'Legislative initiatives and assembly interventions for District Sahiwal & PP-203.',
     captionUrdu: 'حلقہ پی پی 203 اور ضلع ساہیوال کے حقوق کے لیے پارلیمانی اقدامات۔'
   },
   {
     id: 'gal-4',
-    title: 'Leader Official Portrait',
+    title: 'Official Representative Portrait',
     titleUrdu: 'چوہدری اسد حنیف جٹ کی سرکاری تصویر',
     category: 'Official Portrait',
     categoryUrdu: 'سرکاری تصویر',
     mediaType: 'photo',
-    mediaUrl: '/images/chaudhry_asad_hanif_jutt.jpg',
+    mediaUrl: './assets/images/chaudhry_asad_hanif_jutt.jpg',
     date: '2026-10-01',
-    caption: 'Official portrait of Chaudhry Asad Hanif Jutt, public leader PP-203 Chichawatni.',
-    captionUrdu: 'چوہدری اسد حنیف جٹ، عوامی رہنما حلقہ پی پی 203 چیچہ وطنی۔'
+    caption: 'Chaudhry Asad Hanif Jutt — MPA PP-203 Chichawatni, District Sahiwal.',
+    captionUrdu: 'چوہدری اسد حنیف جٹ — ایم پی اے حلقہ پی پی 203 چیچہ وطنی۔'
   }
 ];
 
 export const initialSettings: SiteSettings = {
-  announcement: 'Public Khuli Kachehri is held every Tuesday & Thursday at Central Secretariat Chichawatni (10:00 AM – 4:00 PM).',
-  announcementUrdu: 'مرکزی سیکرٹریٹ چیچہ وطنی میں ہر منگل اور جمعرات کو صبح 10 تا شام 4 بجے عوامی کھلی کچہری منعقد ہوتی ہے۔',
+  announcement: 'Public Khuli Kachehri every Tuesday & Thursday (10:00 AM – 4:00 PM) at Central Secretariat Chichawatni | Submit or Track Citizen Grievances Online.',
+  announcementUrdu: 'مرکزی سیکرٹریٹ چیچہ وطنی میں ہر منگل اور جمعرات کو صبح 10 تا شام 4 بجے عوامی کھلی کچہری منعقد ہوتی ہے | آن لائن شکایات درج کروائیں۔',
   announcementActive: true,
   helplinePhone: '+92 300 6902203',
   whatsappNumber: '+923006902203',
   whatsappEnabled: true,
-  officeLocation: 'Chaudhry Asad Hanif Secretariat, Near Railway Bypass / GT Road, Chichawatni, Punjab',
-  officeLocationUrdu: 'چوہدری اسد حنیف عوامی سیکرٹریٹ، قریب ریلوے بائی پاس / جی ٹی روڈ، چیچہ وطنی، پنجاب',
+  smsProvider: 'Secretariat Gateway (Simulated / Webhook Ready)',
+  smsSenderId: 'PP203-MPA',
+  smsEnabled: true,
+  ga4MeasurementId: '',
+  officeLocation: 'Chaudhry Asad Hanif Jutt Secretariat, Near Bypass / GT Road, Chichawatni, District Sahiwal',
+  officeLocationUrdu: 'چوہدری اسد حنیف جٹ عوامی سیکرٹریٹ، قریب بائی پاس / جی ٹی روڈ، چیچہ وطنی',
   officeHours: 'Monday – Saturday: 10:00 AM to 4:00 PM',
   officeHoursUrdu: 'پیر تا ہفتہ: صبح 10:00 بجے تا شام 4:00 بجے',
   facebookUrl: 'https://facebook.com',
   twitterUrl: 'https://twitter.com',
   youtubeUrl: 'https://youtube.com',
-  lastUpdated: '2026-11-10'
+  lastUpdated: '2026-11-11'
 };
+
+export const initialSmsLogs: SmsLog[] = [
+  {
+    id: 'sms-101',
+    recipientPhone: '03001234567',
+    trackingId: 'CMP-2026-1042',
+    message: 'PP-203 Secretariat: Your grievance CMP-2026-1042 has been referred to Municipal Committee Chichawatni. Track online using your Tracking ID.',
+    provider: 'Secretariat Gateway',
+    senderId: 'PP203-MPA',
+    status: 'Simulated',
+    sentBy: 'hasanaamir815@gmail.com',
+    timestamp: '2026-11-08T11:02:00Z'
+  }
+];
 
 export const defaultAdminUsers: AdminUser[] = [
   {
-    id: 'adm-1',
-    email: 'admin@chasadhanif.pk',
-    displayName: 'Super Administrator',
+    id: 'adm-super',
+    uid: 'adm-super',
+    email: 'hasanaamir815@gmail.com',
+    displayName: 'Hasan Aamir (Super Admin)',
     role: 'Super Admin',
     status: 'Active',
     createdAt: '2026-01-01',
     phone: '+92 300 6902203'
-  },
-  {
-    id: 'adm-2',
-    email: 'complaints@chasadhanif.pk',
-    displayName: 'Complaint Manager (Secretariat)',
-    role: 'Complaint Manager',
-    status: 'Active',
-    createdAt: '2026-02-15',
-    phone: '+92 301 5551234'
-  },
-  {
-    id: 'adm-3',
-    email: 'projects@chasadhanif.pk',
-    displayName: 'Development Project Coordinator',
-    role: 'Project Manager',
-    status: 'Active',
-    createdAt: '2026-03-01',
-    phone: '+92 302 7778899'
-  },
-  {
-    id: 'adm-4',
-    email: 'survey@chasadhanif.pk',
-    displayName: 'Malik Zeeshan (Field Survey Officer)',
-    role: 'Field Survey Officer',
-    status: 'Active',
-    createdAt: '2026-04-10',
-    phone: '+92 301 4433221'
   }
 ];

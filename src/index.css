@@ -3,10 +3,11 @@
 @layer base {
   :root {
     --primary-green: #087A43;
-    --dark-green: #064D2B;
-    --gold: #C9A227;
-    --light-bg: #F7F9F7;
-    --dark-text: #202820;
+    --dark-green: #123B28;
+    --gold-accent: #C9A227;
+    --pure-white: #FFFFFF;
+    --light-surface: #F7F9F7;
+    --dark-text: #1B241E;
   }
 
   *, *::before, *::after {
@@ -24,7 +25,7 @@
   body {
     font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background-color: #F7F9F7;
-    color: #202820;
+    color: #1B241E;
     margin: 0;
     padding: 0;
     width: 100%;
@@ -36,26 +37,37 @@
 
   img, video, canvas, svg {
     max-width: 100%;
-    height: auto;
   }
 
   input, select, textarea, button {
     font-family: inherit;
-    font-size: 100%;
   }
 
   [dir="rtl"] {
     font-family: 'Noto Nastaliq Urdu', 'DM Sans', serif, sans-serif;
     letter-spacing: normal;
+    line-height: 2;
   }
 
+  [dir="rtl"] h1,
+  [dir="rtl"] h2,
+  [dir="rtl"] h3,
+  [dir="rtl"] h4,
   [dir="rtl"] .font-urdu-title {
     font-family: 'Noto Nastaliq Urdu', serif;
-    line-height: 1.8;
+    line-height: 2.05;
   }
 }
 
-/* Minimum 44px touch target utility for mobile accessibility */
+.font-editorial {
+  font-family: 'Cinzel', Georgia, serif;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Minimum 44px touch target utility */
 .touch-target {
   min-height: 44px;
   min-width: 44px;
@@ -64,10 +76,39 @@
   justify-content: center;
 }
 
-/* Custom scrollbars */
+/* Hide scrollbars cleanly for horizontal scroll chips */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* Announcement Ticker Animation */
+@keyframes ticker-marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-ticker {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: ticker-marquee 32s linear infinite;
+}
+
+.animate-ticker:hover {
+  animation-play-state: paused;
+}
+
+/* Custom subtle scrollbars */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
   background: #f1f5f9;
@@ -89,15 +130,28 @@
 }
 
 .leaflet-control-zoom a {
-  width: 36px !important;
-  height: 36px !important;
-  line-height: 36px !important;
+  width: 38px !important;
+  height: 38px !important;
+  line-height: 38px !important;
 }
 
-/* Safe area insets for notched phones */
+/* Safe area insets */
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom, 1rem);
 }
 .pt-safe {
   padding-top: env(safe-area-inset-top, 0);
+}
+
+/* Print Styles for Visiting Card & Monthly Public Service Report */
+@media print {
+  body {
+    background: #FFFFFF !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
 }

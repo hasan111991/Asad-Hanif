@@ -1,0 +1,350 @@
+{
+  "entities": {
+    "AdminUser": {
+      "title": "AdminUser",
+      "description": "Authorized administrative staff member with role-based access control.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "email": { "type": "string", "format": "email", "maxLength": 160 },
+        "displayName": { "type": "string", "minLength": 2, "maxLength": 120 },
+        "role": {
+          "type": "string",
+          "enum": [
+            "Super Admin",
+            "Office Manager",
+            "Project Manager",
+            "Media Manager",
+            "Data Entry Operator"
+          ]
+        },
+        "status": { "type": "string", "enum": ["Active", "Suspended"] },
+        "phone": { "type": "string", "maxLength": 32 },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "lastLogin": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["uid", "email", "displayName", "role", "status", "createdAt"]
+    },
+    "LeaderProfile": {
+      "title": "LeaderProfile",
+      "description": "Public representative profile, biography, assembly tenure, and secretariat metadata.",
+      "type": "object",
+      "properties": {
+        "fullName": { "type": "string", "minLength": 2, "maxLength": 150 },
+        "fullNameUrdu": { "type": "string", "minLength": 2, "maxLength": 150 },
+        "title": { "type": "string", "maxLength": 200 },
+        "titleUrdu": { "type": "string", "maxLength": 200 },
+        "party": { "type": "string", "maxLength": 150 },
+        "partyUrdu": { "type": "string", "maxLength": 150 },
+        "constituency": { "type": "string", "maxLength": 200 },
+        "constituencyUrdu": { "type": "string", "maxLength": 200 },
+        "district": { "type": "string", "maxLength": 120 },
+        "districtUrdu": { "type": "string", "maxLength": 120 },
+        "bio": { "type": "string", "maxLength": 4000 },
+        "bioUrdu": { "type": "string", "maxLength": 4000 },
+        "politicalJourney": { "type": "string", "maxLength": 4000 },
+        "politicalJourneyUrdu": { "type": "string", "maxLength": 4000 },
+        "education": { "type": "string", "maxLength": 500 },
+        "educationUrdu": { "type": "string", "maxLength": 500 },
+        "assemblyTenure": { "type": "string", "maxLength": 500 },
+        "assemblyTenureUrdu": { "type": "string", "maxLength": 500 },
+        "officeAddress": { "type": "string", "maxLength": 500 },
+        "officeAddressUrdu": { "type": "string", "maxLength": 500 },
+        "officeHours": { "type": "string", "maxLength": 300 },
+        "officeHoursUrdu": { "type": "string", "maxLength": 300 },
+        "officialEmail": { "type": "string", "maxLength": 160 },
+        "officialPhone": { "type": "string", "maxLength": 40 },
+        "verifiedNotice": { "type": "string", "maxLength": 1000 },
+        "verifiedNoticeUrdu": { "type": "string", "maxLength": 1000 },
+        "photoUrl": { "type": "string", "maxLength": 500 },
+        "leadPortraitUrl": { "type": "string", "maxLength": 500 },
+        "assemblyImageUrl": { "type": "string", "maxLength": 500 },
+        "chichawatniSceneUrl": { "type": "string", "maxLength": 500 }
+      },
+      "required": ["fullName", "fullNameUrdu", "constituency", "bio"]
+    },
+    "Project": {
+      "title": "Project",
+      "description": "PP-203 development project with GIS coordinates and completion progress.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "minLength": 3, "maxLength": 240 },
+        "titleUrdu": { "type": "string", "maxLength": 240 },
+        "category": { "type": "string", "maxLength": 100 },
+        "categoryUrdu": { "type": "string", "maxLength": 100 },
+        "unionCouncil": { "type": "string", "maxLength": 100 },
+        "location": { "type": "string", "maxLength": 240 },
+        "locationUrdu": { "type": "string", "maxLength": 240 },
+        "description": { "type": "string", "maxLength": 3000 },
+        "descriptionUrdu": { "type": "string", "maxLength": 3000 },
+        "status": { "type": "string", "enum": ["Proposed", "Approved", "In Progress", "Completed"] },
+        "statusUrdu": { "type": "string", "maxLength": 100 },
+        "department": { "type": "string", "maxLength": 160 },
+        "departmentUrdu": { "type": "string", "maxLength": 160 },
+        "budget": { "type": "string", "maxLength": 100 },
+        "startDate": { "type": "string", "maxLength": 40 },
+        "completionDate": { "type": "string", "maxLength": 40 },
+        "imageUrl": { "type": "string", "maxLength": 500 },
+        "fundingType": { "type": "string", "maxLength": 100 },
+        "fundingTypeUrdu": { "type": "string", "maxLength": 100 },
+        "progressPercent": { "type": "number" },
+        "latitude": { "type": "number" },
+        "longitude": { "type": "number" }
+      },
+      "required": ["title", "category", "status", "budget", "progressPercent", "latitude", "longitude"]
+    },
+    "AssemblyActivity": {
+      "title": "AssemblyActivity",
+      "description": "Punjab Provincial Assembly legislative questions, bills, committee participation, and notices.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "minLength": 3, "maxLength": 240 },
+        "titleUrdu": { "type": "string", "maxLength": 240 },
+        "category": {
+          "type": "string",
+          "enum": [
+            "Question Raised",
+            "Bill & Resolution",
+            "Committee Participation",
+            "Parliamentary Activity",
+            "Official Announcement"
+          ]
+        },
+        "categoryUrdu": { "type": "string", "maxLength": 120 },
+        "sessionDate": { "type": "string", "maxLength": 40 },
+        "referenceNo": { "type": "string", "maxLength": 80 },
+        "summary": { "type": "string", "maxLength": 3000 },
+        "summaryUrdu": { "type": "string", "maxLength": 3000 },
+        "status": { "type": "string", "maxLength": 80 }
+      },
+      "required": ["title", "category", "sessionDate", "summary"]
+    },
+    "NewsItem": {
+      "title": "NewsItem",
+      "description": "Constituency news, press releases, and public outreach statements.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "minLength": 3, "maxLength": 260 },
+        "titleUrdu": { "type": "string", "maxLength": 260 },
+        "category": { "type": "string", "maxLength": 100 },
+        "categoryUrdu": { "type": "string", "maxLength": 100 },
+        "date": { "type": "string", "maxLength": 40 },
+        "summary": { "type": "string", "maxLength": 1000 },
+        "summaryUrdu": { "type": "string", "maxLength": 1000 },
+        "content": { "type": "string", "maxLength": 6000 },
+        "contentUrdu": { "type": "string", "maxLength": 6000 },
+        "imageUrl": { "type": "string", "maxLength": 500 },
+        "isFeatured": { "type": "boolean" }
+      },
+      "required": ["title", "category", "date", "summary"]
+    },
+    "GalleryMedia": {
+      "title": "GalleryMedia",
+      "description": "Constituency photo and video gallery entries.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "minLength": 2, "maxLength": 200 },
+        "titleUrdu": { "type": "string", "maxLength": 200 },
+        "category": { "type": "string", "maxLength": 100 },
+        "categoryUrdu": { "type": "string", "maxLength": 100 },
+        "mediaType": { "type": "string", "enum": ["photo", "video"] },
+        "mediaUrl": { "type": "string", "maxLength": 600 },
+        "date": { "type": "string", "maxLength": 40 },
+        "caption": { "type": "string", "maxLength": 600 },
+        "captionUrdu": { "type": "string", "maxLength": 600 }
+      },
+      "required": ["title", "category", "mediaType", "mediaUrl", "date"]
+    },
+    "CitizenComplaint": {
+      "title": "CitizenComplaint",
+      "description": "Public grievance ticket submitted by a constituent with Tracking ID document key.",
+      "type": "object",
+      "properties": {
+        "trackingId": { "type": "string", "pattern": "^(CMP|PP203)-[0-9]{4}-[A-Za-z0-9]{3,8}$", "maxLength": 40 },
+        "citizenName": { "type": "string", "minLength": 2, "maxLength": 120 },
+        "phone": { "type": "string", "minLength": 7, "maxLength": 24 },
+        "districtTehsil": { "type": "string", "minLength": 2, "maxLength": 120 },
+        "unionCouncil": { "type": "string", "minLength": 2, "maxLength": 120 },
+        "locality": { "type": "string", "maxLength": 180 },
+        "category": { "type": "string", "minLength": 2, "maxLength": 100 },
+        "description": { "type": "string", "minLength": 10, "maxLength": 2500 },
+        "status": {
+          "type": "string",
+          "enum": ["Received", "Under Review", "Referred to Department", "Resolved", "Closed"]
+        },
+        "priority": { "type": "string", "enum": ["Normal", "High", "Urgent"] },
+        "departmentReferred": { "type": "string", "maxLength": 160 },
+        "adminRemarks": { "type": "string", "maxLength": 1500 },
+        "assignedOfficer": { "type": "string", "maxLength": 120 },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": [
+        "trackingId",
+        "citizenName",
+        "phone",
+        "districtTehsil",
+        "unionCouncil",
+        "category",
+        "description",
+        "status",
+        "priority",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "ContactMessage": {
+      "title": "ContactMessage",
+      "description": "Public inquiry or appointment request submitted to the Secretariat.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "minLength": 2, "maxLength": 120 },
+        "phone": { "type": "string", "minLength": 7, "maxLength": 24 },
+        "email": { "type": "string", "maxLength": 160 },
+        "inquiryType": {
+          "type": "string",
+          "enum": ["General Inquiry", "Appointment Request", "Delegation Meeting", "Development Feedback"]
+        },
+        "preferredDate": { "type": "string", "maxLength": 40 },
+        "message": { "type": "string", "minLength": 5, "maxLength": 2000 },
+        "status": { "type": "string", "enum": ["Pending", "Reviewed", "Scheduled", "Completed"] },
+        "adminNotes": { "type": "string", "maxLength": 1000 },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["name", "phone", "inquiryType", "message", "status", "createdAt"]
+    },
+    "PublicNotice": {
+      "title": "PublicNotice",
+      "description": "Gazetted public announcement, circular, or official document.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "minLength": 3, "maxLength": 240 },
+        "titleUrdu": { "type": "string", "maxLength": 240 },
+        "category": { "type": "string", "maxLength": 100 },
+        "categoryUrdu": { "type": "string", "maxLength": 100 },
+        "publishDate": { "type": "string", "maxLength": 40 },
+        "description": { "type": "string", "maxLength": 3000 },
+        "descriptionUrdu": { "type": "string", "maxLength": 3000 },
+        "fileUrl": { "type": "string", "maxLength": 500 },
+        "fileName": { "type": "string", "maxLength": 200 },
+        "fileSize": { "type": "string", "maxLength": 40 },
+        "fileType": { "type": "string", "maxLength": 40 },
+        "isPublished": { "type": "boolean" },
+        "officialRef": { "type": "string", "maxLength": 100 }
+      },
+      "required": ["title", "category", "publishDate", "description", "isPublished"]
+    },
+    "SmsLog": {
+      "title": "SmsLog",
+      "description": "Administrative record of SMS notifications dispatched to citizens.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "recipientPhone": { "type": "string", "maxLength": 32 },
+        "trackingId": { "type": "string", "maxLength": 40 },
+        "message": { "type": "string", "maxLength": 500 },
+        "provider": { "type": "string", "maxLength": 80 },
+        "senderId": { "type": "string", "maxLength": 40 },
+        "status": { "type": "string", "enum": ["Queued", "Sent", "Failed", "Simulated"] },
+        "sentBy": { "type": "string", "maxLength": 160 },
+        "timestamp": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["recipientPhone", "trackingId", "message", "status", "timestamp"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Immutable administrative audit trail record.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "action": { "type": "string", "maxLength": 160 },
+        "adminEmail": { "type": "string", "maxLength": 160 },
+        "adminUid": { "type": "string", "maxLength": 128 },
+        "targetCollection": { "type": "string", "maxLength": 80 },
+        "targetId": { "type": "string", "maxLength": 128 },
+        "details": { "type": "string", "maxLength": 1000 },
+        "timestamp": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["action", "adminEmail", "details", "timestamp"]
+    },
+    "SiteSettings": {
+      "title": "SiteSettings",
+      "description": "Portal configuration including announcement ticker, WhatsApp office widget, SMS gateway, and GA4.",
+      "type": "object",
+      "properties": {
+        "announcement": { "type": "string", "maxLength": 500 },
+        "announcementUrdu": { "type": "string", "maxLength": 500 },
+        "announcementActive": { "type": "boolean" },
+        "helplinePhone": { "type": "string", "maxLength": 40 },
+        "whatsappNumber": { "type": "string", "maxLength": 40 },
+        "whatsappEnabled": { "type": "boolean" },
+        "smsProvider": { "type": "string", "maxLength": 80 },
+        "smsSenderId": { "type": "string", "maxLength": 40 },
+        "smsEnabled": { "type": "boolean" },
+        "ga4MeasurementId": { "type": "string", "maxLength": 40 },
+        "officeLocation": { "type": "string", "maxLength": 300 },
+        "officeLocationUrdu": { "type": "string", "maxLength": 300 },
+        "officeHours": { "type": "string", "maxLength": 200 },
+        "officeHoursUrdu": { "type": "string", "maxLength": 200 },
+        "lastUpdated": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["announcementActive", "helplinePhone", "whatsappNumber", "whatsappEnabled"]
+    }
+  },
+  "firestore": {
+    "/admins/{uid}": {
+      "schema": { "$ref": "#/entities/AdminUser" },
+      "description": "Authorized admin accounts keyed by Firebase Auth UID."
+    },
+    "/profile/{profileId}": {
+      "schema": { "$ref": "#/entities/LeaderProfile" },
+      "description": "Public representative profile and secretariat details."
+    },
+    "/projects/{projectId}": {
+      "schema": { "$ref": "#/entities/Project" },
+      "description": "PP-203 development projects with GIS coordinates."
+    },
+    "/assembly_activities/{activityId}": {
+      "schema": { "$ref": "#/entities/AssemblyActivity" },
+      "description": "Punjab Assembly parliamentary activities and legislative records."
+    },
+    "/news/{newsId}": {
+      "schema": { "$ref": "#/entities/NewsItem" },
+      "description": "News, press releases, and statements."
+    },
+    "/gallery/{galleryId}": {
+      "schema": { "$ref": "#/entities/GalleryMedia" },
+      "description": "Photo and video gallery items."
+    },
+    "/complaints/{complaintId}": {
+      "schema": { "$ref": "#/entities/CitizenComplaint" },
+      "description": "Citizen grievance records keyed by Tracking ID."
+    },
+    "/contact_messages/{messageId}": {
+      "schema": { "$ref": "#/entities/ContactMessage" },
+      "description": "Secretariat inquiries and appointment requests."
+    },
+    "/public_notices/{noticeId}": {
+      "schema": { "$ref": "#/entities/PublicNotice" },
+      "description": "Downloadable public notices and circulars."
+    },
+    "/sms_logs/{logId}": {
+      "schema": { "$ref": "#/entities/SmsLog" },
+      "description": "SMS dispatch logs for grievance notifications."
+    },
+    "/audit_logs/{logId}": {
+      "schema": { "$ref": "#/entities/AuditLog" },
+      "description": "Immutable admin audit trail."
+    },
+    "/settings/{settingId}": {
+      "schema": { "$ref": "#/entities/SiteSettings" },
+      "description": "Portal configuration document."
+    }
+  }
+}
