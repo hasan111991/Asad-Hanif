@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PP-203 Smart Secretariat &amp; Admin Portal — Authorized Access</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Noto+Nastaliq+Urdu:wght@400..700&display=swap">
+    <script>
+      (function() {
+        var l = window.location;
+        // Strip /admin or /admin/ from pathname and redirect to the SPA root with #admin hash
+        var basePath = l.pathname.replace(/\/admin(\/.*)?$/, '/');
+        window.location.replace(l.origin + basePath + '#admin' + l.search);
+      })();
+    </script>
+  </head>
+  <body style="font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background-color: #064D2B; color: white;">
+    <div style="text-align: center; padding: 2rem; max-width: 480px;">
+      <div style="width: 48px; height: 48px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.25); border-top-color: #FBBF24; animation: spin 1s linear infinite; margin: 0 auto 1.5rem auto;"></div>
+      <h2 style="margin: 0 0 0.5rem 0; font-size: 1.5rem; font-weight: bold; letter-spacing: -0.01em;">PP-203 Secretariat Portal</h2>
+      <p style="margin: 0; opacity: 0.85; font-size: 0.95rem;">Redirecting to Authorized Personnel Login...</p>
+    </div>
+    <style>
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+    </style>
+  </body>
+</html>

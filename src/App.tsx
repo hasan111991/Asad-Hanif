@@ -37,7 +37,8 @@ function MainAppContent() {
 
   const [activeTab, setActiveTab] = useState<string>(() => {
     const hash = window.location.hash.replace('#', '');
-    if (hash === 'admin' || window.location.pathname === '/admin' || window.location.pathname === '/admin/login') {
+    const path = window.location.pathname.toLowerCase();
+    if (hash === 'admin' || path.endsWith('/admin') || path.endsWith('/admin/')) {
       return 'admin';
     }
     return hash || 'home';
