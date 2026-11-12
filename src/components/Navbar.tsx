@@ -21,8 +21,7 @@ import {
   Image as ImageIcon,
   Mail,
   Megaphone,
-  Building2,
-  Users
+  Building2
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -77,7 +76,6 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
 
   const secondaryNavItems = [
     { id: 'city', label: t('city'), icon: Building2 },
-    { id: 'community', label: t('community'), icon: Users },
     { id: 'notices', label: t('notices'), icon: Bell },
     { id: 'news', label: t('news'), icon: Newspaper },
     { id: 'gallery', label: t('gallery'), icon: ImageIcon },

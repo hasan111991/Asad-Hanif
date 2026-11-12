@@ -22,7 +22,6 @@ const translations: Record<string, { en: string; ur: string }> = {
   gallery: { en: 'Gallery', ur: 'گیلری' },
   contact: { en: 'Contact', ur: 'رابطہ' },
   city: { en: 'City 2030', ur: 'شہری ترقی 2030' },
-  community: { en: 'Community', ur: 'کمیونٹی نیٹ ورک' },
 
   // General & Identity
   portalTitle: {

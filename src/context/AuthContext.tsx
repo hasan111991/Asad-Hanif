@@ -77,8 +77,7 @@ export type AdminModuleId =
   | 'city-departments'
   | 'city-surveys'
   | 'city-reports'
-  | 'city-ai'
-  | 'city-citizens';
+  | 'city-ai';
 
 const ALL_CITY_MODULES: AdminModuleId[] = [
   'city-overview',
@@ -100,8 +99,7 @@ const ALL_CITY_MODULES: AdminModuleId[] = [
   'city-departments',
   'city-surveys',
   'city-reports',
-  'city-ai',
-  'city-citizens'
+  'city-ai'
 ];
 
 const ALL_PP203_MODULES: AdminModuleId[] = [
@@ -153,8 +151,7 @@ export const ROLE_PERMISSIONS: Record<AdminRole, AdminModuleId[]> = {
     'city-departments',
     'city-surveys',
     'city-reports',
-    'city-ai',
-    'city-citizens'
+    'city-ai'
   ],
   'Field Officer': [
     'dashboard',
@@ -189,8 +186,7 @@ export const ROLE_PERMISSIONS: Record<AdminRole, AdminModuleId[]> = {
     'city-overview',
     'city-complaints',
     'city-departments',
-    'city-reports',
-    'city-citizens'
+    'city-reports'
   ],
   'Project Manager': [
     'dashboard',
@@ -210,8 +206,7 @@ export const ROLE_PERMISSIONS: Record<AdminRole, AdminModuleId[]> = {
     'gallery',
     'notices',
     'city-overview',
-    'city-reports',
-    'city-citizens'
+    'city-reports'
   ],
   'Data Entry Operator': [
     'dashboard',
