@@ -155,7 +155,7 @@ function maskPhone(phone: string): string {
 }
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { currentUser, isAuthenticated } = useAuth();
+  const { currentUser, isAuthenticated, isDemoSession } = useAuth();
 
   const [profile, setProfile] = useState<LeaderProfile>(initialProfile);
   const [unionCouncils] = useState<UnionCouncil[]>(initialUnionCouncils);
@@ -303,9 +303,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
-  // Admin-only private Firestore listeners (subscribed only after Admin authentication)
+  // Admin-only private Firestore listeners (subscribed only after real Firebase Admin authentication)
   useEffect(() => {
-    if (!isAuthenticated || !currentUser) return;
+    if (!isAuthenticated || !currentUser || isDemoSession) return;
 
     const adminUnsubs: Array<() => void> = [];
 
@@ -378,7 +378,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       adminUnsubs.forEach((u) => u());
     };
-  }, [isAuthenticated, currentUser]);
+  }, [isAuthenticated, currentUser, isDemoSession]);
 
   const logAuditAction = useCallback(
     async (
@@ -398,6 +398,14 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         timestamp: new Date().toISOString()
       };
 
+      if (isDemoSession) {
+        setAuditLogs((prev) => [
+          { id: `demo-audit-${Date.now()}`, ...entry },
+          ...prev
+        ]);
+        return;
+      }
+
       if (isAuthenticated && currentUser) {
         try {
           await addDoc(collection(db, 'audit_logs'), entry);
@@ -406,12 +414,12 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
     },
-    [currentUser, isAuthenticated]
+    [currentUser, isAuthenticated, isDemoSession]
   );
 
   // Seed initial baseline records to Firestore when empty (called by Super Admin / Admin)
   const seedInitialFirestore = useCallback(async () => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || isDemoSession) return;
     try {
       const projSnap = await getDocs(collection(db, 'projects'));
       if (projSnap.empty) {
@@ -451,14 +459,14 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (err) {
       handleFirestoreError(err, OperationType.WRITE, 'projects');
     }
-  }, [isAuthenticated, currentUser, logAuditAction]);
+  }, [isAuthenticated, isDemoSession, currentUser, logAuditAction]);
 
   // Automatically ensure baseline data exists in Firestore on first Super Admin sign-in
   useEffect(() => {
-    if (isAuthenticated && currentUser?.role === 'Super Admin' && !hasSeededFirestore) {
+    if (isAuthenticated && !isDemoSession && currentUser?.role === 'Super Admin' && !hasSeededFirestore) {
       seedInitialFirestore().catch(() => {});
     }
-  }, [isAuthenticated, currentUser, hasSeededFirestore, seedInitialFirestore]);
+  }, [isAuthenticated, isDemoSession, currentUser, hasSeededFirestore, seedInitialFirestore]);
 
   // Public Grievance Submission -> Firestore `/complaints/{trackingId}`
   const submitComplaint = async (
@@ -580,6 +588,17 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Leader Profile CMS
   const updateProfile = async (updates: Partial<LeaderProfile>) => {
     const next = { ...profile, ...updates };
+    if (isDemoSession) {
+      setProfile(next);
+      await logAuditAction(
+        'Leader Profile Updated (Demo Session)',
+        currentUser?.email || 'asad@gmail.com',
+        'Updated representative biography / secretariat profile details',
+        'profile',
+        'leader'
+      );
+      return;
+    }
     try {
       await setDoc(doc(db, 'profile', 'leader'), next, { merge: true });
       setProfile(next);
@@ -599,6 +618,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const addProject = async (projectData: Omit<Project, 'id'>): Promise<Project> => {
     const id = `prj-${Date.now()}`;
     const created: Project = { ...projectData, id };
+    if (isDemoSession) {
+      setProjects((prev) => [created, ...prev]);
+      await logAuditAction('Project Created (Demo)', currentUser?.email || 'asad@gmail.com', `Added project: ${created.title}`, 'projects', id);
+      return created;
+    }
     try {
       await setDoc(doc(db, 'projects', id), created);
       setProjects((prev) => [created, ...prev]);
@@ -616,6 +640,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const updateProject = async (id: string, updates: Partial<Project>) => {
+    if (isDemoSession) {
+      setProjects((prev) => prev.map((p) => (p.id === id ? { ...p, ...updates } : p)));
+      await logAuditAction('Project Updated (Demo)', currentUser?.email || 'asad@gmail.com', `Updated project ${id}`, 'projects', id);
+      return;
+    }
     try {
       await setDoc(doc(db, 'projects', id), updates, { merge: true });
       setProjects((prev) => prev.map((p) => (p.id === id ? { ...p, ...updates } : p)));
@@ -632,6 +661,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deleteProject = async (id: string) => {
+    if (isDemoSession) {
+      setProjects((prev) => prev.filter((p) => p.id !== id));
+      await logAuditAction('Project Deleted (Demo)', currentUser?.email || 'asad@gmail.com', `Deleted project ${id}`, 'projects', id);
+      return;
+    }
     try {
       await deleteDoc(doc(db, 'projects', id));
       setProjects((prev) => prev.filter((p) => p.id !== id));
@@ -653,6 +687,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   ): Promise<AssemblyActivity> => {
     const id = `asm-${Date.now()}`;
     const created: AssemblyActivity = { ...activityData, id };
+    if (isDemoSession) {
+      setAssemblyActivities((prev) => [created, ...prev]);
+      await logAuditAction('Assembly Record Added (Demo)', currentUser?.email || 'asad@gmail.com', `Added Punjab Assembly activity: ${created.title}`, 'assembly_activities', id);
+      return created;
+    }
     try {
       await setDoc(doc(db, 'assembly_activities', id), created);
       setAssemblyActivities((prev) => [created, ...prev]);
@@ -670,6 +709,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const updateAssemblyActivity = async (id: string, updates: Partial<AssemblyActivity>) => {
+    if (isDemoSession) {
+      setAssemblyActivities((prev) => prev.map((a) => (a.id === id ? { ...a, ...updates } : a)));
+      await logAuditAction('Assembly Record Updated (Demo)', currentUser?.email || 'asad@gmail.com', `Updated record ${id}`, 'assembly_activities', id);
+      return;
+    }
     try {
       await setDoc(doc(db, 'assembly_activities', id), updates, { merge: true });
       setAssemblyActivities((prev) =>
@@ -688,6 +732,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deleteAssemblyActivity = async (id: string) => {
+    if (isDemoSession) {
+      setAssemblyActivities((prev) => prev.filter((a) => a.id !== id));
+      await logAuditAction('Assembly Record Deleted (Demo)', currentUser?.email || 'asad@gmail.com', `Deleted record ${id}`, 'assembly_activities', id);
+      return;
+    }
     try {
       await deleteDoc(doc(db, 'assembly_activities', id));
       setAssemblyActivities((prev) => prev.filter((a) => a.id !== id));
@@ -723,6 +772,28 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       ...(department !== undefined ? { departmentReferred: department } : {}),
       ...(officer !== undefined ? { assignedOfficer: officer } : {})
     };
+
+    if (isDemoSession) {
+      setComplaints((prev) =>
+        prev.map((c) => (c.id === id || c.trackingId === docId ? { ...c, ...patch } : c))
+      );
+      if (dispatchSms && settings.smsEnabled && target?.phone) {
+        const smsEntry: SmsLog = {
+          id: `sms-${Date.now()}`,
+          recipientPhone: target.phone,
+          trackingId: docId,
+          message: `PP-203 Secretariat: Complaint ${docId} status updated to "${status}".${department ? ` Referred to ${department}.` : ''}`,
+          provider: settings.smsProvider || 'Secretariat Gateway',
+          senderId: settings.smsSenderId || 'PP203-MPA',
+          status: 'Simulated',
+          sentBy: currentUser?.email || 'asad@gmail.com',
+          timestamp: now
+        };
+        setSmsLogs((prev) => [smsEntry, ...prev]);
+      }
+      await logAuditAction('Complaint Triaged (Demo)', currentUser?.email || 'asad@gmail.com', `Updated ${docId} to "${status}"`, 'complaints', docId);
+      return;
+    }
 
     try {
       await setDoc(doc(db, 'complaints', docId), patch, { merge: true });
@@ -768,6 +839,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       id,
       createdAt: new Date().toISOString()
     };
+    if (isDemoSession) {
+      setNotices((prev) => [created, ...prev]);
+      await logAuditAction('Notice Published (Demo)', currentUser?.email || 'asad@gmail.com', `Published notice: ${created.title}`, 'public_notices', id);
+      return;
+    }
     try {
       await setDoc(doc(db, 'public_notices', id), created);
       setNotices((prev) => [created, ...prev]);
@@ -784,6 +860,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const updateNotice = async (id: string, updates: Partial<PublicNotice>) => {
+    if (isDemoSession) {
+      setNotices((prev) => prev.map((n) => (n.id === id ? { ...n, ...updates } : n)));
+      await logAuditAction('Notice Updated (Demo)', currentUser?.email || 'asad@gmail.com', `Updated notice ${id}`, 'public_notices', id);
+      return;
+    }
     try {
       await setDoc(doc(db, 'public_notices', id), updates, { merge: true });
       setNotices((prev) => prev.map((n) => (n.id === id ? { ...n, ...updates } : n)));
@@ -800,6 +881,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deleteNotice = async (id: string) => {
+    if (isDemoSession) {
+      setNotices((prev) => prev.filter((n) => n.id !== id));
+      await logAuditAction('Notice Deleted (Demo)', currentUser?.email || 'asad@gmail.com', `Removed notice ${id}`, 'public_notices', id);
+      return;
+    }
     try {
       await deleteDoc(doc(db, 'public_notices', id));
       setNotices((prev) => prev.filter((n) => n.id !== id));
@@ -825,6 +911,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       status,
       ...(adminNotes !== undefined ? { adminNotes } : {})
     };
+    if (isDemoSession) {
+      setContactMessages((prev) => prev.map((m) => (m.id === id ? { ...m, ...patch } : m)));
+      await logAuditAction('Appointment Updated (Demo)', currentUser?.email || 'asad@gmail.com', `Updated inquiry ${id} to ${status}`, 'contact_messages', id);
+      return;
+    }
     try {
       await updateDoc(doc(db, 'contact_messages', id), patch);
       setContactMessages((prev) =>
@@ -843,6 +934,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deleteContactMessage = async (id: string) => {
+    if (isDemoSession) {
+      setContactMessages((prev) => prev.filter((m) => m.id !== id));
+      await logAuditAction('Inquiry Deleted (Demo)', currentUser?.email || 'asad@gmail.com', `Deleted contact message ${id}`, 'contact_messages', id);
+      return;
+    }
     try {
       await deleteDoc(doc(db, 'contact_messages', id));
       setContactMessages((prev) => prev.filter((m) => m.id !== id));
@@ -862,6 +958,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const addNews = async (itemData: Omit<NewsItem, 'id'>) => {
     const id = `news-${Date.now()}`;
     const created: NewsItem = { ...itemData, id };
+    if (isDemoSession) {
+      setNews((prev) => [created, ...prev]);
+      await logAuditAction('News Published (Demo)', currentUser?.email || 'asad@gmail.com', `Published news: ${created.title}`, 'news', id);
+      return;
+    }
     try {
       await setDoc(doc(db, 'news', id), created);
       setNews((prev) => [created, ...prev]);
@@ -878,6 +979,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const updateNews = async (id: string, updates: Partial<NewsItem>) => {
+    if (isDemoSession) {
+      setNews((prev) => prev.map((n) => (n.id === id ? { ...n, ...updates } : n)));
+      await logAuditAction('News Updated (Demo)', currentUser?.email || 'asad@gmail.com', `Updated news ${id}`, 'news', id);
+      return;
+    }
     try {
       await setDoc(doc(db, 'news', id), updates, { merge: true });
       setNews((prev) => prev.map((n) => (n.id === id ? { ...n, ...updates } : n)));
@@ -894,6 +1000,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deleteNews = async (id: string) => {
+    if (isDemoSession) {
+      setNews((prev) => prev.filter((n) => n.id !== id));
+      await logAuditAction('News Deleted (Demo)', currentUser?.email || 'asad@gmail.com', `Deleted news ${id}`, 'news', id);
+      return;
+    }
     try {
       await deleteDoc(doc(db, 'news', id));
       setNews((prev) => prev.filter((n) => n.id !== id));
@@ -913,6 +1024,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const addGalleryItem = async (itemData: Omit<GalleryMedia, 'id'>) => {
     const id = `gal-${Date.now()}`;
     const created: GalleryMedia = { ...itemData, id };
+    if (isDemoSession) {
+      setGallery((prev) => [created, ...prev]);
+      await logAuditAction('Gallery Media Added (Demo)', currentUser?.email || 'asad@gmail.com', `Added ${created.mediaType}: ${created.title}`, 'gallery', id);
+      return;
+    }
     try {
       await setDoc(doc(db, 'gallery', id), created);
       setGallery((prev) => [created, ...prev]);
@@ -929,6 +1045,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deleteGalleryItem = async (id: string) => {
+    if (isDemoSession) {
+      setGallery((prev) => prev.filter((g) => g.id !== id));
+      await logAuditAction('Gallery Media Removed (Demo)', currentUser?.email || 'asad@gmail.com', `Removed gallery item ${id}`, 'gallery', id);
+      return;
+    }
     try {
       await deleteDoc(doc(db, 'gallery', id));
       setGallery((prev) => prev.filter((g) => g.id !== id));
@@ -951,6 +1072,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       ...newSettings,
       lastUpdated: new Date().toISOString().split('T')[0]
     };
+    if (isDemoSession) {
+      setSettings(next);
+      await logAuditAction('Portal Settings Updated (Demo)', currentUser?.email || 'asad@gmail.com', 'Updated settings in demo session', 'settings', 'portal');
+      return;
+    }
     try {
       await setDoc(doc(db, 'settings', 'portal'), next, { merge: true });
       setSettings(next);

@@ -28,9 +28,23 @@ import {
 import { AdminUser, AdminRole } from '../types';
 
 export const BOOTSTRAPPED_SUPER_ADMIN_EMAIL = 'hasanaamir815@gmail.com';
+const DEMO_ADMIN_EMAIL = 'asad@gmail.com';
+const DEMO_ADMIN_PASSWORD = 'pp203';
+const DEMO_SESSION_KEY = 'pp203_demo_admin_session';
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOCKOUT_DURATION_MS = 5 * 60 * 1000; // 5 minutes
 const LOCKOUT_STORAGE_KEY = 'pp203_admin_login_lockout';
+
+const DEMO_ADMIN_USER: AdminUser = {
+  id: 'demo-admin-asad',
+  uid: 'demo-admin-asad',
+  email: DEMO_ADMIN_EMAIL,
+  displayName: 'Asad Hanif (Demo Admin)',
+  role: 'Super Admin',
+  status: 'Active',
+  createdAt: new Date().toISOString(),
+  lastLogin: new Date().toISOString()
+};
 
 export type AdminModuleId =
   | 'dashboard'
@@ -100,6 +114,7 @@ interface AuthContextType {
   firebaseUser: User | null;
   currentUser: AdminUser | null;
   isAuthenticated: boolean;
+  isDemoSession: boolean;
   authLoading: boolean;
   authError: string | null;
   failedAttempts: number;
@@ -126,6 +141,7 @@ const AuthContext = createContext<AuthContextType>({
   firebaseUser: null,
   currentUser: null,
   isAuthenticated: false,
+  isDemoSession: false,
   authLoading: true,
   authError: null,
   failedAttempts: 0,
@@ -168,6 +184,7 @@ function saveLockout(state: LockoutState) {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
   const [currentUser, setCurrentUser] = useState<AdminUser | null>(null);
+  const [isDemoSession, setIsDemoSession] = useState<boolean>(false);
   const [authLoading, setAuthLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
   const [allStaff, setAllStaff] = useState<AdminUser[]>([]);
@@ -222,11 +239,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setAuthError(null);
 
       if (!user) {
+        if (sessionStorage.getItem(DEMO_SESSION_KEY) === 'true') {
+          setIsDemoSession(true);
+          setCurrentUser({ ...DEMO_ADMIN_USER, lastLogin: new Date().toISOString() });
+          setAllStaff([DEMO_ADMIN_USER]);
+          setAuthLoading(false);
+          return;
+        }
+        setIsDemoSession(false);
         setCurrentUser(null);
         setAllStaff([]);
         setAuthLoading(false);
         return;
       }
+
+      setIsDemoSession(false);
+      sessionStorage.removeItem(DEMO_SESSION_KEY);
 
       try {
         const isBootstrapped =
@@ -305,10 +333,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => unsubscribe();
   }, []);
 
-  // Subscribe to staff directory only when authenticated admin is active
+  // Subscribe to staff directory only when real Firebase Admin is active
   useEffect(() => {
-    if (!currentUser) {
-      setAllStaff([]);
+    if (!currentUser || !firebaseUser || isDemoSession) {
+      if (!isDemoSession) setAllStaff([]);
       return;
     }
 
@@ -328,7 +356,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
 
     return () => unsub();
-  }, [currentUser]);
+  }, [currentUser, firebaseUser, isDemoSession]);
 
   const loginWithEmail = async (email: string, password: string): Promise<AuthResult> => {
     if (lockoutSecondsLeft > 0) {
@@ -339,6 +367,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     setAuthError(null);
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (normalizedEmail === DEMO_ADMIN_EMAIL && password === DEMO_ADMIN_PASSWORD) {
+      clearLockout();
+      sessionStorage.setItem(DEMO_SESSION_KEY, 'true');
+      const demoSessionUser: AdminUser = {
+        ...DEMO_ADMIN_USER,
+        lastLogin: new Date().toISOString()
+      };
+      setIsDemoSession(true);
+      setCurrentUser(demoSessionUser);
+      setAllStaff([demoSessionUser]);
+      return { success: true };
+    }
+
     try {
       await signInWithEmailAndPassword(auth, email.trim(), password);
       clearLockout();
@@ -404,8 +447,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
-      await firebaseSignOut(auth);
+      sessionStorage.removeItem(DEMO_SESSION_KEY);
+      setIsDemoSession(false);
+      if (firebaseUser) {
+        await firebaseSignOut(auth);
+      }
       setCurrentUser(null);
+      setAllStaff([]);
       setAuthError(null);
     } catch (err) {
       console.error('Sign-out error:', err);
@@ -433,6 +481,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }): Promise<AuthResult> => {
     if (currentUser?.role !== 'Super Admin') {
       return { success: false, error: 'Only Super Admin can provision new staff accounts.' };
+    }
+
+    if (isDemoSession) {
+      const uid = `demo-staff-${Date.now()}`;
+      const staffData: AdminUser = {
+        id: uid,
+        uid,
+        email: payload.email.trim().toLowerCase(),
+        displayName: payload.displayName.trim(),
+        role: payload.role,
+        status: 'Active',
+        phone: payload.phone?.trim() || '',
+        createdAt: new Date().toISOString()
+      };
+      setAllStaff((prev) => [staffData, ...prev]);
+      return { success: true };
     }
 
     try {
@@ -465,6 +529,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateStaffRole = async (uid: string, newRole: AdminRole) => {
     if (currentUser?.role !== 'Super Admin') return;
+    if (isDemoSession) {
+      setAllStaff((prev) => prev.map((s) => (s.id === uid ? { ...s, role: newRole } : s)));
+      return;
+    }
     const path = `admins/${uid}`;
     try {
       await updateDoc(doc(db, 'admins', uid), { role: newRole });
@@ -478,6 +546,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const toggleStaffStatus = async (uid: string, status: 'Active' | 'Suspended') => {
     if (currentUser?.role !== 'Super Admin' || uid === currentUser.id) return;
+    if (isDemoSession) {
+      setAllStaff((prev) => prev.map((s) => (s.id === uid ? { ...s, status } : s)));
+      return;
+    }
     const path = `admins/${uid}`;
     try {
       await updateDoc(doc(db, 'admins', uid), { status });
@@ -488,6 +560,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const deleteStaffAccount = async (uid: string) => {
     if (currentUser?.role !== 'Super Admin' || uid === currentUser.id) return;
+    if (isDemoSession) {
+      setAllStaff((prev) => prev.filter((s) => s.id !== uid));
+      return;
+    }
     const path = `admins/${uid}`;
     try {
       await deleteDoc(doc(db, 'admins', uid));
@@ -502,6 +578,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         firebaseUser,
         currentUser,
         isAuthenticated: !!currentUser && currentUser.status === 'Active',
+        isDemoSession,
         authLoading,
         authError,
         failedAttempts: lockout.attempts,

@@ -135,7 +135,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onExitToPublic }) => {
                   disabled={isLocked || submitting}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="staff@chasadhanif.pk"
+                  placeholder="asad@gmail.com"
                   className="w-full pl-9 pr-3 py-2.5 text-sm bg-[#F7F9F7] border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#087A43] focus:bg-white min-h-[44px]"
                 />
               </div>

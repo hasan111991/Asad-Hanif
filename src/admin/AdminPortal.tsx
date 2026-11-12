@@ -122,6 +122,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const {
     currentUser,
     isAuthenticated,
+    isDemoSession,
     authLoading,
     logout,
     canAccessModule,
@@ -725,6 +726,17 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
             </button>
           </div>
         </header>
+
+        {/* Temporary Demo Session Banner */}
+        {isDemoSession && (
+          <div className="px-4 sm:px-6 pt-4">
+            <div className="rounded-xl px-4 py-2.5 text-xs font-medium bg-amber-50 border border-amber-200 text-amber-900 flex flex-wrap items-center justify-between gap-2">
+              <span>
+                <strong>Demo Admin Mode ({currentUser.email}):</strong> Full CMS controls are active for this browser session. Sign in via Google (<span className="font-mono">hasanaamir815@gmail.com</span>) for permanent Firestore cloud persistence.
+              </span>
+            </div>
+          </div>
+        )}
 
         {/* Feedback Alert Banner */}
         {feedbackBanner && (
