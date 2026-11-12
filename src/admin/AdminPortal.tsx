@@ -36,6 +36,7 @@ import { CityFacilitiesDirectoryModule } from './city/CityFacilitiesDirectoryMod
 import { CityFinanceDepartmentModule } from './city/CityFinanceDepartmentModule';
 import { CityComplaintsSurveysModule } from './city/CityComplaintsSurveysModule';
 import { CityReportsAndAIModule } from './city/CityReportsAndAIModule';
+import { CitizenNetworkAdminModule } from './city/CitizenNetworkAdminModule';
 import {
   LayoutDashboard,
   HardHat,
@@ -406,7 +407,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     { id: 'city-departments', label: '17. Department Management', icon: Users },
     { id: 'city-surveys', label: '18. Field Surveys & Inspections', icon: ClipboardCheck },
     { id: 'city-reports', label: '19. City Performance Reports', icon: FileSpreadsheet },
-    { id: 'city-ai', label: '20. AI City Planning Assistant', icon: Sparkles }
+    { id: 'city-ai', label: '20. AI City Planning Assistant', icon: Sparkles },
+    { id: 'city-citizens', label: '21. Citizen Network Management', icon: Users }
   ];
 
   const isRouteAllowed = canAccessModule(activeSubRoute);
@@ -2501,6 +2503,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                 <CityReportsAndAIModule section="reports" />
               )}
               {activeSubRoute === 'city-ai' && <CityReportsAndAIModule section="ai" />}
+              {activeSubRoute === 'city-citizens' && <CitizenNetworkAdminModule />}
             </>
           )}
         </main>

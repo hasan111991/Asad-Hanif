@@ -81,6 +81,14 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenPolicy }) => {
             <ul className="space-y-1">
               <li>
                 <button
+                  onClick={() => onNavigate('community')}
+                  className="min-h-[38px] flex items-center hover:text-[#C9A227] transition cursor-pointer"
+                >
+                  {language === 'ur' ? 'چیچہ وطنی کمیونٹی نیٹ ورک' : 'Chichawatni Community Network'}
+                </button>
+              </li>
+              <li>
+                <button
                   onClick={() => onNavigate('complaints')}
                   className="min-h-[38px] flex items-center hover:text-[#C9A227] transition cursor-pointer"
                 >

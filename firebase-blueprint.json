@@ -667,6 +667,285 @@
         "timestamp": { "type": "string", "maxLength": 64 }
       },
       "required": ["action", "module", "actorEmail", "details", "timestamp"]
+    },
+    "CitizenProfile": {
+      "title": "CitizenProfile",
+      "description": "Voluntary Chichawatni Community Network citizen profile (strictly excludes CNIC, exact home address, family details, and passwords).",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "fullName": { "type": "string", "minLength": 2, "maxLength": 120 },
+        "phoneE164": { "type": "string", "minLength": 8, "maxLength": 24 },
+        "phoneHash": { "type": "string", "minLength": 16, "maxLength": 128 },
+        "phoneVerified": { "type": "boolean" },
+        "verificationMethod": { "type": "string", "enum": ["firebase_phone_auth", "pending_verification"] },
+        "email": { "type": "string", "maxLength": 160 },
+        "cityLocality": { "type": "string", "minLength": 2, "maxLength": 160 },
+        "villageArea": { "type": "string", "maxLength": 160 },
+        "ucWard": { "type": "string", "maxLength": 80 },
+        "profession": { "type": "string", "maxLength": 120 },
+        "preferredLanguage": { "type": "string", "enum": ["en", "ur"] },
+        "preferredContactMethod": { "type": "string", "enum": ["WhatsApp", "SMS", "Email", "In-App"] },
+        "accountStatus": { "type": "string", "enum": ["Active", "Inactive", "Deletion Requested"] },
+        "retentionPolicyAcceptedAt": { "type": "string", "maxLength": 64 },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": [
+        "uid",
+        "fullName",
+        "phoneE164",
+        "phoneHash",
+        "phoneVerified",
+        "verificationMethod",
+        "cityLocality",
+        "preferredLanguage",
+        "preferredContactMethod",
+        "accountStatus",
+        "retentionPolicyAcceptedAt",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "CitizenPhoneIndex": {
+      "title": "CitizenPhoneIndex",
+      "description": "SHA-256 hash index preventing duplicate citizen registrations per mobile number without exposing phone PII.",
+      "type": "object",
+      "properties": {
+        "ownerUid": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["ownerUid", "createdAt"]
+    },
+    "CitizenConsent": {
+      "title": "CitizenConsent",
+      "description": "Granular, optional, revocable communication consents for each registered citizen.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "publicDevelopmentUpdates": { "type": "boolean" },
+        "cityServiceAnnouncements": { "type": "boolean" },
+        "communityEventNotifications": { "type": "boolean" },
+        "surveyInvitations": { "type": "boolean" },
+        "emergencyPublicAlerts": { "type": "boolean" },
+        "nonPoliticalStatementAccepted": { "type": "boolean" },
+        "privacyPolicyAccepted": { "type": "boolean" },
+        "unsubscribedAll": { "type": "boolean" },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": [
+        "uid",
+        "publicDevelopmentUpdates",
+        "cityServiceAnnouncements",
+        "communityEventNotifications",
+        "surveyInvitations",
+        "emergencyPublicAlerts",
+        "nonPoliticalStatementAccepted",
+        "privacyPolicyAccepted",
+        "unsubscribedAll",
+        "updatedAt"
+      ]
+    },
+    "CitizenInterestRecord": {
+      "title": "CitizenInterestRecord",
+      "description": "Voluntarily selected civic interest sectors for a community network member.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "interests": { "type": "array" },
+        "cityLocality": { "type": "string", "maxLength": 160 },
+        "profession": { "type": "string", "maxLength": 120 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["uid", "interests", "cityLocality", "updatedAt"]
+    },
+    "CommunicationPreferences": {
+      "title": "CommunicationPreferences",
+      "description": "Channel opt-in settings and language preference for civic updates.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "preferredLanguage": { "type": "string", "enum": ["en", "ur"] },
+        "preferredChannel": { "type": "string", "enum": ["WhatsApp", "SMS", "Email", "In-App"] },
+        "whatsappOptIn": { "type": "boolean" },
+        "smsOptIn": { "type": "boolean" },
+        "emailOptIn": { "type": "boolean" },
+        "inAppOptIn": { "type": "boolean" },
+        "unsubscribedAll": { "type": "boolean" },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["uid", "preferredLanguage", "preferredChannel", "unsubscribedAll", "updatedAt"]
+    },
+    "CitizenGroup": {
+      "title": "CitizenGroup",
+      "description": "Voluntary non-political civic and service-interest community group.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "minLength": 2, "maxLength": 160 },
+        "nameUrdu": { "type": "string", "maxLength": 160 },
+        "interestCategory": { "type": "string", "maxLength": 100 },
+        "localityFilter": { "type": "string", "maxLength": 160 },
+        "description": { "type": "string", "maxLength": 1200 },
+        "isNonPoliticalConfirmed": { "type": "boolean" },
+        "isActive": { "type": "boolean" },
+        "memberCount": { "type": "number" },
+        "createdBy": { "type": "string", "maxLength": 160 },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["name", "interestCategory", "isNonPoliticalConfirmed", "isActive"]
+    },
+    "CitizenGroupMember": {
+      "title": "CitizenGroupMember",
+      "description": "Voluntary membership linking citizen UID to a non-political civic group (strictly contains zero phone PII).",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "groupId": { "type": "string", "maxLength": 128 },
+        "groupName": { "type": "string", "maxLength": 160 },
+        "uid": { "type": "string", "maxLength": 128 },
+        "memberDisplayName": { "type": "string", "maxLength": 120 },
+        "locality": { "type": "string", "maxLength": 160 },
+        "joinedVia": { "type": "string", "enum": ["Citizen Self-Join", "Admin Organized"] },
+        "status": { "type": "string", "enum": ["Active", "Left"] },
+        "joinedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["groupId", "groupName", "uid", "memberDisplayName", "status", "joinedAt"]
+    },
+    "CitizenSuggestion": {
+      "title": "CitizenSuggestion",
+      "description": "Advisory city improvement suggestion submitted by a citizen (separate from official approvals).",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "uid": { "type": "string", "maxLength": 128 },
+        "citizenDisplayName": { "type": "string", "maxLength": 120 },
+        "locality": { "type": "string", "maxLength": 160 },
+        "sector": { "type": "string", "maxLength": 120 },
+        "title": { "type": "string", "minLength": 3, "maxLength": 200 },
+        "description": { "type": "string", "minLength": 10, "maxLength": 2500 },
+        "status": {
+          "type": "string",
+          "enum": ["Submitted", "Under Community Review", "Forwarded for Technical Feasibility", "Archived"]
+        },
+        "adminFeedback": { "type": "string", "maxLength": 1000 },
+        "isPublishedSummary": { "type": "boolean" },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["uid", "citizenDisplayName", "locality", "sector", "title", "description", "status", "isPublishedSummary", "createdAt", "updatedAt"]
+    },
+    "CitizenSurvey": {
+      "title": "CitizenSurvey",
+      "description": "Voluntary civic community poll/survey definition.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 220 },
+        "titleUrdu": { "type": "string", "maxLength": 220 },
+        "topic": { "type": "string", "maxLength": 120 },
+        "description": { "type": "string", "maxLength": 2000 },
+        "questions": { "type": "array" },
+        "status": { "type": "string", "enum": ["Draft", "Active", "Closed"] },
+        "responseCount": { "type": "number" },
+        "createdBy": { "type": "string", "maxLength": 160 },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["title", "topic", "status", "questions", "createdAt", "updatedAt"]
+    },
+    "CitizenSurveyResponse": {
+      "title": "CitizenSurveyResponse",
+      "description": "Single verified citizen survey submission keyed by UID.",
+      "type": "object",
+      "properties": {
+        "surveyId": { "type": "string", "maxLength": 128 },
+        "uid": { "type": "string", "maxLength": 128 },
+        "locality": { "type": "string", "maxLength": 160 },
+        "answers": { "type": "object" },
+        "submittedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["surveyId", "uid", "answers", "submittedAt"]
+    },
+    "CitizenVolunteer": {
+      "title": "CitizenVolunteer",
+      "description": "Voluntary participation registration for approved civic community initiatives.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "uid": { "type": "string", "maxLength": 128 },
+        "volunteerName": { "type": "string", "maxLength": 120 },
+        "locality": { "type": "string", "maxLength": 160 },
+        "initiativeTitle": { "type": "string", "maxLength": 200 },
+        "areaOfInterest": { "type": "string", "maxLength": 100 },
+        "availability": { "type": "string", "maxLength": 160 },
+        "skillsNote": { "type": "string", "maxLength": 600 },
+        "status": { "type": "string", "enum": ["Registered", "Approved", "Active", "Completed", "Withdrawn"] },
+        "isNonPoliticalConfirmed": { "type": "boolean" },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["uid", "volunteerName", "locality", "initiativeTitle", "areaOfInterest", "status", "isNonPoliticalConfirmed", "createdAt", "updatedAt"]
+    },
+    "RegisteredOrganization": {
+      "title": "RegisteredOrganization",
+      "description": "Optional verified directory listing for local businesses, associations, NGOs, schools, and clinics.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "submittedByUid": { "type": "string", "maxLength": 128 },
+        "orgName": { "type": "string", "minLength": 2, "maxLength": 200 },
+        "orgCategory": {
+          "type": "string",
+          "enum": [
+            "Local Business",
+            "Traders & Market Association",
+            "NGO & Welfare Organization",
+            "Educational Institution",
+            "Healthcare Institution",
+            "Community Organization"
+          ]
+        },
+        "locality": { "type": "string", "maxLength": 160 },
+        "registrationNumber": { "type": "string", "maxLength": 80 },
+        "focalPersonName": { "type": "string", "maxLength": 120 },
+        "publicContactPhone": { "type": "string", "maxLength": 32 },
+        "publicEmail": { "type": "string", "maxLength": 160 },
+        "description": { "type": "string", "maxLength": 2000 },
+        "servicesOffered": { "type": "string", "maxLength": 1000 },
+        "verificationStatus": { "type": "string", "enum": ["Pending Verification", "Verified", "Rejected"] },
+        "isPublicPublished": { "type": "boolean" },
+        "verifiedByAdmin": { "type": "string", "maxLength": 160 },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["submittedByUid", "orgName", "orgCategory", "locality", "focalPersonName", "description", "verificationStatus", "isPublicPublished", "createdAt", "updatedAt"]
+    },
+    "CommunicationLog": {
+      "title": "CommunicationLog",
+      "description": "Consent-verified multi-channel communication dispatch and delivery status log.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "batchId": { "type": "string", "maxLength": 80 },
+        "channel": { "type": "string", "enum": ["WhatsApp", "SMS", "Email", "In-App"] },
+        "consentCategory": { "type": "string", "maxLength": 64 },
+        "templateName": { "type": "string", "maxLength": 120 },
+        "subject": { "type": "string", "maxLength": 200 },
+        "messageBody": { "type": "string", "maxLength": 2000 },
+        "recipientUid": { "type": "string", "maxLength": 128 },
+        "recipientName": { "type": "string", "maxLength": 120 },
+        "recipientMaskedContact": { "type": "string", "maxLength": 80 },
+        "deliveryStatus": {
+          "type": "string",
+          "enum": ["Queued", "Sent", "Delivered", "Failed", "Skipped - No Consent", "Simulated - Gateway Pending"]
+        },
+        "failedReason": { "type": "string", "maxLength": 400 },
+        "sentByEmail": { "type": "string", "maxLength": 160 },
+        "sentAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["batchId", "channel", "consentCategory", "templateName", "subject", "messageBody", "recipientUid", "deliveryStatus", "sentByEmail", "sentAt"]
     }
   },
   "firestore": {
@@ -785,6 +1064,58 @@
     "/city_audit_logs/{logId}": {
       "schema": { "$ref": "#/entities/CityAuditLog" },
       "description": "Immutable City Management CRUD and financial mutation audit logs."
+    },
+    "/citizen_profiles/{uid}": {
+      "schema": { "$ref": "#/entities/CitizenProfile" },
+      "description": "Private citizen registration profiles owned by authenticated citizens and accessible to authorized admins."
+    },
+    "/citizen_phone_index/{phoneHash}": {
+      "schema": { "$ref": "#/entities/CitizenPhoneIndex" },
+      "description": "SHA-256 hash lookup preventing duplicate accounts per mobile number."
+    },
+    "/citizen_consents/{uid}": {
+      "schema": { "$ref": "#/entities/CitizenConsent" },
+      "description": "Granular optional communication consent preferences per citizen."
+    },
+    "/citizen_interests/{uid}": {
+      "schema": { "$ref": "#/entities/CitizenInterestRecord" },
+      "description": "Voluntarily selected civic interest sectors per citizen."
+    },
+    "/communication_preferences/{uid}": {
+      "schema": { "$ref": "#/entities/CommunicationPreferences" },
+      "description": "Channel opt-in preferences and unsubscribe controls per citizen."
+    },
+    "/citizen_groups/{groupId}": {
+      "schema": { "$ref": "#/entities/CitizenGroup" },
+      "description": "Voluntary non-political civic service groups."
+    },
+    "/citizen_group_members/{membershipId}": {
+      "schema": { "$ref": "#/entities/CitizenGroupMember" },
+      "description": "Private voluntary membership records without phone numbers."
+    },
+    "/citizen_suggestions/{suggestionId}": {
+      "schema": { "$ref": "#/entities/CitizenSuggestion" },
+      "description": "Citizen improvement suggestions separate from official approvals."
+    },
+    "/citizen_surveys/{surveyId}": {
+      "schema": { "$ref": "#/entities/CitizenSurvey" },
+      "description": "Voluntary civic public surveys."
+    },
+    "/citizen_surveys/{surveyId}/responses/{uid}": {
+      "schema": { "$ref": "#/entities/CitizenSurveyResponse" },
+      "description": "Individual citizen survey responses keyed by UID."
+    },
+    "/citizen_volunteers/{volunteerId}": {
+      "schema": { "$ref": "#/entities/CitizenVolunteer" },
+      "description": "Volunteer registrations for approved community initiatives."
+    },
+    "/registered_organizations/{orgId}": {
+      "schema": { "$ref": "#/entities/RegisteredOrganization" },
+      "description": "Optional directory of local businesses, NGOs, schools, and clinics verified prior to publication."
+    },
+    "/communication_logs/{logId}": {
+      "schema": { "$ref": "#/entities/CommunicationLog" },
+      "description": "Immutable consent-verified communication delivery audit logs."
     }
   }
 }

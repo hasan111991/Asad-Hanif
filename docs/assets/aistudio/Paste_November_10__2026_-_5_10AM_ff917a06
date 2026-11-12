@@ -1,0 +1,1200 @@
+# MASTER PROMPT — BUILD COMPLETE PP-203 SMART CONSTITUENCY MANAGEMENT WEBSITE FROM SCRATCH
+
+Act as a senior full-stack JavaScript developer, UI/UX designer, Firebase architect, AI engineer, GIS developer, cybersecurity specialist and software tester.
+
+I want you to build a complete, production-ready, fully functional website and digital management platform for:
+
+**Chaudhry Asad Hanif Jutt**
+**PP-203 Chichawatni, District Sahiwal, Punjab, Pakistan**
+
+The project name:
+
+**PP-203 Smart Constituency Management & Development Portal**
+
+This is a fresh development project. Do not simply modify the existing UI or create a static demonstration. Build a complete application from scratch using the uploaded ZIP only as a reference for existing content, images, branding and useful assets.
+
+The objective is to create a digital platform for constituency information, public services, development planning, complaints, project monitoring, geographical data, field surveys and AI-powered recommendations.
+
+==================================================
+1. TECHNOLOGY — JAVASCRIPT ONLY
+==================================================
+
+Use this technology stack:
+
+Frontend:
+- HTML5
+- CSS3
+- JavaScript ES6+
+- React with JSX
+- Vite
+- React Router
+- Lucide React icons
+- Reusable JavaScript components
+- Responsive CSS
+
+IMPORTANT:
+- Use JavaScript and JSX only.
+- Do NOT use TypeScript.
+- Do NOT create .ts or .tsx files.
+- Do NOT use Python for application development.
+- Keep the code modular, clean and maintainable.
+- Use separate CSS files or organized CSS modules.
+- Do not put the entire application in one huge component.
+
+Backend:
+- Firebase Authentication
+- Cloud Firestore
+- Firebase Storage
+- Firebase Cloud Functions using JavaScript
+- Firebase App Check
+- Secure server-side validation
+
+AI:
+- Google Gemini API through secure backend functions.
+- Never expose Gemini API keys in frontend code.
+
+Maps:
+- Leaflet
+- OpenStreetMap
+- GeoJSON for verified boundaries and geographical information
+
+Deployment:
+- Netlify
+- Firebase backend
+
+Use stable, compatible package versions and provide all installation commands.
+
+==================================================
+2. DESIGN AND BRAND IDENTITY
+==================================================
+
+Create a professional, modern and premium-looking public service website.
+
+Brand colors:
+- Primary green: #087A43
+- Dark green: #064D2B
+- White: #FFFFFF
+- Gold: #C9A227
+- Light background: #F7F9F7
+- Dark text: #202820
+
+Typography:
+- English: DM Sans
+- Urdu: Noto Nastaliq Urdu
+
+Design requirements:
+- Premium header and navigation
+- Professional hero section
+- Modern cards
+- Clean dashboard layouts
+- Beautiful interactive charts
+- Professional maps
+- Attractive footer
+- Smooth animations
+- Accessible typography
+- Consistent spacing
+- Proper loading states
+- Empty states
+- Error messages
+- Success notifications
+- Confirmation dialogs
+
+Language:
+- English
+- Urdu
+- Complete RTL support for Urdu
+- Language switcher
+- Correct alignment of Urdu navigation, forms, tables and cards
+
+Responsive design:
+- 320px mobile
+- 375px mobile
+- 425px mobile
+- 768px tablet
+- 1024px laptop
+- 1366px desktop
+- 1920px large screens
+
+No horizontal overflow.
+No broken layouts.
+No overlapping text.
+No oversized mobile navigation.
+
+==================================================
+3. PUBLIC WEBSITE STRUCTURE
+==================================================
+
+Create the following pages:
+
+1. Home
+2. About
+3. Constituency Profile
+4. Constituency Map
+5. Union Councils
+6. Villages and Mouzas
+7. Education Facilities
+8. Healthcare Facilities
+9. Roads and Infrastructure
+10. Agriculture and Economy
+11. Public Facilities
+12. Development Projects
+13. Project Details
+14. Public Notices
+15. News and Updates
+16. Photo Gallery
+17. Video Gallery
+18. Public Complaint Portal
+19. Complaint Tracking
+20. Monthly Public Service Reports
+21. Contact
+22. Privacy Policy
+23. Terms and Conditions
+24. Data and Information Disclaimer
+
+Public navigation must be clean and easy to use.
+
+Do not display an Admin Login button or admin navigation link anywhere on the public website.
+
+The public website must be informational and service-oriented. Do not present it as an official government department portal or imply powers that have not been granted.
+
+==================================================
+4. HOME PAGE
+==================================================
+
+Build an attractive homepage containing:
+
+- Professional hero section
+- Chaudhry Asad Hanif Jutt profile
+- Official portrait from the supplied assets, subject to identity confirmation
+- PP-203 Chichawatni introduction
+- Constituency overview
+- Interactive map preview
+- Public facilities overview
+- Development projects
+- Public complaint submission link
+- Public notices
+- Latest updates
+- Public service information
+- Contact information
+- Professional footer
+
+All content must be manageable through the admin dashboard.
+
+Do not invent political achievements, official titles, qualifications, contact details, office hours or project announcements.
+
+If information is not confirmed, show a configurable placeholder or do not publish it.
+
+==================================================
+5. COMPLETE CONSTITUENCY DATABASE
+==================================================
+
+Build a complete database management system for PP-203.
+
+Create the following geographical hierarchy:
+
+- Constituency
+- Union Councils
+- Villages
+- Mouzas
+- Towns
+- Urban localities
+- Mohallas
+- Settlements
+
+Each location must support:
+
+- Name in English
+- Name in Urdu
+- Parent Union Council
+- Location type
+- GPS latitude
+- GPS longitude
+- Population
+- Population source
+- Census year
+- Number of households
+- Rural or urban classification
+- Description
+- Data source
+- Source URL
+- Date collected
+- Last verified date
+- Verification status
+- Confidence level
+
+Add search, sorting, filters, pagination and export.
+
+Allow administrators to add, edit, verify, archive and delete records according to permissions.
+
+IMPORTANT:
+Do not assume every nearby village belongs to PP-203.
+
+Use verified official constituency boundaries and records. If boundary data is unavailable, allow authorized administrators to import GeoJSON and manually verify locations.
+
+Never invent village lists, population numbers, boundaries or coordinates.
+
+==================================================
+6. EDUCATION DATABASE
+==================================================
+
+Create a complete education facilities module.
+
+Record:
+
+- Government schools
+- Private schools
+- Primary schools
+- Middle schools
+- High schools
+- Higher secondary schools
+- Colleges
+- Technical institutes
+- Vocational training centres
+
+Each record should support:
+
+- Institution name
+- Locality
+- GPS coordinates
+- Institution type
+- Ownership
+- Enrollment, if available
+- Number of classrooms
+- Teachers, if verified
+- Available facilities
+- Missing facilities
+- Building condition
+- Source
+- Verification date
+- Photos and inspection notes
+
+AI should identify possible education infrastructure gaps using available verified data.
+
+==================================================
+7. HEALTHCARE DATABASE
+==================================================
+
+Create records for:
+
+- Hospitals
+- THQ hospitals
+- BHUs
+- RHCs
+- Dispensaries
+- Clinics
+- Emergency services
+- Other healthcare facilities
+
+Record:
+
+- Facility name
+- Locality
+- GPS coordinates
+- Facility category
+- Available services
+- Operating information, if verified
+- Available equipment, if verified
+- Infrastructure condition
+- Source
+- Verification status
+- Inspection reports
+
+Show facilities on the constituency map.
+
+Allow analysis of geographical healthcare coverage, clearly labelling estimates and data limitations.
+
+==================================================
+8. ROADS AND INFRASTRUCTURE DATABASE
+==================================================
+
+Create separate records for:
+
+- Main roads
+- Link roads
+- Village roads
+- Streets
+- Bridges
+- Drainage
+- Sewerage
+- Drinking water facilities
+- Street lights
+- Waste management
+- Public transport access
+- Other infrastructure
+
+Each infrastructure record should include:
+
+- Name or identification
+- Location
+- GPS coordinates or route geometry
+- Infrastructure type
+- Current condition
+- Problem description
+- Inspection date
+- Photos
+- Estimated repair requirement
+- Responsible department, if known
+- Verification status
+
+Allow administrators and authorized field staff to update conditions.
+
+==================================================
+9. AGRICULTURE AND LOCAL ECONOMY
+==================================================
+
+Create modules for:
+
+- Agricultural areas
+- Major crops
+- Irrigation infrastructure
+- Canal information
+- Agricultural markets
+- Livestock services
+- Local businesses
+- Employment opportunities
+- Skill development centres
+- Training programmes
+
+Keep agricultural and economic statistics linked to their sources and collection dates.
+
+==================================================
+10. INTERACTIVE GIS CONSTITUENCY MAP
+==================================================
+
+Build a fully functional Leaflet map using OpenStreetMap.
+
+Map layers:
+
+- Constituency boundary
+- Union Councils
+- Villages
+- Mouzas
+- Schools
+- Hospitals
+- BHUs
+- Roads
+- Bridges
+- Water facilities
+- Drainage infrastructure
+- Development projects
+- Public facilities
+
+Features:
+
+- Zoom and pan
+- Search locations
+- Layer control
+- Category filters
+- Union Council filter
+- Village filter
+- Map markers
+- Location detail popups
+- Project detail popups
+- Responsive mobile map
+- Legend
+- Full-screen map option
+
+Add heatmap visualization for verified infrastructure gaps and public needs.
+
+Use actual GPS coordinates and verified GeoJSON.
+
+Do not randomly place map markers.
+
+If the constituency boundary is unavailable, show an honest notice and allow boundary import from the admin portal.
+
+==================================================
+11. PUBLIC COMPLAINT PORTAL
+==================================================
+
+Create a complete public complaint system.
+
+Complaint categories:
+
+- Roads
+- Street lights
+- Water supply
+- Drainage
+- Sewerage
+- Education
+- Healthcare
+- Electricity
+- Cleanliness
+- Agriculture
+- Public facilities
+- Other
+
+Complaint form:
+
+- Citizen name
+- Mobile number
+- Locality
+- Union Council
+- Category
+- Description
+- Optional GPS location
+- Optional photographs
+- Consent checkbox
+
+After submission:
+
+- Generate a unique complaint reference number.
+- Save the complaint securely.
+- Show a submission confirmation.
+- Allow the citizen to track its status.
+
+Complaint workflow:
+
+1. Received
+2. Under Review
+3. Verified
+4. Assigned
+5. Referred to Department
+6. In Progress
+7. Resolved
+8. Closed
+9. Rejected with reason
+
+Complaint tracking must NOT expose private complaint information.
+
+Use a secure backend tracking function. Do not make complaint documents publicly readable. Do not use sequential IDs as authentication.
+
+Require a secure tracking credential or verified mobile OTP before revealing personal complaint details.
+
+Admin features:
+
+- Complaint search
+- Filters
+- Category management
+- Assign staff
+- Internal notes
+- Status updates
+- Resolution evidence
+- Duplicate detection
+- Complaint history
+- CSV export for authorized users
+
+==================================================
+12. DEVELOPMENT PROJECT MANAGEMENT
+==================================================
+
+Create a full development project management module.
+
+Project categories:
+
+- Roads
+- Education
+- Healthcare
+- Water supply
+- Drainage
+- Sewerage
+- Agriculture
+- Public facilities
+- Other infrastructure
+
+Each project must include:
+
+- Project title
+- Project description
+- Location
+- Union Council
+- Village
+- GPS coordinates
+- Category
+- Department
+- Estimated cost
+- Approved budget
+- Funding source
+- Start date
+- Expected completion
+- Actual completion
+- Current status
+- Progress percentage
+- Before pictures
+- During-work pictures
+- After pictures
+- Inspection reports
+- Supporting documents
+
+Project statuses:
+
+- Proposed
+- Under Assessment
+- Recommended
+- Submitted for Approval
+- Approved
+- Funded
+- In Progress
+- Delayed
+- Completed
+- Verified
+
+Only display public projects that have been approved for publication.
+
+Keep proposed projects separate from officially approved and funded projects.
+
+Do not invent budgets, contractors, departments, progress percentages or completion dates.
+
+==================================================
+13. AI DEVELOPMENT RECOMMENDATION ENGINE
+==================================================
+
+Build a real AI-powered development planning system.
+
+Use Gemini API only through secure backend functions.
+
+AI should analyze available verified data from:
+
+- Population
+- Public facilities
+- School coverage
+- Healthcare coverage
+- Infrastructure conditions
+- Public complaints
+- Field surveys
+- Development projects
+- Geographic coverage
+- Budget information, where available
+
+Generate recommendations such as:
+
+- Which villages may need road improvements?
+- Which areas have limited access to healthcare?
+- Which schools may need additional classrooms?
+- Where should drinking water infrastructure be assessed?
+- Which areas have repeated drainage complaints?
+- Which Union Councils have the largest verified infrastructure gaps?
+
+Each recommendation should include:
+
+1. Recommendation title
+2. Location
+3. Problem identified
+4. Evidence used
+5. Source records
+6. Estimated population affected, if reliable
+7. Estimated cost range, if supported by available cost data
+8. Priority level
+9. Expected benefits
+10. Risks and limitations
+11. Suggested next action
+12. Confidence level
+
+Clearly label every AI recommendation as an AI-generated suggestion, not an approved government project.
+
+AI must not fabricate missing information.
+
+If the available information is insufficient, respond that additional field verification or data is required.
+
+==================================================
+14. AI PROJECT PRIORITIZATION
+==================================================
+
+Build a configurable project priority scoring system.
+
+Factors:
+
+- Problem severity
+- Population affected
+- Essential facility access
+- Infrastructure condition
+- Geographic disadvantage
+- Verified complaints
+- Urgency
+- Cost and feasibility
+
+Allow authorized administrators to configure factor weights.
+
+Show the score breakdown and reasons.
+
+AI must support decisions, not automatically approve projects or spending.
+
+==================================================
+15. AI ADMIN ASSISTANT
+==================================================
+
+Create an AI chat assistant inside the admin dashboard.
+
+Example questions:
+
+- Show villages with limited healthcare access.
+- Which Union Council has the most unresolved road complaints?
+- Identify schools with missing facilities.
+- Show projects delayed beyond their target dates.
+- Suggest priority development assessments.
+- Compare two Union Councils.
+- Generate a monthly report.
+- Show areas with repeated water supply complaints.
+
+The assistant must:
+
+- Use the platform database.
+- Retrieve relevant records.
+- Cite record IDs and sources.
+- Clearly identify missing information.
+- Respect admin permissions.
+- Never reveal private citizen data to unauthorized users.
+- Never invent statistics.
+
+==================================================
+16. FIELD SURVEY MANAGEMENT
+==================================================
+
+Create a mobile-first field survey system.
+
+Authorized field officers can:
+
+- Select Union Council
+- Select village
+- Record GPS coordinates
+- Capture or upload photographs
+- Record road conditions
+- Inspect schools
+- Inspect hospitals
+- Record drinking water problems
+- Record drainage issues
+- Add notes
+- Submit survey reports
+
+Record:
+
+- Survey officer
+- Timestamp
+- Location
+- Survey type
+- Photos
+- Observations
+- Verification status
+
+Add offline data capture and synchronization if technically supported.
+
+Show clear sync status and prevent duplicate submissions.
+
+==================================================
+17. PUBLIC NOTICES AND REPORTS
+==================================================
+
+Create a searchable public notices module.
+
+Features:
+
+- Notice title
+- Description
+- Category
+- Publication date
+- PDF attachment
+- Download option
+- Search
+- Filters
+- Archive
+
+Create monthly reports:
+
+- Public complaints
+- Resolved complaints
+- Pending complaints
+- Development projects
+- Project progress
+- Public facility records
+- Union Council-wise statistics
+- Infrastructure assessments
+
+Generate PDFs from actual database records.
+
+Clearly identify estimated or incomplete statistics.
+
+==================================================
+18. ADMIN PORTAL — PRIVATE ACCESS ONLY
+==================================================
+
+This requirement is critical.
+
+The admin portal must be separate from the public website.
+
+Route:
+
+/admin/login
+
+Do not display an admin button, link, menu item or portal link on the public website.
+
+Create secure role-based access control.
+
+Roles:
+
+1. Super Admin
+2. Office Manager
+3. Complaint Manager
+4. Project Manager
+5. Media Manager
+6. Data Entry Operator
+7. Field Survey Officer
+8. Read-only Analyst
+
+Admin modules:
+
+- Dashboard
+- Constituency database
+- Union Councils
+- Villages and Mouzas
+- Education facilities
+- Healthcare facilities
+- Infrastructure
+- Agriculture
+- Public facilities
+- GIS map management
+- Complaints
+- Development projects
+- Field surveys
+- AI recommendations
+- AI assistant
+- Public notices
+- News
+- Gallery
+- Monthly reports
+- Staff management
+- Roles and permissions
+- Audit logs
+- Site settings
+
+Every admin action must be permission-checked.
+
+Only Super Admin can create or change staff roles.
+
+No public admin registration.
+
+Do not rely on a hidden URL for security.
+
+Protect every backend operation and Firestore document using authentication, authorization and security rules.
+
+==================================================
+19. FIREBASE DATABASE DESIGN
+==================================================
+
+Create a properly structured Firestore database.
+
+Suggested collections:
+
+- admins
+- constituency
+- union_councils
+- villages
+- mouzas
+- facilities
+- schools
+- healthcare_facilities
+- infrastructure
+- agriculture
+- businesses
+- complaints
+- complaint_private
+- complaint_updates
+- projects
+- project_documents
+- field_surveys
+- ai_recommendations
+- public_notices
+- news
+- gallery
+- settings
+- audit_logs
+- notification_logs
+
+Use appropriate document relationships and indexes.
+
+Use server timestamps.
+
+Use pagination for large datasets.
+
+Create a proper data validation layer.
+
+Do not download the entire database to the browser.
+
+Keep private data in protected collections.
+
+==================================================
+20. FIREBASE SECURITY
+==================================================
+
+Write production-oriented Firestore Security Rules and Storage Rules.
+
+Requirements:
+
+- Default deny.
+- Authenticated users only for private records.
+- Role-based access.
+- Super Admin-only role management.
+- Public read only for approved public records.
+- No public complaint document listing.
+- No public access to internal notes.
+- No public access to private citizen details.
+- Validate document fields and data types.
+- Protect uploads.
+- Restrict file sizes and allowed file types.
+- Prevent unauthorized edits and deletion.
+- Use server-side authorization for privileged operations.
+- Enable Firebase App Check where supported.
+
+Do not put secret credentials in frontend files.
+
+Provide a secure staff provisioning procedure.
+
+Do not hardcode an administrator email as the only security mechanism.
+
+==================================================
+21. WHATSAPP, SMS, QR AND ANALYTICS
+==================================================
+
+WhatsApp:
+- Click-to-Chat integration.
+- Configurable official contact number.
+- Optional WhatsApp Business API integration.
+
+SMS:
+- Complaint receipt notifications.
+- Complaint status notifications.
+- Public notice alerts with consent.
+- Provider credentials only on backend.
+
+QR codes:
+- Website QR
+- Contact QR
+- Office information QR
+- Visiting card QR
+- Public service portal QR
+
+Analytics:
+- Google Analytics 4 integration.
+- Visitor statistics.
+- Popular public pages.
+- Device and traffic analytics.
+
+Never send complaint descriptions, citizen names, mobile numbers or private records to Google Analytics.
+
+==================================================
+22. PUBLIC DASHBOARD AND DATA VISUALIZATION
+==================================================
+
+Create a public dashboard showing approved aggregate information.
+
+Possible metrics:
+
+- Number of registered Union Councils
+- Number of verified villages
+- Number of registered schools
+- Number of healthcare facilities
+- Number of public facilities
+- Number of published projects
+- Project statuses
+- Public notices
+
+Create charts for:
+
+- Facilities by category
+- Facilities by Union Council
+- Project progress
+- Complaint categories
+- Complaint resolution
+- Infrastructure needs
+
+Never display fake numbers.
+
+If a dataset is incomplete, clearly show that the figures represent currently available verified records.
+
+==================================================
+23. DATA IMPORT AND EXPORT
+==================================================
+
+Create a data management module supporting:
+
+- CSV import
+- Excel import
+- GeoJSON import
+- CSV export
+- Excel export
+- PDF reports
+- Bulk data validation
+- Duplicate detection
+- Import preview
+- Import error reports
+- Rollback or safe correction workflow
+
+Before importing, validate:
+
+- Required fields
+- Coordinates
+- Duplicate records
+- Data types
+- Parent-child relationships
+- Source information
+
+Never silently accept invalid data.
+
+==================================================
+24. IMAGE AND ASSET MANAGEMENT
+==================================================
+
+Inspect the uploaded ZIP and reuse only suitable, relevant assets.
+
+Organize all public images in a clear structure.
+
+Requirements:
+
+- Use correct asset paths.
+- Use consistent image naming.
+- Avoid broken image URLs.
+- Avoid references to local source folders such as /src/assets in production.
+- Use Vite-compatible asset imports or public assets.
+- Add image fallbacks.
+- Add lazy loading.
+- Optimize images.
+- Add alt text.
+- Keep portrait and gallery images replaceable from the admin dashboard.
+
+Do not assume the identity of people in photographs. Use the supplied MPA portrait only after the user confirms it.
+
+==================================================
+25. PERFORMANCE AND ACCESSIBILITY
+==================================================
+
+Implement:
+
+- Lazy loading
+- Code splitting
+- Route-based loading
+- Optimized assets
+- Efficient Firestore queries
+- Pagination
+- Caching where appropriate
+- Accessible forms
+- Keyboard navigation
+- Screen-reader labels
+- Proper contrast
+- Loading indicators
+- Error boundaries
+- Friendly error pages
+- SEO metadata
+- Sitemap
+- Robots.txt
+
+The website should load quickly on ordinary Pakistani mobile internet connections.
+
+==================================================
+26. NETLIFY DEPLOYMENT
+==================================================
+
+Prepare the project for Netlify.
+
+Requirements:
+
+- Correct package.json
+- Correct Vite build configuration
+- Correct build command
+- Correct publish directory
+- SPA redirects
+- Environment variables
+- Production asset paths
+- No local development dependencies required at runtime
+
+Provide:
+
+- netlify.toml
+- _redirects if needed
+- .env.example
+- README.md
+- Firebase deployment instructions
+- Cloud Functions deployment instructions
+- Firestore rules deployment instructions
+- Netlify deployment instructions
+
+Never put actual API secrets in the repository.
+
+==================================================
+27. FINAL TESTING — NO INCOMPLETE FEATURES
+==================================================
+
+Before delivery, test every major feature.
+
+Test:
+
+- Website homepage
+- All public routes
+- Urdu language
+- English language
+- RTL layout
+- Mobile navigation
+- Tablet layout
+- Desktop layout
+- Image loading
+- Map loading
+- Search and filters
+- Complaint submission
+- Secure complaint tracking
+- Authentication
+- Admin permissions
+- Role management
+- Firestore read/write
+- Storage uploads
+- Project creation and updates
+- Field survey submission
+- Data imports
+- Data exports
+- PDF generation
+- AI recommendations
+- AI assistant permissions
+- Netlify build
+- Direct URL refresh
+- Error handling
+
+Fix all errors before declaring the project complete.
+
+Do not leave:
+
+- Broken buttons
+- Empty links
+- Fake forms
+- Hardcoded fake statistics
+- Dummy admin authentication
+- Insecure database rules
+- Broken image paths
+- Mobile overflow
+- Non-functional filters
+- Unhandled errors
+
+If an external integration requires credentials, build the integration correctly, provide configuration instructions and clearly label it as awaiting credentials. Never pretend it is active.
+
+==================================================
+28. REQUIRED FINAL PROJECT STRUCTURE
+==================================================
+
+Organize the project professionally.
+
+Example:
+
+src/
+  components/
+  pages/
+  layouts/
+  admin/
+  admin/components/
+  admin/pages/
+  services/
+  firebase/
+  hooks/
+  context/
+  utils/
+  styles/
+  assets/
+  maps/
+  ai/
+  config/
+
+functions/
+  src/
+  package.json
+
+public/
+  assets/
+  icons/
+
+Also include:
+
+- firestore.rules
+- firestore.indexes.json
+- storage.rules
+- firebase.json
+- netlify.toml
+- .env.example
+- package.json
+- README.md
+
+All application source files must use JavaScript or JSX.
+
+==================================================
+29. DEVELOPMENT PROCESS
+==================================================
+
+Work in this order:
+
+STEP 1:
+Inspect the uploaded ZIP and identify useful assets and content.
+
+STEP 2:
+Create a fresh application structure using JavaScript, React and Vite.
+
+STEP 3:
+Build the complete responsive public website.
+
+STEP 4:
+Implement Firebase Authentication and Firestore.
+
+STEP 5:
+Implement secure admin portal and role permissions.
+
+STEP 6:
+Implement constituency database and GIS map.
+
+STEP 7:
+Implement complaints, projects and field surveys.
+
+STEP 8:
+Implement AI recommendation engine and admin assistant.
+
+STEP 9:
+Implement notices, reports, exports and integrations.
+
+STEP 10:
+Test all pages and features, fix bugs and prepare Netlify deployment.
+
+Do not stop after creating a homepage or visual mockup.
+
+Continue implementing the actual application.
+
+If the complete project is too large for one generation, work in logical phases while preserving the same architecture. Keep a clear implementation checklist and continue until all core functionality is complete.
+
+Do not delete or overwrite completed working features during later phases.
+
+==================================================
+30. FINAL DELIVERY
+==================================================
+
+At the end, provide:
+
+1. Complete working JavaScript source code.
+2. Complete responsive website.
+3. Secure private admin portal.
+4. Firebase configuration structure.
+5. Firestore database structure.
+6. Firestore security rules.
+7. Storage security rules.
+8. JavaScript Cloud Functions.
+9. AI integration.
+10. GIS map.
+11. Complaint management system.
+12. Project management system.
+13. Field survey module.
+14. Data import/export system.
+15. Reports and analytics.
+16. Netlify deployment configuration.
+17. Complete installation instructions.
+18. Required API keys and where to configure them.
+19. List of datasets still required.
+20. Testing results and remaining limitations.
+
+FINAL QUALITY REQUIREMENT:
+
+I want a real, functional, secure, professional and scalable platform — not just a beautiful design.
+
+Every button must perform its actual action.
+
+Every form must validate and save data correctly.
+
+Every admin action must be authorized.
+
+Every public statistic must come from actual database records.
+
+Every AI recommendation must be based on available evidence.
+
+Every map location must have a valid geographical source.
+
+Every feature must have proper loading, success, empty and error states.
+
+Build this as a long-term digital constituency management platform for PP-203 Chichawatni.

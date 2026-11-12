@@ -79,7 +79,8 @@
               return s.replace(/~and~/g, '&');
             })
             .join('?');
-          var rootPath = l.pathname.endsWith('/') ? l.pathname : l.pathname + '/';
+          var cleanPath = l.pathname.replace(/\/index\.html$/i, '');
+          var rootPath = cleanPath.endsWith('/') ? cleanPath : cleanPath + '/';
           var hashTarget = decoded.startsWith('/') ? '#' + decoded : '#/' + decoded;
           window.history.replaceState(null, '', rootPath + hashTarget);
         }

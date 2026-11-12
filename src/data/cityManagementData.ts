@@ -371,3 +371,420 @@ export function generateSampleCityProjectTemplates(): Omit<CityProject, 'id'>[] 
   }
   return list;
 }
+
+import type {
+  CityArea,
+  CityAsset,
+  CityBudgetRecord,
+  CityComplaint,
+  CityNotice,
+  CityReport,
+  CityRoad,
+  CitySewerageAsset,
+  CitySurvey,
+  CityWasteRoute,
+  CityWaterFacility
+} from '../types';
+
+export function getDemoCitySandboxState(): {
+  areas: CityArea[];
+  roads: CityRoad[];
+  water: CityWaterFacility[];
+  sewerage: CitySewerageAsset[];
+  waste: CityWasteRoute[];
+  assets: CityAsset[];
+  projects: CityProject[];
+  budgets: CityBudgetRecord[];
+  departments: CityDepartment[];
+  complaints: CityComplaint[];
+  surveys: CitySurvey[];
+  reports: CityReport[];
+  notices: CityNotice[];
+} {
+  const now = new Date().toISOString();
+  const areas: CityArea[] = [
+    {
+      id: 'area-test-1',
+      name: 'Model Town & Block A–C (Test)',
+      nameUrdu: 'ماڈل ٹاؤن و بلاک اے تا سی',
+      wardCode: 'Ward-01',
+      zoneType: 'Residential',
+      populationVerified: 42500,
+      populationSource: 'Test / Demo Estimate',
+      streetsCount: 48,
+      householdsVerified: 6800,
+      latitude: 30.5335,
+      longitude: 72.6978,
+      notes: 'Test sandbox ward record.',
+      updatedAt: now
+    },
+    {
+      id: 'area-test-2',
+      name: 'Main Bazaar & Railway Road (Test)',
+      nameUrdu: 'مین بازار و ریلوے روڈ',
+      wardCode: 'Ward-02',
+      zoneType: 'Commercial',
+      populationVerified: 31200,
+      populationSource: 'Test / Demo Estimate',
+      streetsCount: 34,
+      householdsVerified: 4950,
+      latitude: 30.5301,
+      longitude: 72.7031,
+      notes: 'Central commercial hub (Test data).',
+      updatedAt: now
+    },
+    {
+      id: 'area-test-3',
+      name: 'College Road & Okanwala Belt (Test)',
+      nameUrdu: 'کالج روڈ و اوکانوالہ بیلٹ',
+      wardCode: 'Ward-03',
+      zoneType: 'Mixed',
+      populationVerified: 38900,
+      populationSource: 'Test / Demo Estimate',
+      streetsCount: 52,
+      householdsVerified: 6100,
+      latitude: 30.5245,
+      longitude: 72.6902,
+      notes: 'Education and residential expansion belt (Test data).',
+      updatedAt: now
+    }
+  ];
+
+  const roads: CityRoad[] = [
+    {
+      id: 'rd-test-1',
+      name: 'G.T. Road Urban Service Corridor (Test)',
+      locality: 'Model Town & Main Chowk',
+      roadType: 'Main Road',
+      lengthKm: 4.2,
+      surfaceType: 'Asphalt',
+      condition: 'Good',
+      maintenancePriority: 'Medium',
+      lastInspected: '2026-10-15',
+      latitude: 30.534,
+      longitude: 72.701,
+      updatedAt: now
+    },
+    {
+      id: 'rd-test-2',
+      name: 'College Road Link Section (Test)',
+      locality: 'College Road Sector',
+      roadType: 'Main Road',
+      lengthKm: 2.8,
+      surfaceType: 'Asphalt',
+      condition: 'Poor',
+      maintenancePriority: 'High',
+      lastInspected: '2026-10-20',
+      notes: 'Patchwork and drainage shoulder survey flagged.',
+      latitude: 30.525,
+      longitude: 72.692,
+      updatedAt: now
+    }
+  ];
+
+  const water: CityWaterFacility[] = [
+    {
+      id: 'wat-test-1',
+      name: 'Model Town Solar Filtration Plant (Test)',
+      facilityType: 'Filtration Plant',
+      locality: 'Model Town Chichawatni',
+      status: 'Operational',
+      qualityResult: 'TDS 290 ppm (Tested)',
+      lastTested: '2026-10-25',
+      latitude: 30.532,
+      longitude: 72.696,
+      updatedAt: now
+    },
+    {
+      id: 'wat-test-2',
+      name: 'Railway Bazaar Tube Well #2 (Test)',
+      facilityType: 'Tube Well',
+      locality: 'Main Bazaar',
+      status: 'Under Repair',
+      repairNotes: 'Motor rewinding queued in test record.',
+      latitude: 30.529,
+      longitude: 72.705,
+      updatedAt: now
+    }
+  ];
+
+  const sewerage: CitySewerageAsset[] = [
+    {
+      id: 'sew-test-1',
+      name: 'Main Disposal Pumping Station (Test)',
+      assetType: 'Disposal Station',
+      locality: 'South Outfall Belt',
+      condition: 'Clear',
+      lastInspected: '2026-10-22',
+      latitude: 30.519,
+      longitude: 72.706,
+      updatedAt: now
+    },
+    {
+      id: 'sew-test-2',
+      name: 'Burewala Road Junction Culvert (Test)',
+      assetType: 'Blocked Drain',
+      locality: 'Burewala Road',
+      condition: 'Blocked',
+      lastInspected: '2026-10-28',
+      notes: 'Desilting inspection flagged.',
+      latitude: 30.522,
+      longitude: 72.712,
+      updatedAt: now
+    }
+  ];
+
+  const waste: CityWasteRoute[] = [
+    {
+      id: 'wst-test-1',
+      routeCode: 'RT-01',
+      routeName: 'Main Bazaar & Railway Road Morning Beat (Test)',
+      locality: 'Main Bazaar',
+      collectionPointsCount: 18,
+      disposalSite: 'MC Transfer Yard',
+      vehicleReg: 'SWL-MC-104',
+      vehicleStatus: 'Active',
+      assignedStaffCount: 12,
+      wasteTonsMeasured: 8.5,
+      schedule: 'Daily 06:00 AM',
+      status: 'Completed',
+      updatedAt: now
+    }
+  ];
+
+  const assets: CityAsset[] = [
+    {
+      id: 'ast-test-1',
+      domain: 'Parks',
+      name: 'Chichawatni Central Family Park (Test)',
+      locality: 'Model Town',
+      subType: 'Family Park',
+      status: 'Open',
+      condition: 'Good',
+      latitude: 30.5345,
+      longitude: 72.6955,
+      updatedAt: now
+    },
+    {
+      id: 'ast-test-2',
+      domain: 'Health',
+      name: 'THQ Hospital Chichawatni (Test)',
+      locality: 'Hospital Road',
+      subType: 'THQ Hospital',
+      status: 'Operational',
+      condition: 'Good',
+      latitude: 30.531,
+      longitude: 72.689,
+      updatedAt: now
+    },
+    {
+      id: 'ast-test-3',
+      domain: 'Education',
+      name: 'Govt. Municipal High School (Test)',
+      locality: 'College Road',
+      subType: 'High School',
+      status: 'Operational',
+      condition: 'Average',
+      latitude: 30.526,
+      longitude: 72.693,
+      updatedAt: now
+    },
+    {
+      id: 'ast-test-4',
+      domain: 'Streetlights',
+      name: 'G.T. Road & Bazaar LED Corridor (Test)',
+      locality: 'Main Bazaar & GT Road',
+      subType: 'LED Streetlights',
+      status: 'Partially Active',
+      functionalCount: 142,
+      nonFunctionalCount: 18,
+      updatedAt: now
+    }
+  ];
+
+  const projects: CityProject[] = [
+    {
+      id: 'cp-test-1',
+      projectCode: 'CW-2027-T01',
+      name: 'Model Town Dual-Tap Filtration & Shade Upgrade (Test)',
+      sectorCode: 'B',
+      sector: 'B. Water Supply',
+      description: 'Test sandbox approved project entry for immediate dashboard & chart preview.',
+      exactLocation: 'Model Town Block B Park Corner',
+      locality: 'Model Town',
+      department: 'Municipal Committee Chichawatni',
+      estimatedCostPkr: 4500000,
+      approvedCostPkr: 4200000,
+      fundsReleasedPkr: 3000000,
+      expenditurePkr: 2450000,
+      fundingSource: 'Municipal Funds',
+      priority: 'High',
+      feasibility: 'High',
+      startDate: '2026-09-01',
+      expectedCompletionDate: '2027-03-31',
+      status: 'In Progress',
+      targetYear: 2027,
+      physicalProgressPercent: 62,
+      financialProgressPercent: 58,
+      latitude: 30.533,
+      longitude: 72.696,
+      updatedAt: now
+    },
+    {
+      id: 'cp-test-2',
+      projectCode: 'CW-2028-T02',
+      name: 'College Road Drainage & Resurfacing Proposal (Test)',
+      sectorCode: 'A',
+      sector: 'A. Roads & Transportation',
+      description: 'Test proposed Master Plan 2028 item — separated cleanly from approved funds.',
+      exactLocation: 'College Road Chowk to Degree College',
+      locality: 'College Road Sector',
+      department: 'Communication & Works (C&W) / Highways Department',
+      estimatedCostPkr: 18500000,
+      approvedCostPkr: 0,
+      fundsReleasedPkr: 0,
+      expenditurePkr: 0,
+      fundingSource: 'Punjab Government',
+      priority: 'Critical',
+      feasibility: 'Medium',
+      startDate: '2028-01-15',
+      expectedCompletionDate: '2028-09-30',
+      status: 'Proposed',
+      targetYear: 2028,
+      physicalProgressPercent: 0,
+      financialProgressPercent: 0,
+      latitude: 30.525,
+      longitude: 72.692,
+      updatedAt: now
+    }
+  ];
+
+  const budgets: CityBudgetRecord[] = [
+    {
+      id: 'bdg-test-1',
+      title: 'Water Filtration Maintenance Allocation (Test)',
+      fiscalYear: '2026-27',
+      fundingSource: 'Municipal Funds',
+      fundingStage: 'Approved',
+      amountPkr: 4200000,
+      sector: 'B. Water Supply',
+      projectCode: 'CW-2027-T01',
+      updatedBy: 'asad@gmail.com',
+      updatedAt: now
+    },
+    {
+      id: 'bdg-test-2',
+      title: 'Water Filtration First Tranche Release (Test)',
+      fiscalYear: '2026-27',
+      fundingSource: 'Municipal Funds',
+      fundingStage: 'Released',
+      amountPkr: 3000000,
+      sector: 'B. Water Supply',
+      projectCode: 'CW-2027-T01',
+      updatedBy: 'asad@gmail.com',
+      updatedAt: now
+    }
+  ];
+
+  const departments: CityDepartment[] = STRUCTURAL_CITY_DEPARTMENTS.slice(0, 6).map((d, i) => ({
+    ...d,
+    id: `dept-test-${i + 1}`,
+    updatedAt: now
+  }));
+
+  const complaints: CityComplaint[] = [
+    {
+      id: 'CITY-2026-TEST1',
+      trackingId: 'CITY-2026-TEST1',
+      citizenName: 'Test Citizen (Demo)',
+      phone: '+923000000201',
+      area: 'Ward-02',
+      locality: 'Railway Road Bazaar',
+      category: 'Streetlights',
+      description: 'Test municipal complaint: 3 LED fixtures non-functional near junction.',
+      status: 'In Progress',
+      priority: 'High',
+      department: 'Municipal Committee Chichawatni',
+      latitude: 30.5305,
+      longitude: 72.703,
+      createdAt: '2026-10-25T10:00:00.000Z',
+      updatedAt: now
+    },
+    {
+      id: 'CITY-2026-TEST2',
+      trackingId: 'CITY-2026-TEST2',
+      citizenName: 'Test Resident (Demo)',
+      phone: '+923000000202',
+      area: 'Ward-01',
+      locality: 'Model Town Block B',
+      category: 'Garbage',
+      description: 'Test municipal complaint: Morning collection trolley request.',
+      status: 'Resolved',
+      priority: 'Medium',
+      department: 'Municipal Committee Chichawatni',
+      resolutionNotes: 'Cleared by morning sanitation beat RT-01.',
+      createdAt: '2026-10-20T09:00:00.000Z',
+      updatedAt: now
+    }
+  ];
+
+  const surveys: CitySurvey[] = [
+    {
+      id: 'csrv-test-1',
+      title: 'College Road Shoulder & Drain Inspection (Test)',
+      sector: 'A. Roads & Transportation',
+      locality: 'College Road',
+      conditionGrade: 'Poor',
+      repairRecommendation: 'Clear side culvert and patch 400m asphalt shoulder.',
+      officerName: 'Demo Field Officer',
+      verificationStatus: 'Verified',
+      latitude: 30.525,
+      longitude: 72.692,
+      createdAt: '2026-10-21T11:00:00.000Z'
+    }
+  ];
+
+  const reports: CityReport[] = [
+    {
+      id: 'crep-test-1',
+      reportType: 'Monthly Department Performance Report',
+      title: 'Chichawatni Civic Coordination Summary (Test Preview)',
+      period: '2026-10',
+      dataSource: 'Test Sandbox Dataset',
+      department: 'Municipal Coordination Desk',
+      verificationStatus: 'Provisional',
+      isPublished: true,
+      summary: 'Sample provisional test summary demonstrating monthly sanitation beats, filtration plant testing, and complaint tracking metrics.',
+      lastUpdated: now
+    }
+  ];
+
+  const notices: CityNotice[] = [
+    {
+      id: 'cnot-test-1',
+      title: 'Scheduled Water Filtration Filter Servicing — Ward 1 & 2 (Test Notice)',
+      titleUrdu: 'وارڈ 1 اور 2 میں واٹر فلٹریشن پلانٹ کی سروسنگ کا شیڈول',
+      category: 'Municipal Advisory',
+      publishDate: '2026-11-01',
+      description: 'Sample municipal maintenance notice for public portal demonstration.',
+      isPublished: true
+    }
+  ];
+
+  return {
+    areas,
+    roads,
+    water,
+    sewerage,
+    waste,
+    assets,
+    projects,
+    budgets,
+    departments,
+    complaints,
+    surveys,
+    reports,
+    notices
+  };
+}
+

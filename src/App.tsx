@@ -3,6 +3,7 @@ import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { DataProvider, useData } from './context/DataContext';
 import { AuthProvider, AdminModuleId } from './context/AuthContext';
 import { CityDataProvider } from './context/CityDataContext';
+import { CitizenNetworkProvider } from './context/CitizenNetworkContext';
 import { PolicyModalType } from './types';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
@@ -17,6 +18,7 @@ import { NewsSection } from './components/NewsSection';
 import { GallerySection } from './components/GallerySection';
 import { ContactSection } from './components/ContactSection';
 import { CityPublicPortal } from './components/CityPublicPortal';
+import { CommunityNetworkPortal } from './components/CommunityNetworkPortal';
 import { Footer } from './components/Footer';
 import { PolicyModals } from './components/PolicyModals';
 import { WhatsAppWidget } from './components/WhatsAppWidget';
@@ -63,7 +65,8 @@ const VALID_ADMIN_ROUTES: AdminModuleId[] = [
   'city-departments',
   'city-surveys',
   'city-reports',
-  'city-ai'
+  'city-ai',
+  'city-citizens'
 ];
 
 const PUBLIC_TABS = [
@@ -71,6 +74,7 @@ const PUBLIC_TABS = [
   'about',
   'constituency',
   'city',
+  'community',
   'projects',
   'map',
   'assembly',
@@ -257,7 +261,15 @@ function MainAppContent() {
                   </p>
                 </div>
 
-                <div className="flex flex-col xs:flex-row items-stretch xs:items-center justify-center gap-2.5 shrink-0 w-full md:w-auto">
+                <div className="flex flex-col xs:flex-row flex-wrap items-stretch xs:items-center justify-center gap-2.5 shrink-0 w-full md:w-auto">
+                  <button
+                    onClick={() => navigatePublic('community')}
+                    className="min-h-[48px] bg-white text-[#123B28] hover:bg-emerald-50 font-bold px-5 py-3 rounded-xl text-xs sm:text-sm transition shadow-sm inline-flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <span>
+                      {language === 'ur' ? 'کمیونٹی نیٹ ورک رجسٹریشن' : 'Register Now · Community Network'}
+                    </span>
+                  </button>
                   <button
                     onClick={() => navigatePublic('complaints', 'submit')}
                     className="min-h-[48px] bg-[#C9A227] hover:bg-[#b5901d] text-[#123B28] font-bold px-5 py-3 rounded-xl text-xs sm:text-sm transition shadow-sm inline-flex items-center justify-center gap-2 cursor-pointer"
@@ -335,6 +347,9 @@ function MainAppContent() {
           />
         )}
         {activeTab === 'city' && <CityPublicPortal />}
+        {activeTab === 'community' && (
+          <CommunityNetworkPortal onNavigatePublic={(tab) => navigatePublic(tab)} />
+        )}
         {activeTab === 'projects' && <ProjectsSection />}
         {activeTab === 'map' && (
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-4">
@@ -413,7 +428,9 @@ export default function App() {
       <AuthProvider>
         <DataProvider>
           <CityDataProvider>
-            <MainAppContent />
+            <CitizenNetworkProvider>
+              <MainAppContent />
+            </CitizenNetworkProvider>
           </CityDataProvider>
         </DataProvider>
       </AuthProvider>

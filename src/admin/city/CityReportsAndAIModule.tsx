@@ -217,8 +217,18 @@ export const CityReportsAndAIModule: React.FC<CityReportsAndAIModuleProps> = ({ 
     setMessages((prev) => [...prev, { role: 'user', text: q }]);
     setAiLoading(true);
 
+    const isStaticHost = typeof window !== 'undefined' && window.location.hostname.endsWith('github.io');
+    if (isStaticHost) {
+      setMessages((prev) => [
+        ...prev,
+        { role: 'assistant', text: buildLocalDeterministicAnswer(q), mode: 'Offline DB Summary' }
+      ]);
+      setAiLoading(false);
+      return;
+    }
+
     try {
-      const res = await fetch('/api/city-assistant', {
+      const res = await fetch('./api/city-assistant', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: q, context: buildDatabaseContextSnapshot })

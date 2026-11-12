@@ -37,7 +37,8 @@ import {
 } from '../types';
 import {
   STRUCTURAL_CITY_DEPARTMENTS,
-  generateSampleCityProjectTemplates
+  generateSampleCityProjectTemplates,
+  getDemoCitySandboxState
 } from '../data/cityManagementData';
 
 const OFFLINE_SURVEY_KEY = 'pp203_offline_city_surveys';
@@ -182,23 +183,25 @@ export const CityDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const { currentUser, isAuthenticated, isDemoSession } = useAuth();
   const isRealAdmin = isAuthenticated && !isDemoSession;
 
-  const [cityAreas, setCityAreas] = useState<CityArea[]>([]);
+  const initialDemo = React.useMemo(() => getDemoCitySandboxState(), []);
+
+  const [cityAreas, setCityAreas] = useState<CityArea[]>(() => initialDemo.areas);
   const [cityLocalities, setCityLocalities] = useState<CityLocality[]>([]);
-  const [cityRoads, setCityRoads] = useState<CityRoad[]>([]);
-  const [cityAssets, setCityAssets] = useState<CityAsset[]>([]);
-  const [cityWaterFacilities, setCityWaterFacilities] = useState<CityWaterFacility[]>([]);
-  const [citySewerageAssets, setCitySewerageAssets] = useState<CitySewerageAsset[]>([]);
+  const [cityRoads, setCityRoads] = useState<CityRoad[]>(() => initialDemo.roads);
+  const [cityAssets, setCityAssets] = useState<CityAsset[]>(() => initialDemo.assets);
+  const [cityWaterFacilities, setCityWaterFacilities] = useState<CityWaterFacility[]>(() => initialDemo.water);
+  const [citySewerageAssets, setCitySewerageAssets] = useState<CitySewerageAsset[]>(() => initialDemo.sewerage);
   const [cityWasteRoutes, setCityWasteRoutes] = useState<CityWasteRoute[]>([]);
-  const [cityProjects, setCityProjects] = useState<CityProject[]>([]);
+  const [cityProjects, setCityProjects] = useState<CityProject[]>(() => initialDemo.projects);
   const [cityProjectUpdates, setCityProjectUpdates] = useState<CityProjectUpdate[]>([]);
   const [cityBudgets, setCityBudgets] = useState<CityBudgetRecord[]>([]);
-  const [cityDepartments, setCityDepartments] = useState<CityDepartment[]>([]);
+  const [cityDepartments, setCityDepartments] = useState<CityDepartment[]>(() => initialDemo.departments);
   const [cityComplaints, setCityComplaints] = useState<CityComplaint[]>([]);
   const [citySurveys, setCitySurveys] = useState<CitySurvey[]>([]);
   const [offlineSurveys, setOfflineSurveys] = useState<CitySurvey[]>(() => loadOfflineSurveyQueue());
   const [cityInspections, setCityInspections] = useState<CityInspection[]>([]);
-  const [cityReports, setCityReports] = useState<CityReport[]>([]);
-  const [cityNotices, setCityNotices] = useState<CityNotice[]>([]);
+  const [cityReports, setCityReports] = useState<CityReport[]>(() => initialDemo.reports);
+  const [cityNotices, setCityNotices] = useState<CityNotice[]>(() => initialDemo.notices);
   const [cityAuditLogs, setCityAuditLogs] = useState<CityAuditLog[]>([]);
   const [isLoadingCityData, setIsLoadingCityData] = useState(true);
 
@@ -245,7 +248,9 @@ export const CityDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             ...(d.data() as Omit<T, 'id'>),
             id: d.id
           })) as T[];
-          setter(rows);
+          if (rows.length > 0 || isRealAdmin) {
+            setter(rows);
+          }
         },
         (err) => {
           console.warn(`City listener [${colName}]:`, err);
@@ -278,7 +283,13 @@ export const CityDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // Private City collections (Admin / Staff authenticated sessions only)
   useEffect(() => {
     if (!isRealAdmin) {
-      if (!isDemoSession) {
+      if (isDemoSession) {
+        const sandbox = getDemoCitySandboxState();
+        setCityWasteRoutes((prev) => (prev.length === 0 ? sandbox.waste : prev));
+        setCityBudgets((prev) => (prev.length === 0 ? sandbox.budgets : prev));
+        setCityComplaints((prev) => (prev.length === 0 ? sandbox.complaints : prev));
+        setCitySurveys((prev) => (prev.length === 0 ? sandbox.surveys : prev));
+      } else {
         setCityWasteRoutes([]);
         setCityBudgets([]);
         setCityComplaints([]);

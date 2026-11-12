@@ -770,3 +770,227 @@ export interface CityAuditLog {
   timestamp: string;
 }
 
+// ============================================================================
+// CHICHAWATNI CITIZEN REGISTRATION & COMMUNITY NETWORK
+// ============================================================================
+
+export type CitizenInterestTopic =
+  | 'Roads and Infrastructure'
+  | 'Cleanliness and Sanitation'
+  | 'Water Supply'
+  | 'Education'
+  | 'Healthcare'
+  | 'Youth and Sports'
+  | 'Business and Employment'
+  | 'Agriculture'
+  | 'Environment'
+  | 'Community Welfare'
+  | 'Public Safety'
+  | 'General City Updates';
+
+export type CitizenContactMethod = 'WhatsApp' | 'SMS' | 'Email' | 'In-App';
+
+export type CitizenConsentCategory =
+  | 'publicDevelopmentUpdates'
+  | 'cityServiceAnnouncements'
+  | 'communityEventNotifications'
+  | 'surveyInvitations'
+  | 'emergencyPublicAlerts';
+
+export interface CitizenProfile {
+  id: string; // Firebase Auth UID
+  uid: string;
+  fullName: string;
+  phoneE164: string;
+  phoneHash: string;
+  phoneVerified: boolean;
+  verificationMethod: 'firebase_phone_auth' | 'pending_verification';
+  email?: string;
+  cityLocality: string;
+  villageArea?: string;
+  ucWard?: string;
+  profession?: string;
+  preferredLanguage: Language;
+  preferredContactMethod: CitizenContactMethod;
+  accountStatus: 'Active' | 'Inactive' | 'Deletion Requested';
+  retentionPolicyAcceptedAt: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CitizenConsent {
+  id: string;
+  uid: string;
+  publicDevelopmentUpdates: boolean;
+  cityServiceAnnouncements: boolean;
+  communityEventNotifications: boolean;
+  surveyInvitations: boolean;
+  emergencyPublicAlerts: boolean;
+  nonPoliticalStatementAccepted: boolean;
+  privacyPolicyAccepted: boolean;
+  unsubscribedAll: boolean;
+  updatedAt: string;
+}
+
+export interface CitizenInterestRecord {
+  id: string;
+  uid: string;
+  interests: CitizenInterestTopic[];
+  cityLocality: string;
+  profession?: string;
+  updatedAt: string;
+}
+
+export interface CommunicationPreferences {
+  id: string;
+  uid: string;
+  preferredLanguage: Language;
+  preferredChannel: CitizenContactMethod;
+  whatsappOptIn: boolean;
+  smsOptIn: boolean;
+  emailOptIn: boolean;
+  inAppOptIn: boolean;
+  unsubscribedAll: boolean;
+  updatedAt: string;
+}
+
+export interface CitizenGroup {
+  id: string;
+  name: string;
+  nameUrdu?: string;
+  interestCategory: CitizenInterestTopic | 'Multi-Sector Civic';
+  localityFilter?: string;
+  description: string;
+  isNonPoliticalConfirmed: boolean;
+  isActive: boolean;
+  memberCount: number;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CitizenGroupMember {
+  id: string; // `${groupId}_${uid}`
+  groupId: string;
+  groupName: string;
+  uid: string;
+  memberDisplayName: string;
+  locality: string;
+  joinedVia: 'Citizen Self-Join' | 'Admin Organized';
+  status: 'Active' | 'Left';
+  joinedAt: string;
+}
+
+export interface CitizenSuggestion {
+  id: string;
+  uid: string;
+  citizenDisplayName: string;
+  locality: string;
+  sector: string;
+  title: string;
+  description: string;
+  status:
+    | 'Submitted'
+    | 'Under Community Review'
+    | 'Forwarded for Technical Feasibility'
+    | 'Archived';
+  adminFeedback?: string;
+  isPublishedSummary: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CitizenSurveyQuestion {
+  id: string;
+  prompt: string;
+  promptUrdu?: string;
+  options: string[];
+}
+
+export interface CitizenSurvey {
+  id: string;
+  title: string;
+  titleUrdu?: string;
+  topic: string;
+  description: string;
+  questions: CitizenSurveyQuestion[];
+  status: 'Draft' | 'Active' | 'Closed';
+  responseCount: number;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CitizenSurveyResponse {
+  id: string; // uid
+  surveyId: string;
+  uid: string;
+  locality: string;
+  answers: Record<string, string>;
+  submittedAt: string;
+}
+
+export interface CitizenVolunteer {
+  id: string;
+  uid: string;
+  volunteerName: string;
+  locality: string;
+  initiativeTitle: string;
+  areaOfInterest: CitizenInterestTopic;
+  availability: string;
+  skillsNote?: string;
+  status: 'Registered' | 'Approved' | 'Active' | 'Completed' | 'Withdrawn';
+  isNonPoliticalConfirmed: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type OrganizationCategory =
+  | 'Local Business'
+  | 'Traders & Market Association'
+  | 'NGO & Welfare Organization'
+  | 'Educational Institution'
+  | 'Healthcare Institution'
+  | 'Community Organization';
+
+export interface RegisteredOrganization {
+  id: string;
+  submittedByUid: string;
+  orgName: string;
+  orgCategory: OrganizationCategory;
+  locality: string;
+  registrationNumber?: string;
+  focalPersonName: string;
+  publicContactPhone?: string;
+  publicEmail?: string;
+  description: string;
+  servicesOffered?: string;
+  verificationStatus: 'Pending Verification' | 'Verified' | 'Rejected';
+  isPublicPublished: boolean;
+  verifiedByAdmin?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CommunicationLog {
+  id: string;
+  batchId: string;
+  channel: CitizenContactMethod;
+  consentCategory: CitizenConsentCategory;
+  templateName: string;
+  subject: string;
+  messageBody: string;
+  recipientUid: string;
+  recipientName: string;
+  recipientMaskedContact: string;
+  deliveryStatus:
+    | 'Queued'
+    | 'Sent'
+    | 'Delivered'
+    | 'Failed'
+    | 'Skipped - No Consent'
+    | 'Simulated - Gateway Pending';
+  failedReason?: string;
+  sentByEmail: string;
+  sentAt: string;
+}
