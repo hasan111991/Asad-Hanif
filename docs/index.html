@@ -13,19 +13,24 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Noto+Nastaliq+Urdu:wght@400..700&display=swap">
     <script>
-      // Automatically ensure trailing slash for GitHub Pages repo subpaths (e.g. /my-repo -> /my-repo/)
+      // Automatic GitHub Pages handler:
+      // If deployed on GitHub Pages from repository root (where /src/main.tsx is uncompiled),
+      // seamlessly forward to /docs/ where the pre-compiled production build is hosted.
       (function() {
         var l = window.location;
         if (l.hostname.endsWith('github.io')) {
-          var p = l.pathname.split('/').filter(Boolean);
-          if (p.length === 1 && !l.pathname.endsWith('/')) {
-            window.location.replace(l.origin + '/' + p[0] + '/' + l.search + l.hash);
+          var p = l.pathname;
+          if (!p.includes('/docs')) {
+            var clean = p.replace(/\/+$/, '');
+            var parts = clean.split('/').filter(Boolean);
+            var repo = parts.length > 0 ? '/' + parts[0] : '';
+            window.location.replace(l.origin + repo + '/docs/' + l.search + l.hash);
           }
         }
       })();
     </script>
-    <script type="module" crossorigin src="./assets/index-CTvLGb7t.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-Ceby9mJ7.css">
+    <script type="module" crossorigin src="./assets/index-BhUrXZWd.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-DeNCMMXh.css">
   </head>
   <body>
     <div id="root"></div>
