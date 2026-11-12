@@ -56,10 +56,12 @@
         "officialPhone": { "type": "string", "maxLength": 40 },
         "verifiedNotice": { "type": "string", "maxLength": 1000 },
         "verifiedNoticeUrdu": { "type": "string", "maxLength": 1000 },
-        "photoUrl": { "type": "string", "maxLength": 500 },
-        "leadPortraitUrl": { "type": "string", "maxLength": 500 },
-        "assemblyImageUrl": { "type": "string", "maxLength": 500 },
-        "chichawatniSceneUrl": { "type": "string", "maxLength": 500 }
+        "photoUrl": { "type": "string", "maxLength": 150000 },
+        "leadPortraitUrl": { "type": "string", "maxLength": 150000 },
+        "assemblyImageUrl": { "type": "string", "maxLength": 150000 },
+        "chichawatniSceneUrl": { "type": "string", "maxLength": 150000 },
+        "introVideoUrl": { "type": "string", "maxLength": 500000 },
+        "constituencyVideoUrl": { "type": "string", "maxLength": 500000 }
       },
       "required": ["fullName", "fullNameUrdu", "constituency", "bio"]
     },
@@ -85,7 +87,8 @@
         "budget": { "type": "string", "maxLength": 100 },
         "startDate": { "type": "string", "maxLength": 40 },
         "completionDate": { "type": "string", "maxLength": 40 },
-        "imageUrl": { "type": "string", "maxLength": 500 },
+        "imageUrl": { "type": "string", "maxLength": 150000 },
+        "videoUrl": { "type": "string", "maxLength": 500000 },
         "fundingType": { "type": "string", "maxLength": 100 },
         "fundingTypeUrdu": { "type": "string", "maxLength": 100 },
         "progressPercent": { "type": "number" },
@@ -117,6 +120,8 @@
         "referenceNo": { "type": "string", "maxLength": 80 },
         "summary": { "type": "string", "maxLength": 3000 },
         "summaryUrdu": { "type": "string", "maxLength": 3000 },
+        "imageUrl": { "type": "string", "maxLength": 150000 },
+        "videoUrl": { "type": "string", "maxLength": 500000 },
         "status": { "type": "string", "maxLength": 80 }
       },
       "required": ["title", "category", "sessionDate", "summary"]
@@ -136,7 +141,8 @@
         "summaryUrdu": { "type": "string", "maxLength": 1000 },
         "content": { "type": "string", "maxLength": 6000 },
         "contentUrdu": { "type": "string", "maxLength": 6000 },
-        "imageUrl": { "type": "string", "maxLength": 500 },
+        "imageUrl": { "type": "string", "maxLength": 150000 },
+        "videoUrl": { "type": "string", "maxLength": 500000 },
         "isFeatured": { "type": "boolean" }
       },
       "required": ["title", "category", "date", "summary"]
@@ -152,7 +158,9 @@
         "category": { "type": "string", "maxLength": 100 },
         "categoryUrdu": { "type": "string", "maxLength": 100 },
         "mediaType": { "type": "string", "enum": ["photo", "video"] },
-        "mediaUrl": { "type": "string", "maxLength": 600 },
+        "mediaUrl": { "type": "string", "maxLength": 500000 },
+        "imageUrl": { "type": "string", "maxLength": 150000 },
+        "videoUrl": { "type": "string", "maxLength": 500000 },
         "date": { "type": "string", "maxLength": 40 },
         "caption": { "type": "string", "maxLength": 600 },
         "captionUrdu": { "type": "string", "maxLength": 600 }
@@ -231,6 +239,8 @@
         "publishDate": { "type": "string", "maxLength": 40 },
         "description": { "type": "string", "maxLength": 3000 },
         "descriptionUrdu": { "type": "string", "maxLength": 3000 },
+        "imageUrl": { "type": "string", "maxLength": 150000 },
+        "videoUrl": { "type": "string", "maxLength": 500000 },
         "fileUrl": { "type": "string", "maxLength": 500 },
         "fileName": { "type": "string", "maxLength": 200 },
         "fileSize": { "type": "string", "maxLength": 40 },

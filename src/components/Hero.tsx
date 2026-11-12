@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
 import { getAssetUrl, PORTRAIT_IMAGE_PATH } from '../utils/assetUrl';
+import { MediaPreviewBlock } from './MediaPreviewBlock';
 import {
   ShieldCheck,
   Building2,
@@ -10,7 +11,9 @@ import {
   UserCheck,
   PhoneCall,
   ArrowRight,
-  MessageSquare
+  MessageSquare,
+  PlayCircle,
+  X
 } from 'lucide-react';
 
 interface HeroProps {
@@ -20,6 +23,7 @@ interface HeroProps {
 export const Hero: React.FC<HeroProps> = ({ onNavigate }) => {
   const { language, t } = useLanguage();
   const { profile, unionCouncils, projects, assemblyActivities, complaints } = useData();
+  const [showIntroVideo, setShowIntroVideo] = useState(false);
 
   const resolvedCount = complaints.filter(
     (c) => c.status === 'Resolved' || c.status === 'Closed'
@@ -89,6 +93,17 @@ export const Hero: React.FC<HeroProps> = ({ onNavigate }) => {
                 <PhoneCall className="w-4 h-4 text-[#C9A227] shrink-0" />
                 <span>{t('contactOfficeBtn')}</span>
               </button>
+
+              {profile.introVideoUrl && profile.introVideoUrl.trim() && (
+                <button
+                  type="button"
+                  onClick={() => setShowIntroVideo(true)}
+                  className="min-h-[48px] bg-[#123B28]/80 hover:bg-[#123B28] text-white font-semibold px-5 py-3 rounded-xl border border-[#C9A227]/60 transition flex items-center justify-center gap-2 text-sm cursor-pointer"
+                >
+                  <PlayCircle className="w-4 h-4 text-[#C9A227] shrink-0" />
+                  <span>{language === 'ur' ? 'ویڈیو پیغام' : 'Watch Video'}</span>
+                </button>
+              )}
             </div>
           </div>
 
@@ -198,6 +213,32 @@ export const Hero: React.FC<HeroProps> = ({ onNavigate }) => {
           </div>
         </div>
       </div>
+
+      {/* Intro Video Modal */}
+      {showIntroVideo && profile.introVideoUrl && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white text-[#1B241E] rounded-2xl max-w-2xl w-full p-5 sm:p-6 space-y-4 shadow-2xl relative">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="font-editorial text-base sm:text-lg font-bold text-[#123B28]">
+                {language === 'ur' ? profile.fullNameUrdu : profile.fullName}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowIntroVideo(false)}
+                className="w-10 h-10 rounded-xl hover:bg-slate-100 text-slate-600 flex items-center justify-center cursor-pointer"
+                aria-label="Close video"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <MediaPreviewBlock
+              videoUrl={profile.introVideoUrl}
+              title={profile.fullName}
+              heightClass="h-64 sm:h-96"
+            />
+          </div>
+        </div>
+      )}
     </section>
   );
 };

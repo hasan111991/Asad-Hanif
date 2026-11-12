@@ -3,7 +3,8 @@ import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
 import { Project, ProjectCategory, ProjectStatus } from '../types';
 import { getAssetUrl, CHICHAWATNI_SCENE_PATH } from '../utils/assetUrl';
-import { HardHat, MapPin, X } from 'lucide-react';
+import { MediaPreviewBlock } from './MediaPreviewBlock';
+import { HardHat, MapPin, PlayCircle, X } from 'lucide-react';
 
 export const ProjectsSection: React.FC = () => {
   const { language, t } = useLanguage();
@@ -136,6 +137,12 @@ export const ProjectsSection: React.FC = () => {
                     {project.status}
                   </span>
                 </div>
+                {project.videoUrl && project.videoUrl.trim() && (
+                  <div className="absolute top-3 right-3 rtl:right-auto rtl:left-3 bg-[#123B28]/90 text-[#C9A227] text-[10px] font-bold px-2.5 py-1 rounded-md inline-flex items-center gap-1 shadow-xs">
+                    <PlayCircle className="w-3 h-3" />
+                    <span>{language === 'ur' ? 'ویڈیو' : 'Video'}</span>
+                  </div>
+                )}
                 <div className="absolute bottom-2.5 right-2.5 rtl:right-auto rtl:left-2.5 bg-[#123B28]/90 text-white text-[11px] font-mono font-semibold px-2.5 py-1 rounded tabular-nums">
                   {project.budget}
                 </div>
@@ -222,16 +229,13 @@ export const ProjectsSection: React.FC = () => {
               </p>
             </div>
 
-            <div className="h-48 sm:h-64 w-full rounded-xl overflow-hidden bg-slate-100">
-              <img
-                src={getAssetUrl(activeProjectModal.imageUrl || CHICHAWATNI_SCENE_PATH)}
-                alt={activeProjectModal.title}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  (e.currentTarget as HTMLImageElement).src = getAssetUrl(CHICHAWATNI_SCENE_PATH);
-                }}
-              />
-            </div>
+            <MediaPreviewBlock
+              imageUrl={activeProjectModal.imageUrl || CHICHAWATNI_SCENE_PATH}
+              videoUrl={activeProjectModal.videoUrl}
+              title={activeProjectModal.title}
+              fallbackImage={CHICHAWATNI_SCENE_PATH}
+              heightClass="h-52 sm:h-72"
+            />
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-[#F7F9F7] p-4 rounded-xl border border-slate-200 text-xs tabular-nums">
               <div>

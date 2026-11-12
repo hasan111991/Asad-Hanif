@@ -17,10 +17,16 @@ import {
   ProjectStatus,
   PublicNotice
 } from '../types';
-import { getAssetUrl, PORTRAIT_IMAGE_PATH, CHICHAWATNI_SCENE_PATH } from '../utils/assetUrl';
+import {
+  getAssetUrl,
+  PORTRAIT_IMAGE_PATH,
+  CHICHAWATNI_SCENE_PATH,
+  ASSEMBLY_IMAGE_PATH
+} from '../utils/assetUrl';
 import { AdminLogin } from './AdminLogin';
 import { QRCardModal } from './QRCardModal';
 import { MonthlyReportModal } from './MonthlyReportModal';
+import { MediaFields } from './MediaFields';
 import {
   LayoutDashboard,
   HardHat,
@@ -198,6 +204,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     startDate: new Date().toISOString().split('T')[0],
     completionDate: '2026-12-31',
     imageUrl: CHICHAWATNI_SCENE_PATH,
+    videoUrl: '',
     fundingType: 'Government-Funded',
     fundingTypeUrdu: 'سرکاری فنڈنگ',
     progressPercent: 15,
@@ -226,6 +233,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     publishDate: new Date().toISOString().split('T')[0],
     description: '',
     descriptionUrdu: '',
+    imageUrl: '',
+    videoUrl: '',
     fileUrl: '',
     fileName: 'PP203-Official-Notice.pdf',
     fileSize: '420 KB',
@@ -254,6 +263,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     content: '',
     contentUrdu: '',
     imageUrl: CHICHAWATNI_SCENE_PATH,
+    videoUrl: '',
     isFeatured: false
   });
 
@@ -268,14 +278,16 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     referenceNo: 'PAP-Q-2026',
     summary: '',
     summaryUrdu: '',
+    imageUrl: '',
+    videoUrl: '',
     status: 'Submitted'
   });
 
   // Gallery state
   const [galleryTitle, setGalleryTitle] = useState('');
   const [galleryTitleUr, setGalleryTitleUr] = useState('');
-  const [galleryType, setGalleryType] = useState<'photo' | 'video'>('photo');
-  const [galleryUrl, setGalleryUrl] = useState(CHICHAWATNI_SCENE_PATH);
+  const [galleryImageUrl, setGalleryImageUrl] = useState(CHICHAWATNI_SCENE_PATH);
+  const [galleryVideoUrl, setGalleryVideoUrl] = useState('');
   const [galleryCategory, setGalleryCategory] = useState('Constituency Visit');
 
   // Settings & Profile form state
@@ -405,6 +417,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       startDate: new Date().toISOString().split('T')[0],
       completionDate: '2026-12-31',
       imageUrl: CHICHAWATNI_SCENE_PATH,
+      videoUrl: '',
       fundingType: 'Government-Funded',
       fundingTypeUrdu: 'سرکاری فنڈنگ',
       progressPercent: 10,
@@ -510,21 +523,29 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
 
   const handleAddGallery = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!galleryTitle.trim() || !galleryUrl.trim()) return;
+    const img = galleryImageUrl.trim();
+    const vid = galleryVideoUrl.trim();
+    if (!galleryTitle.trim() || (!img && !vid)) {
+      notify('error', 'Please enter a title and attach an image or video.');
+      return;
+    }
     try {
       await addGalleryItem({
         title: galleryTitle.trim(),
         titleUrdu: galleryTitleUr.trim() || galleryTitle.trim(),
         category: galleryCategory,
         categoryUrdu: galleryCategory,
-        mediaType: galleryType,
-        mediaUrl: galleryUrl.trim(),
+        mediaType: vid && !img ? 'video' : 'photo',
+        mediaUrl: img || vid,
+        imageUrl: img,
+        videoUrl: vid,
         date: new Date().toISOString().split('T')[0],
         caption: galleryTitle.trim(),
         captionUrdu: galleryTitleUr.trim() || galleryTitle.trim()
       });
       setGalleryTitle('');
       setGalleryTitleUr('');
+      setGalleryVideoUrl('');
       notify('success', 'Media item added to Gallery.');
     } catch {
       notify('error', 'Could not add gallery item.');
@@ -1232,6 +1253,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                           publishDate: new Date().toISOString().split('T')[0],
                           description: '',
                           descriptionUrdu: '',
+                          imageUrl: '',
+                          videoUrl: '',
                           fileUrl: '',
                           fileName: 'PP203-Official-Notice.pdf',
                           fileSize: '420 KB',
@@ -1432,6 +1455,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                             content: '',
                             contentUrdu: '',
                             imageUrl: CHICHAWATNI_SCENE_PATH,
+                            videoUrl: '',
                             isFeatured: false
                           });
                           setNewsFormOpen(true);
@@ -1455,6 +1479,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                             referenceNo: 'PAP-Q-2026',
                             summary: '',
                             summaryUrdu: '',
+                            imageUrl: '',
+                            videoUrl: '',
                             status: 'Submitted'
                           });
                           setAssemblyFormOpen(true);
@@ -1569,7 +1595,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                     <h2 className="font-bold text-sm text-[#123B28]">
                       Add Photo or Video to Public Gallery
                     </h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                       <input
                         type="text"
                         required
@@ -1586,14 +1612,6 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                         dir="rtl"
                         className="px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
                       />
-                      <select
-                        value={galleryType}
-                        onChange={(e) => setGalleryType(e.target.value as 'photo' | 'video')}
-                        className="px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
-                      >
-                        <option value="photo">Photo</option>
-                        <option value="video">Video</option>
-                      </select>
                       <input
                         type="text"
                         placeholder="Category (e.g. Assembly, Visits)"
@@ -1602,15 +1620,17 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                         className="px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
                       />
                     </div>
-                    <div className="flex flex-col sm:flex-row gap-3">
-                      <input
-                        type="text"
-                        required
-                        placeholder="Media Path or URL (e.g. ./assets/images/chichawatni_scene_1794225848060.jpg)"
-                        value={galleryUrl}
-                        onChange={(e) => setGalleryUrl(e.target.value)}
-                        className="flex-1 px-3 py-2.5 text-xs font-mono bg-[#F7F9F7] border border-slate-200 rounded-xl min-h-[42px]"
-                      />
+
+                    <MediaFields
+                      imageUrl={galleryImageUrl}
+                      videoUrl={galleryVideoUrl}
+                      onImageChange={setGalleryImageUrl}
+                      onVideoChange={setGalleryVideoUrl}
+                      imageLabel="Gallery Photo (URL or Upload)"
+                      videoLabel="Gallery Video (YouTube / MP4 URL or Small Clip)"
+                    />
+
+                    <div className="flex justify-end">
                       <button
                         type="submit"
                         className="min-h-[42px] bg-[#087A43] hover:bg-[#123B28] text-white text-xs font-bold px-5 py-2 rounded-xl cursor-pointer"
@@ -1621,44 +1641,65 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                   </form>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {gallery.map((g) => (
-                      <div
-                        key={g.id}
-                        className="bg-white rounded-2xl border border-slate-200 overflow-hidden flex flex-col justify-between"
-                      >
-                        <div className="h-44 bg-slate-100 relative overflow-hidden">
-                          {g.mediaType === 'video' ? (
-                            <video
-                              src={getAssetUrl(g.mediaUrl)}
-                              className="w-full h-full object-cover"
-                              muted
-                            />
-                          ) : (
-                            <img
-                              src={getAssetUrl(g.mediaUrl)}
-                              alt={g.title}
-                              className="w-full h-full object-cover object-top"
-                            />
-                          )}
-                        </div>
-                        <div className="p-4 flex items-center justify-between gap-2 text-xs">
-                          <div className="min-w-0">
-                            <span className="font-bold text-[#087A43] uppercase text-[10px]">
-                              {g.mediaType} · {g.category}
-                            </span>
-                            <h3 className="font-bold text-[#123B28] truncate">{g.title}</h3>
+                    {gallery.map((g) => {
+                      const thumbImg =
+                        g.imageUrl || (g.mediaType === 'photo' ? g.mediaUrl : '');
+                      const hasVid = Boolean(
+                        g.videoUrl || (g.mediaType === 'video' ? g.mediaUrl : '')
+                      );
+                      return (
+                        <div
+                          key={g.id}
+                          className="bg-white rounded-2xl border border-slate-200 overflow-hidden flex flex-col justify-between"
+                        >
+                          <div className="h-44 bg-slate-100 relative overflow-hidden">
+                            {thumbImg ? (
+                              <img
+                                src={getAssetUrl(thumbImg)}
+                                alt={g.title}
+                                className="w-full h-full object-cover object-top"
+                              />
+                            ) : hasVid ? (
+                              <div className="w-full h-full bg-[#123B28] text-white flex items-center justify-center text-xs font-bold">
+                                Video Attached
+                              </div>
+                            ) : (
+                              <img
+                                src={getAssetUrl(CHICHAWATNI_SCENE_PATH)}
+                                alt={g.title}
+                                className="w-full h-full object-cover"
+                              />
+                            )}
+                            {hasVid && (
+                              <span className="absolute top-2.5 right-2.5 bg-[#123B28]/90 text-[#C9A227] text-[10px] font-bold px-2 py-0.5 rounded-md">
+                                Video
+                              </span>
+                            )}
                           </div>
-                          <button
-                            type="button"
-                            onClick={() => deleteGalleryItem(g.id)}
-                            className="p-2 rounded-lg hover:bg-red-50 text-red-600 cursor-pointer shrink-0"
-                            aria-label="Delete gallery item"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                          <div className="p-4 flex items-center justify-between gap-2 text-xs">
+                            <div className="min-w-0">
+                              <span className="font-bold text-[#087A43] uppercase text-[10px]">
+                                {thumbImg && hasVid
+                                  ? 'Photo & Video'
+                                  : hasVid
+                                    ? 'Video'
+                                    : g.mediaType}{' '}
+                                · {g.category}
+                              </span>
+                              <h3 className="font-bold text-[#123B28] truncate">{g.title}</h3>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => deleteGalleryItem(g.id)}
+                              className="p-2 rounded-lg hover:bg-red-50 text-red-600 cursor-pointer shrink-0"
+                              aria-label="Delete gallery item"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -2029,6 +2070,74 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                         />
                       </div>
                     </div>
+
+                    {/* Visual Media for Hero, About & Constituency Sections */}
+                    <div className="pt-4 border-t border-slate-100 space-y-4">
+                      <h3 className="font-bold text-sm text-[#123B28]">
+                        Hero, About & Constituency Section Media (Images & Videos)
+                      </h3>
+
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <MediaFields
+                          imageUrl={profileDraft.photoUrl || ''}
+                          videoUrl={profileDraft.introVideoUrl || ''}
+                          onImageChange={(val) =>
+                            setProfileDraft({
+                              ...profileDraft,
+                              photoUrl: val,
+                              leadPortraitUrl: val
+                            })
+                          }
+                          onVideoChange={(val) =>
+                            setProfileDraft({ ...profileDraft, introVideoUrl: val })
+                          }
+                          imageLabel="Representative Portrait (Hero & About)"
+                          videoLabel="Representative Intro Video (Hero & About)"
+                        />
+
+                        <MediaFields
+                          imageUrl={profileDraft.chichawatniSceneUrl || ''}
+                          videoUrl={profileDraft.constituencyVideoUrl || ''}
+                          onImageChange={(val) =>
+                            setProfileDraft({ ...profileDraft, chichawatniSceneUrl: val })
+                          }
+                          onVideoChange={(val) =>
+                            setProfileDraft({ ...profileDraft, constituencyVideoUrl: val })
+                          }
+                          imageLabel="Constituency Scene Image (PP-203)"
+                          videoLabel="Constituency Overview Video (PP-203)"
+                        />
+                      </div>
+
+                      <div className="text-xs space-y-1">
+                        <label className="font-bold text-slate-700 block">
+                          Punjab Assembly Showcase Image (About Section)
+                        </label>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <input
+                            type="text"
+                            value={profileDraft.assemblyImageUrl || ''}
+                            onChange={(e) =>
+                              setProfileDraft({ ...profileDraft, assemblyImageUrl: e.target.value })
+                            }
+                            placeholder={ASSEMBLY_IMAGE_PATH}
+                            className="flex-1 px-3 py-2.5 bg-[#F7F9F7] border border-slate-200 rounded-xl font-mono text-[11px] min-h-[40px]"
+                          />
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setProfileDraft({
+                                ...profileDraft,
+                                assemblyImageUrl: ASSEMBLY_IMAGE_PATH
+                              })
+                            }
+                            className="min-h-[40px] px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-[#F7F9F7] font-semibold text-[#123B28] cursor-pointer shrink-0"
+                          >
+                            Reset Default
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="flex justify-end">
@@ -2395,6 +2504,15 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
               className="w-full p-3 text-xs bg-[#F7F9F7] border border-slate-200 rounded-xl"
             />
 
+            <MediaFields
+              imageUrl={projectDraft.imageUrl || ''}
+              videoUrl={projectDraft.videoUrl || ''}
+              onImageChange={(val) => setProjectDraft({ ...projectDraft, imageUrl: val })}
+              onVideoChange={(val) => setProjectDraft({ ...projectDraft, videoUrl: val })}
+              imageLabel="Project Photo (URL or Upload)"
+              videoLabel="Project Video (YouTube / MP4 URL or Small Clip)"
+            />
+
             <div className="flex justify-end gap-2 pt-2">
               <button
                 type="button"
@@ -2596,6 +2714,15 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                 }
                 className="w-full p-3 bg-[#F7F9F7] border border-slate-200 rounded-xl"
               />
+
+              <MediaFields
+                imageUrl={noticeDraft.imageUrl || ''}
+                videoUrl={noticeDraft.videoUrl || ''}
+                onImageChange={(val) => setNoticeDraft({ ...noticeDraft, imageUrl: val })}
+                onVideoChange={(val) => setNoticeDraft({ ...noticeDraft, videoUrl: val })}
+                imageLabel="Notice Image / Scan (URL or Upload)"
+                videoLabel="Notice Briefing Video (YouTube / MP4 URL or Clip)"
+              />
             </div>
             <div className="flex justify-end gap-2">
               <button
@@ -2746,6 +2873,16 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
               }
               className="w-full p-3 bg-[#F7F9F7] border border-slate-200 rounded-xl"
             />
+
+            <MediaFields
+              imageUrl={newsDraft.imageUrl || ''}
+              videoUrl={newsDraft.videoUrl || ''}
+              onImageChange={(val) => setNewsDraft({ ...newsDraft, imageUrl: val })}
+              onVideoChange={(val) => setNewsDraft({ ...newsDraft, videoUrl: val })}
+              imageLabel="News Photo (URL or Upload)"
+              videoLabel="News Video Clip (YouTube / MP4 URL or Small Clip)"
+            />
+
             <label className="inline-flex items-center gap-2 font-semibold text-[#123B28] cursor-pointer">
               <input
                 type="checkbox"
@@ -2863,6 +3000,16 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
               }
               className="w-full p-3 bg-[#F7F9F7] border border-slate-200 rounded-xl"
             />
+
+            <MediaFields
+              imageUrl={assemblyDraft.imageUrl || ''}
+              videoUrl={assemblyDraft.videoUrl || ''}
+              onImageChange={(val) => setAssemblyDraft({ ...assemblyDraft, imageUrl: val })}
+              onVideoChange={(val) => setAssemblyDraft({ ...assemblyDraft, videoUrl: val })}
+              imageLabel="Session / Document Image (URL or Upload)"
+              videoLabel="Assembly Speech Video (YouTube / MP4 URL or Clip)"
+            />
+
             <div className="flex justify-end gap-2">
               <button
                 type="button"

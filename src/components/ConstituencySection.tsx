@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
-import { getAssetUrl, CHICHAWATNI_SCENE_PATH } from '../utils/assetUrl';
+import { CHICHAWATNI_SCENE_PATH } from '../utils/assetUrl';
+import { MediaPreviewBlock } from './MediaPreviewBlock';
 import {
   Building2,
   Tractor,
@@ -16,7 +17,7 @@ export const ConstituencySection: React.FC<{
   onNavigate?: (tab: string) => void;
 }> = ({ onOpenMap, onNavigate }) => {
   const { language } = useLanguage();
-  const { unionCouncils, education, healthcare } = useData();
+  const { profile, unionCouncils, education, healthcare } = useData();
 
   const [activeSubTab, setActiveSubTab] = useState<
     'profile' | 'ucs' | 'education' | 'healthcare' | 'agriculture'
@@ -137,21 +138,17 @@ export const ConstituencySection: React.FC<{
             </div>
           </div>
 
-          <div className="lg:col-span-5">
-            <div className="rounded-xl overflow-hidden border border-slate-200 shadow-xs relative h-56 sm:h-72 w-full">
-              <img
-                src={getAssetUrl(CHICHAWATNI_SCENE_PATH)}
-                alt="Chichawatni Landscape and Civic Infrastructure"
-                className="w-full h-full object-cover"
-                loading="lazy"
-                onError={(e) => {
-                  (e.currentTarget as HTMLImageElement).src = getAssetUrl(CHICHAWATNI_SCENE_PATH);
-                }}
-              />
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#123B28]/90 via-[#123B28]/40 to-transparent p-4 text-white">
-                <p className="text-xs font-bold">Chichawatni Civic & Rural Belt</p>
-                <p className="text-[11px] text-emerald-100">District Sahiwal, Punjab</p>
-              </div>
+          <div className="lg:col-span-5 space-y-2">
+            <MediaPreviewBlock
+              imageUrl={profile.chichawatniSceneUrl || CHICHAWATNI_SCENE_PATH}
+              videoUrl={profile.constituencyVideoUrl}
+              title="Chichawatni Civic & Rural Belt"
+              fallbackImage={CHICHAWATNI_SCENE_PATH}
+              heightClass="h-56 sm:h-72"
+            />
+            <div className="flex items-center justify-between text-xs px-1">
+              <span className="font-bold text-[#123B28]">Chichawatni Civic & Rural Belt</span>
+              <span className="text-[11px] text-slate-500">District Sahiwal, Punjab</span>
             </div>
           </div>
         </div>

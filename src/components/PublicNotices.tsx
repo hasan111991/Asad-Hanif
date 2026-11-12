@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
 import { NoticeCategory, PublicNotice } from '../types';
-import { Bell, Download, Search, Calendar, FileText, X, ShieldCheck } from 'lucide-react';
+import { getAssetUrl, CHICHAWATNI_SCENE_PATH } from '../utils/assetUrl';
+import { MediaPreviewBlock } from './MediaPreviewBlock';
+import { Bell, Download, Search, Calendar, FileText, PlayCircle, X, ShieldCheck } from 'lucide-react';
 
 export const PublicNotices: React.FC = () => {
   const { language, t } = useLanguage();
@@ -124,6 +126,20 @@ export const PublicNotices: React.FC = () => {
               key={notice.id}
               className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-xs hover:border-[#087A43]/50 transition flex flex-col md:flex-row md:items-center justify-between gap-4"
             >
+              {notice.imageUrl && notice.imageUrl.trim() && (
+                <div className="w-full md:w-28 h-32 md:h-24 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
+                  <img
+                    src={getAssetUrl(notice.imageUrl)}
+                    alt={notice.title}
+                    loading="lazy"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).src = getAssetUrl(CHICHAWATNI_SCENE_PATH);
+                    }}
+                  />
+                </div>
+              )}
+
               <div className="space-y-2 flex-1">
                 <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
                   <span className="font-mono font-bold text-[#087A43]">
@@ -138,6 +154,15 @@ export const PublicNotices: React.FC = () => {
                     <Calendar className="w-3.5 h-3.5" />
                     {notice.publishDate}
                   </span>
+                  {notice.videoUrl && notice.videoUrl.trim() && (
+                    <>
+                      <span>·</span>
+                      <span className="inline-flex items-center gap-1 font-bold text-[#123B28]">
+                        <PlayCircle className="w-3.5 h-3.5 text-[#C9A227]" />
+                        <span>{language === 'ur' ? 'ویڈیو' : 'Video'}</span>
+                      </span>
+                    </>
+                  )}
                 </div>
 
                 <h3 className="text-base sm:text-lg font-bold text-[#123B28] leading-snug">
@@ -196,6 +221,14 @@ export const PublicNotices: React.FC = () => {
                 {selectedNotice.category} · Published {selectedNotice.publishDate}
               </p>
             </div>
+
+            <MediaPreviewBlock
+              imageUrl={selectedNotice.imageUrl}
+              videoUrl={selectedNotice.videoUrl}
+              title={selectedNotice.title}
+              fallbackImage={CHICHAWATNI_SCENE_PATH}
+              heightClass="h-52 sm:h-72"
+            />
 
             <div className="bg-[#F7F9F7] p-5 rounded-xl border border-slate-200 text-sm text-slate-800 leading-relaxed space-y-3">
               <p>{language === 'ur' ? selectedNotice.descriptionUrdu : selectedNotice.description}</p>

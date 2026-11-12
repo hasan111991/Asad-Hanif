@@ -3,7 +3,8 @@ import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
 import { NewsItem, NewsCategory } from '../types';
 import { getAssetUrl, CHICHAWATNI_SCENE_PATH } from '../utils/assetUrl';
-import { Newspaper, Calendar, ArrowRight, X } from 'lucide-react';
+import { MediaPreviewBlock } from './MediaPreviewBlock';
+import { Newspaper, Calendar, ArrowRight, PlayCircle, X } from 'lucide-react';
 
 export const NewsSection: React.FC = () => {
   const { language } = useLanguage();
@@ -78,9 +79,21 @@ export const NewsSection: React.FC = () => {
           </div>
           <div className="lg:col-span-7 p-6 sm:p-8 flex flex-col justify-between space-y-4">
             <div className="space-y-2.5">
-              <div className="text-xs font-bold text-[#087A43]">
-                {language === 'ur' ? 'نمایاں خبر' : 'Featured Release'} · {featured.category} ·{' '}
+              <div className="text-xs font-bold text-[#087A43] flex flex-wrap items-center gap-1.5">
+                <span>{language === 'ur' ? 'نمایاں خبر' : 'Featured Release'}</span>
+                <span>·</span>
+                <span>{featured.category}</span>
+                <span>·</span>
                 <span className="font-mono text-slate-500 tabular-nums">{featured.date}</span>
+                {featured.videoUrl && featured.videoUrl.trim() && (
+                  <>
+                    <span>·</span>
+                    <span className="inline-flex items-center gap-1 text-[#123B28]">
+                      <PlayCircle className="w-3.5 h-3.5 text-[#C9A227]" />
+                      <span>{language === 'ur' ? 'ویڈیو' : 'Video'}</span>
+                    </span>
+                  </>
+                )}
               </div>
               <h3 className="font-editorial text-xl sm:text-2xl font-bold text-[#123B28] leading-snug">
                 {language === 'ur' ? featured.titleUrdu : featured.title}
@@ -107,7 +120,7 @@ export const NewsSection: React.FC = () => {
               className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-md transition flex flex-col justify-between cursor-pointer group"
             >
               <div>
-                <div className="h-44 sm:h-48 w-full bg-slate-100 overflow-hidden">
+                <div className="h-44 sm:h-48 w-full bg-slate-100 overflow-hidden relative">
                   <img
                     src={getAssetUrl(item.imageUrl || CHICHAWATNI_SCENE_PATH)}
                     alt={item.title}
@@ -117,6 +130,12 @@ export const NewsSection: React.FC = () => {
                       (e.currentTarget as HTMLImageElement).src = getAssetUrl(CHICHAWATNI_SCENE_PATH);
                     }}
                   />
+                  {item.videoUrl && item.videoUrl.trim() && (
+                    <span className="absolute top-3 right-3 rtl:right-auto rtl:left-3 bg-[#123B28]/90 text-[#C9A227] text-[10px] font-bold px-2.5 py-1 rounded-md inline-flex items-center gap-1 shadow-xs">
+                      <PlayCircle className="w-3 h-3" />
+                      <span>{language === 'ur' ? 'ویڈیو' : 'Video'}</span>
+                    </span>
+                  )}
                 </div>
                 <div className="p-5 space-y-2">
                   <div className="text-xs text-slate-500 font-medium flex items-center justify-between gap-2">
@@ -167,16 +186,14 @@ export const NewsSection: React.FC = () => {
               </h3>
             </div>
 
-            <div className="h-52 sm:h-64 w-full rounded-xl overflow-hidden bg-slate-100">
-              <img
-                src={getAssetUrl(selectedArticle.imageUrl || CHICHAWATNI_SCENE_PATH)}
-                alt={selectedArticle.title}
-                className="w-full h-full object-cover object-top"
-                onError={(e) => {
-                  (e.currentTarget as HTMLImageElement).src = getAssetUrl(CHICHAWATNI_SCENE_PATH);
-                }}
-              />
-            </div>
+            <MediaPreviewBlock
+              imageUrl={selectedArticle.imageUrl || CHICHAWATNI_SCENE_PATH}
+              videoUrl={selectedArticle.videoUrl}
+              title={selectedArticle.title}
+              fallbackImage={CHICHAWATNI_SCENE_PATH}
+              heightClass="h-52 sm:h-72"
+              objectPositionClass="object-cover object-top"
+            />
 
             <div className="text-xs sm:text-sm text-slate-700 leading-relaxed space-y-3">
               <p className="font-semibold text-[#123B28] bg-[#F7F9F7] p-4 rounded-xl border border-slate-200">

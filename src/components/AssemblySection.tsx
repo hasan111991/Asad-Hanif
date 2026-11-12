@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
 import { AssemblyActivity, AssemblyActivityCategory } from '../types';
-import { Landmark, Calendar, FileText, X } from 'lucide-react';
+import { getAssetUrl, ASSEMBLY_IMAGE_PATH } from '../utils/assetUrl';
+import { MediaPreviewBlock } from './MediaPreviewBlock';
+import { Landmark, Calendar, FileText, PlayCircle, X } from 'lucide-react';
 
 export const AssemblySection: React.FC = () => {
   const { language } = useLanguage();
@@ -85,6 +87,19 @@ export const AssemblySection: React.FC = () => {
               className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-xs hover:border-[#087A43] transition cursor-pointer flex flex-col justify-between space-y-4"
             >
               <div className="space-y-2.5">
+                {item.imageUrl && item.imageUrl.trim() && (
+                  <div className="h-40 w-full rounded-xl overflow-hidden bg-slate-100 relative">
+                    <img
+                      src={getAssetUrl(item.imageUrl)}
+                      alt={item.title}
+                      loading="lazy"
+                      className="w-full h-full object-cover object-top"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src = getAssetUrl(ASSEMBLY_IMAGE_PATH);
+                      }}
+                    />
+                  </div>
+                )}
                 <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
                   <span className="font-bold text-[#087A43]">
                     {language === 'ur' ? item.categoryUrdu : item.category}
@@ -104,13 +119,21 @@ export const AssemblySection: React.FC = () => {
                 </p>
               </div>
 
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2 text-xs">
                 <span className="font-mono text-slate-500">
                   {item.referenceNo || 'PAP-PP203'}
                 </span>
-                <span className="font-bold text-[#087A43]">
-                  {item.status || (language === 'ur' ? 'ریکارڈ شدہ' : 'Recorded')}
-                </span>
+                <div className="flex items-center gap-3">
+                  {item.videoUrl && item.videoUrl.trim() && (
+                    <span className="inline-flex items-center gap-1 font-bold text-[#123B28]">
+                      <PlayCircle className="w-3.5 h-3.5 text-[#C9A227]" />
+                      <span>{language === 'ur' ? 'ویڈیو' : 'Video'}</span>
+                    </span>
+                  )}
+                  <span className="font-bold text-[#087A43]">
+                    {item.status || (language === 'ur' ? 'ریکارڈ شدہ' : 'Recorded')}
+                  </span>
+                </div>
               </div>
             </article>
           ))}
@@ -145,6 +168,14 @@ export const AssemblySection: React.FC = () => {
                 </p>
               )}
             </div>
+
+            <MediaPreviewBlock
+              imageUrl={activeRecord.imageUrl}
+              videoUrl={activeRecord.videoUrl}
+              title={activeRecord.title}
+              fallbackImage={ASSEMBLY_IMAGE_PATH}
+              heightClass="h-52 sm:h-72"
+            />
 
             <div className="bg-[#F7F9F7] p-4 rounded-xl border border-slate-200 text-xs sm:text-sm text-slate-700 leading-relaxed">
               {language === 'ur' ? activeRecord.summaryUrdu : activeRecord.summary}

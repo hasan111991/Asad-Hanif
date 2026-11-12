@@ -51,6 +51,8 @@ export interface LeaderProfile {
   leadPortraitUrl: string;
   assemblyImageUrl: string;
   chichawatniSceneUrl: string;
+  introVideoUrl?: string;
+  constituencyVideoUrl?: string;
 }
 
 export interface UnionCouncil {
@@ -167,6 +169,7 @@ export interface Project {
   startDate: string;
   completionDate: string;
   imageUrl: string;
+  videoUrl?: string;
   fundingType: FundingType;
   fundingTypeUrdu: string;
   progressPercent: number;
@@ -191,6 +194,8 @@ export interface AssemblyActivity {
   referenceNo?: string;
   summary: string;
   summaryUrdu: string;
+  imageUrl?: string;
+  videoUrl?: string;
   status?: string;
 }
 
@@ -262,6 +267,8 @@ export interface PublicNotice {
   publishDate: string;
   description: string;
   descriptionUrdu: string;
+  imageUrl?: string;
+  videoUrl?: string;
   fileUrl: string;
   fileName: string;
   fileSize: string;
@@ -290,6 +297,7 @@ export interface NewsItem {
   content: string;
   contentUrdu: string;
   imageUrl: string;
+  videoUrl?: string;
   isFeatured?: boolean;
 }
 
@@ -301,6 +309,8 @@ export interface GalleryMedia {
   categoryUrdu: string;
   mediaType: 'photo' | 'video';
   mediaUrl: string;
+  imageUrl?: string;
+  videoUrl?: string;
   date: string;
   caption: string;
   captionUrdu: string;

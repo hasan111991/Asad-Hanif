@@ -2,6 +2,7 @@ import React from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
 import { getAssetUrl, PORTRAIT_IMAGE_PATH, ASSEMBLY_IMAGE_PATH } from '../utils/assetUrl';
+import { MediaPreviewBlock } from './MediaPreviewBlock';
 import {
   BookOpen,
   Building,
@@ -169,15 +170,13 @@ export const AboutSection: React.FC<{ onNavigate?: (tab: string) => void }> = ({
           </div>
 
           <div className="lg:col-span-5">
-            <div className="rounded-xl overflow-hidden border border-[#C9A227]/40 shadow-md h-52 sm:h-64 bg-slate-900 w-full">
-              <img
-                src={getAssetUrl(profile.assemblyImageUrl || ASSEMBLY_IMAGE_PATH)}
-                alt="Provincial Assembly of the Punjab"
-                className="w-full h-full object-cover"
-                loading="lazy"
-                onError={(e) => {
-                  (e.currentTarget as HTMLImageElement).src = getAssetUrl(ASSEMBLY_IMAGE_PATH);
-                }}
+            <div className="rounded-xl border border-[#C9A227]/40 bg-white/10 p-2 shadow-md w-full">
+              <MediaPreviewBlock
+                imageUrl={profile.assemblyImageUrl || ASSEMBLY_IMAGE_PATH}
+                videoUrl={profile.introVideoUrl}
+                title={profile.fullName}
+                fallbackImage={ASSEMBLY_IMAGE_PATH}
+                heightClass="h-52 sm:h-64"
               />
             </div>
           </div>
