@@ -13,19 +13,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Noto+Nastaliq+Urdu:wght@400..700&display=swap">
     <script>
-      // Automatic GitHub Pages handler:
-      // If deployed on GitHub Pages from repository root (where /src/main.tsx is uncompiled),
-      // seamlessly forward to /docs/ where the pre-compiled production build is hosted.
+      // If a user navigates to a URL containing /docs/ on GitHub Pages, strip it so it loads the repository root
       (function() {
         var l = window.location;
-        if (l.hostname.endsWith('github.io')) {
-          var p = l.pathname;
-          if (!p.includes('/docs')) {
-            var clean = p.replace(/\/+$/, '');
-            var parts = clean.split('/').filter(Boolean);
-            var repo = parts.length > 0 ? '/' + parts[0] : '';
-            window.location.replace(l.origin + repo + '/docs/' + l.search + l.hash);
-          }
+        if (l.pathname.includes('/docs')) {
+          var clean = l.pathname.replace(/\/docs(\/.*)?$/, '/');
+          window.location.replace(l.origin + clean + l.search + l.hash);
         }
       })();
     </script>
@@ -35,4 +28,3 @@
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-
