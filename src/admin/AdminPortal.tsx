@@ -27,16 +27,6 @@ import { AdminLogin } from './AdminLogin';
 import { QRCardModal } from './QRCardModal';
 import { MonthlyReportModal } from './MonthlyReportModal';
 import { MediaFields } from './MediaFields';
-import { CityOverviewDashboard } from './city/CityOverviewDashboard';
-import { CityMasterPlanView } from './city/CityMasterPlanView';
-import { CityGisMapView } from './city/CityGisMapView';
-import { CityInfrastructureModule } from './city/CityInfrastructureModule';
-import { CityUtilitiesOperationsModule } from './city/CityUtilitiesOperationsModule';
-import { CityFacilitiesDirectoryModule } from './city/CityFacilitiesDirectoryModule';
-import { CityFinanceDepartmentModule } from './city/CityFinanceDepartmentModule';
-import { CityComplaintsSurveysModule } from './city/CityComplaintsSurveysModule';
-import { CityReportsAndAIModule } from './city/CityReportsAndAIModule';
-import { CitizenNetworkAdminModule } from './city/CitizenNetworkAdminModule';
 import {
   LayoutDashboard,
   HardHat,
@@ -64,23 +54,7 @@ import {
   CheckCircle2,
   AlertCircle,
   Send,
-  Search,
-  Building2,
-  Compass,
-  Route,
-  Droplets,
-  Car,
-  Trees,
-  Stethoscope,
-  Store,
-  Lightbulb,
-  MapPin,
-  Wallet,
-  ClipboardCheck,
-  Sparkles,
-  Layers,
-  ChevronDown,
-  ChevronRight
+  Search
 } from 'lucide-react';
 
 interface AdminPortalProps {
@@ -140,13 +114,8 @@ const ASSEMBLY_CATEGORIES: AssemblyActivityCategory[] = [
 
 const ADMIN_ROLES: AdminRole[] = [
   'Super Admin',
-  'Admin',
   'Office Manager',
   'Project Manager',
-  'City Manager',
-  'Department Manager',
-  'Field Officer',
-  'Finance Officer',
   'Media Manager',
   'Data Entry Operator'
 ];
@@ -207,7 +176,6 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   } = useData();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [cityMenuOpen, setCityMenuOpen] = useState(true);
   const [showQrModal, setShowQrModal] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const [feedbackBanner, setFeedbackBanner] = useState<{
@@ -383,39 +351,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     { id: 'audit', label: 'Audit Logs', icon: ShieldAlert }
   ];
 
-  const cityNavItems: {
-    id: AdminModuleId;
-    label: string;
-    icon: React.ComponentType<{ className?: string }>;
-  }[] = [
-    { id: 'city-overview', label: '1. City Overview Dashboard', icon: LayoutDashboard },
-    { id: 'city-master-plan', label: '2. Master Plan 2027–2030', icon: Compass },
-    { id: 'city-gis', label: '3. City GIS Map', icon: MapPin },
-    { id: 'city-areas', label: '4. Municipal Areas & Localities', icon: Layers },
-    { id: 'city-roads', label: '5. Roads & Infrastructure', icon: Route },
-    { id: 'city-water-sewerage', label: '6. Water & Sewerage', icon: Droplets },
-    { id: 'city-sanitation', label: '7. Sanitation & Waste', icon: Trash2 },
-    { id: 'city-traffic', label: '8. Traffic & Transport', icon: Car },
-    { id: 'city-parks', label: '9. Parks & Public Spaces', icon: Trees },
-    { id: 'city-health-edu', label: '10. Health & Education', icon: Stethoscope },
-    { id: 'city-markets', label: '11. Business & Markets', icon: Store },
-    { id: 'city-streetlights', label: '12. Streetlights & Safety', icon: Lightbulb },
-    { id: 'city-town-planning', label: '13. Town Planning & Growth', icon: Building2 },
-    { id: 'city-projects', label: '14. Development Projects (100+)', icon: HardHat },
-    { id: 'city-budget', label: '15. Municipal Budget & Finance', icon: Wallet },
-    { id: 'city-complaints', label: '16. City Citizen Complaints', icon: MessageSquare },
-    { id: 'city-departments', label: '17. Department Management', icon: Users },
-    { id: 'city-surveys', label: '18. Field Surveys & Inspections', icon: ClipboardCheck },
-    { id: 'city-reports', label: '19. City Performance Reports', icon: FileSpreadsheet },
-    { id: 'city-ai', label: '20. AI City Planning Assistant', icon: Sparkles },
-    { id: 'city-citizens', label: '21. Citizen Network Management', icon: Users }
-  ];
-
   const isRouteAllowed = canAccessModule(activeSubRoute);
-  const currentNavMeta =
-    navItems.find((n) => n.id === activeSubRoute) ||
-    cityNavItems.find((n) => n.id === activeSubRoute) ||
-    navItems[0];
+  const currentNavMeta = navItems.find((n) => n.id === activeSubRoute) || navItems[0];
 
   const resolvedComplaints = complaints.filter(
     (c) => c.status === 'Resolved' || c.status === 'Closed'
@@ -691,9 +628,6 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
 
       {/* Navigation Links */}
       <nav className="flex-1 overflow-y-auto p-3 space-y-1">
-        <div className="px-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-emerald-200/60">
-          PP-203 Secretariat CMS
-        </div>
         {navItems.map((item) => {
           const Icon = item.icon;
           const allowed = canAccessModule(item.id);
@@ -706,7 +640,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                 onNavigateRoute(item.id);
                 setSidebarOpen(false);
               }}
-              className={`w-full min-h-[40px] px-3 py-2 rounded-xl text-xs font-semibold flex items-center justify-between transition cursor-pointer ${
+              className={`w-full min-h-[42px] px-3 py-2 rounded-xl text-xs font-semibold flex items-center justify-between transition cursor-pointer ${
                 active
                   ? 'bg-[#087A43] text-white shadow-xs border border-[#C9A227]/40'
                   : allowed
@@ -722,62 +656,6 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
             </button>
           );
         })}
-
-        {/* Chichawatni City Management (2027-2030) */}
-        <div className="pt-3 mt-3 border-t border-white/10">
-          <button
-            type="button"
-            onClick={() => setCityMenuOpen((prev) => !prev)}
-            className="w-full px-2 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider text-[#C9A227] hover:bg-white/5 flex items-center justify-between cursor-pointer"
-          >
-            <span className="flex items-center gap-1.5 truncate">
-              <Building2 className="w-3.5 h-3.5 shrink-0" />
-              <span className="truncate">Chichawatni City Management</span>
-            </span>
-            {cityMenuOpen ? (
-              <ChevronDown className="w-3.5 h-3.5 shrink-0" />
-            ) : (
-              <ChevronRight className="w-3.5 h-3.5 shrink-0" />
-            )}
-          </button>
-
-          {cityMenuOpen && (
-            <div className="mt-1 space-y-0.5">
-              {cityNavItems.map((item) => {
-                const Icon = item.icon;
-                const allowed = canAccessModule(item.id);
-                const active = activeSubRoute === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => {
-                      onNavigateRoute(item.id);
-                      setSidebarOpen(false);
-                    }}
-                    className={`w-full min-h-[38px] px-2.5 py-1.5 rounded-xl text-[11px] font-semibold flex items-center justify-between transition cursor-pointer ${
-                      active
-                        ? 'bg-[#C9A227] text-[#123B28] shadow-xs font-bold'
-                        : allowed
-                          ? 'text-emerald-100/85 hover:bg-white/10 hover:text-white'
-                          : 'text-emerald-200/40 hover:bg-white/5'
-                    }`}
-                  >
-                    <span className="flex items-center gap-2 truncate">
-                      <Icon
-                        className={`w-3.5 h-3.5 shrink-0 ${
-                          active ? 'text-[#123B28]' : 'text-[#C9A227]'
-                        }`}
-                      />
-                      <span className="truncate">{item.label}</span>
-                    </span>
-                    {!allowed && <Lock className="w-3 h-3 shrink-0 opacity-70" />}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
       </nav>
 
       {/* Bottom Actions */}
@@ -2447,63 +2325,6 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                   </div>
                 </div>
               )}
-
-              {/* CHICHAWATNI CITY MANAGEMENT (2027-2030) SUBMODULES */}
-              {activeSubRoute === 'city-overview' && (
-                <CityOverviewDashboard onNavigateModule={onNavigateRoute} />
-              )}
-              {activeSubRoute === 'city-master-plan' && (
-                <CityMasterPlanView mode="master-plan" />
-              )}
-              {activeSubRoute === 'city-projects' && <CityMasterPlanView mode="projects" />}
-              {activeSubRoute === 'city-gis' && <CityGisMapView />}
-              {activeSubRoute === 'city-areas' && (
-                <CityInfrastructureModule section="areas" />
-              )}
-              {activeSubRoute === 'city-roads' && (
-                <CityInfrastructureModule section="roads" />
-              )}
-              {activeSubRoute === 'city-streetlights' && (
-                <CityInfrastructureModule section="streetlights" />
-              )}
-              {activeSubRoute === 'city-town-planning' && (
-                <CityInfrastructureModule section="town-planning" />
-              )}
-              {activeSubRoute === 'city-water-sewerage' && (
-                <CityUtilitiesOperationsModule section="water-sewerage" />
-              )}
-              {activeSubRoute === 'city-sanitation' && (
-                <CityUtilitiesOperationsModule section="sanitation" />
-              )}
-              {activeSubRoute === 'city-traffic' && (
-                <CityUtilitiesOperationsModule section="traffic" />
-              )}
-              {activeSubRoute === 'city-parks' && (
-                <CityFacilitiesDirectoryModule section="parks" />
-              )}
-              {activeSubRoute === 'city-health-edu' && (
-                <CityFacilitiesDirectoryModule section="health-edu" />
-              )}
-              {activeSubRoute === 'city-markets' && (
-                <CityFacilitiesDirectoryModule section="markets" />
-              )}
-              {activeSubRoute === 'city-budget' && (
-                <CityFinanceDepartmentModule section="budget" />
-              )}
-              {activeSubRoute === 'city-departments' && (
-                <CityFinanceDepartmentModule section="departments" />
-              )}
-              {activeSubRoute === 'city-complaints' && (
-                <CityComplaintsSurveysModule section="complaints" />
-              )}
-              {activeSubRoute === 'city-surveys' && (
-                <CityComplaintsSurveysModule section="surveys" />
-              )}
-              {activeSubRoute === 'city-reports' && (
-                <CityReportsAndAIModule section="reports" />
-              )}
-              {activeSubRoute === 'city-ai' && <CityReportsAndAIModule section="ai" />}
-              {activeSubRoute === 'city-citizens' && <CitizenNetworkAdminModule />}
             </>
           )}
         </main>

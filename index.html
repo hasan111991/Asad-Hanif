@@ -68,7 +68,7 @@
       }
     </script>
 
-    <!-- Single Page App Query-String Decoder for GitHub Pages (preserves ./ asset resolution) -->
+    <!-- Single Page App Query-String Decoder for GitHub Pages -->
     <script>
       (function (l) {
         if (l.search && l.search[1] === '/') {
@@ -79,10 +79,7 @@
               return s.replace(/~and~/g, '&');
             })
             .join('?');
-          var cleanPath = l.pathname.replace(/\/index\.html$/i, '');
-          var rootPath = cleanPath.endsWith('/') ? cleanPath : cleanPath + '/';
-          var hashTarget = decoded.startsWith('/') ? '#' + decoded : '#/' + decoded;
-          window.history.replaceState(null, '', rootPath + hashTarget);
+          window.history.replaceState(null, '', l.pathname.slice(0, -1) + decoded + l.hash);
         }
       })(window.location);
     </script>

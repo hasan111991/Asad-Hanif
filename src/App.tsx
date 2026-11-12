@@ -2,8 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { DataProvider, useData } from './context/DataContext';
 import { AuthProvider, AdminModuleId } from './context/AuthContext';
-import { CityDataProvider } from './context/CityDataContext';
-import { CitizenNetworkProvider } from './context/CitizenNetworkContext';
 import { PolicyModalType } from './types';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
@@ -17,8 +15,6 @@ import { PublicNotices } from './components/PublicNotices';
 import { NewsSection } from './components/NewsSection';
 import { GallerySection } from './components/GallerySection';
 import { ContactSection } from './components/ContactSection';
-import { CityPublicPortal } from './components/CityPublicPortal';
-import { CommunityNetworkPortal } from './components/CommunityNetworkPortal';
 import { Footer } from './components/Footer';
 import { PolicyModals } from './components/PolicyModals';
 import { WhatsAppWidget } from './components/WhatsAppWidget';
@@ -45,36 +41,13 @@ const VALID_ADMIN_ROUTES: AdminModuleId[] = [
   'analytics',
   'settings',
   'staff',
-  'audit',
-  'city-overview',
-  'city-master-plan',
-  'city-gis',
-  'city-areas',
-  'city-roads',
-  'city-water-sewerage',
-  'city-sanitation',
-  'city-traffic',
-  'city-parks',
-  'city-health-edu',
-  'city-markets',
-  'city-streetlights',
-  'city-town-planning',
-  'city-projects',
-  'city-budget',
-  'city-complaints',
-  'city-departments',
-  'city-surveys',
-  'city-reports',
-  'city-ai',
-  'city-citizens'
+  'audit'
 ];
 
 const PUBLIC_TABS = [
   'home',
   'about',
   'constituency',
-  'city',
-  'community',
   'projects',
   'map',
   'assembly',
@@ -126,11 +99,9 @@ function getRepoBasePrefix(): string {
   const path = window.location.pathname.replace(/\/index\.html$/i, '');
   const adminIndex = path.indexOf('/admin');
   if (adminIndex !== -1) {
-    const stripped = path.slice(0, adminIndex);
-    return stripped ? (stripped.endsWith('/') ? stripped : `${stripped}/`) : '/';
+    return path.slice(0, adminIndex) || '';
   }
-  if (!path || path === '/') return '/';
-  return path.endsWith('/') ? path : `${path}/`;
+  return path.endsWith('/') ? path.slice(0, -1) : path;
 }
 
 function MainAppContent() {
@@ -182,20 +153,12 @@ function MainAppContent() {
     document.head.appendChild(inline);
   }, [settings.ga4MeasurementId]);
 
-  // Normalize any /admin pathname visits into safe hash routing so GitHub Pages assets stay anchored
-  useEffect(() => {
-    if (window.location.pathname.includes('/admin')) {
-      const base = getRepoBasePrefix();
-      window.history.replaceState(null, '', `${base}#/admin/${initialRoute.adminSubRoute}`);
-    }
-  }, [initialRoute.adminSubRoute]);
-
   const navigatePublic = useCallback((tab: string, mode: 'submit' | 'track' = 'submit') => {
     setComplaintInitialMode(mode);
     setActiveTab(tab);
     setIsAdminView(false);
     const targetHash = tab === 'home' ? '' : `#${tab}`;
-    const base = getRepoBasePrefix();
+    const base = getRepoBasePrefix() || '/';
     window.history.pushState({}, '', `${base}${targetHash}`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
@@ -204,7 +167,7 @@ function MainAppContent() {
     setIsAdminView(true);
     setAdminSubRoute(route);
     const base = getRepoBasePrefix();
-    window.history.pushState({}, '', `${base}#/admin/${route}`);
+    window.history.pushState({}, '', `${base}/admin/${route}`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
@@ -261,15 +224,7 @@ function MainAppContent() {
                   </p>
                 </div>
 
-                <div className="flex flex-col xs:flex-row flex-wrap items-stretch xs:items-center justify-center gap-2.5 shrink-0 w-full md:w-auto">
-                  <button
-                    onClick={() => navigatePublic('community')}
-                    className="min-h-[48px] bg-white text-[#123B28] hover:bg-emerald-50 font-bold px-5 py-3 rounded-xl text-xs sm:text-sm transition shadow-sm inline-flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <span>
-                      {language === 'ur' ? 'کمیونٹی نیٹ ورک رجسٹریشن' : 'Register Now · Community Network'}
-                    </span>
-                  </button>
+                <div className="flex flex-col xs:flex-row items-stretch xs:items-center justify-center gap-2.5 shrink-0 w-full md:w-auto">
                   <button
                     onClick={() => navigatePublic('complaints', 'submit')}
                     className="min-h-[48px] bg-[#C9A227] hover:bg-[#b5901d] text-[#123B28] font-bold px-5 py-3 rounded-xl text-xs sm:text-sm transition shadow-sm inline-flex items-center justify-center gap-2 cursor-pointer"
@@ -345,10 +300,6 @@ function MainAppContent() {
             onOpenMap={() => navigatePublic('map')}
             onNavigate={(tab) => navigatePublic(tab)}
           />
-        )}
-        {activeTab === 'city' && <CityPublicPortal />}
-        {activeTab === 'community' && (
-          <CommunityNetworkPortal onNavigatePublic={(tab) => navigatePublic(tab)} />
         )}
         {activeTab === 'projects' && <ProjectsSection />}
         {activeTab === 'map' && (
@@ -427,11 +378,7 @@ export default function App() {
     <LanguageProvider>
       <AuthProvider>
         <DataProvider>
-          <CityDataProvider>
-            <CitizenNetworkProvider>
-              <MainAppContent />
-            </CitizenNetworkProvider>
-          </CityDataProvider>
+          <MainAppContent />
         </DataProvider>
       </AuthProvider>
     </LanguageProvider>
